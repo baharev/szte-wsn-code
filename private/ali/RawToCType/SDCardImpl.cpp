@@ -32,8 +32,6 @@
 */
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <iomanip>
 #include <stdexcept>
 #include "SDCardImpl.hpp"
@@ -42,6 +40,7 @@
 #include "BlockRelatedConsts.hpp"
 #include "BlockChecker.hpp"
 #include "Constants.hpp"
+#include "DataWriter.hpp"
 #include "Tracker.hpp"
 #include "Utility.hpp"
 
@@ -50,10 +49,8 @@ using namespace std;
 namespace sdc {
 
 SDCardImpl::SDCardImpl(BlockDevice* source)
-	: device(source), out(new ofstream()), tracker(0), check(0)
+	: device(source), out(new DataWriter), tracker(0), check(0)
 {
-	out->exceptions(ofstream::failbit | ofstream::badbit);
-
 	time_start = 0;
 
 	block_offset = 0;
@@ -155,19 +152,6 @@ void SDCardImpl::close_out_if_open() {
 	}
 }
 
-void SDCardImpl::create_new_file() {
-
-	ostringstream os;
-
-	os << 'm' << setfill('0') << setw(3) << tracker->mote_id() << '_';
-	os << 'r' << setfill('0') << setw(3) << reboot_seq_num << '_';
-	os << 's' << block_offset << ".csv" << flush;
-
-	out->open(os.str().c_str());
-
-	tracker->mark_beginning(block_offset, reboot_seq_num);
-}
-
 void SDCardImpl::print_record_start_banner() const {
 
 	cout << "Reboot " << reboot_seq_num << " at block " << block_offset << endl;
@@ -189,7 +173,9 @@ bool SDCardImpl::reboot(const int sample_in_block) {
 
 		print_record_start_banner();
 
-		create_new_file();
+		out->start_new_record(tracker->mote_id(), reboot_seq_num, block_offset);
+
+		tracker->mark_beginning(block_offset, reboot_seq_num);
 
 		return true;
 	}
@@ -221,11 +207,10 @@ void SDCardImpl::write_samples(BlockIterator& itr) {
 
 		s.shift_timestamp(time_start);
 
-		*out << s;
-
+		out->write(s);
 	}
 
-	*out << flush;
+	out->flush();
 }
 
 bool SDCardImpl::process_block(const char* block) {

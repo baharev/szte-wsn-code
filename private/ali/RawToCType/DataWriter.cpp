@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,60 +28,74 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#ifndef SDCARDIMPL_HPP_
-#define SDCARDIMPL_HPP_
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
+#include "DataWriter.hpp"
+#include "Sample.hpp"
 
-#include <memory>
-#include "TypeDefs.hpp"
+using namespace std;
 
 namespace sdc {
 
-class BlockDevice;
-class BlockChecker;
-class BlockIterator;
-class DataWriter;
-class Tracker;
+DataWriter::DataWriter() : samples(new ofstream), timesync(new ofstream) {
 
-class SDCardImpl {
-
-public:
-
-	explicit SDCardImpl(BlockDevice* source);
-
-	void process_new_measurements();
-
-	double size_GB() const;
-
-	~SDCardImpl();
-
-private:
-
-	SDCardImpl(const SDCardImpl& );
-	SDCardImpl& operator=(const SDCardImpl& );
-
-	void print_start_banner() const;
-	void print_finished_banner() const;
-	void print_record_start_banner() const;
-	void print_record_end_banner(int offset, uint32 length) const;
-	void close_out_if_open();
-	bool reboot(const int sample_in_block);
-	void check_sample(const int sample_in_block);
-	void write_samples(BlockIterator& itr);
-	bool process_block(const char* block);
-	void init_tracker();
-
-	const std::auto_ptr<BlockDevice> device;
-	const std::auto_ptr<DataWriter> out;
-	std::auto_ptr<Tracker> tracker;
-	std::auto_ptr<BlockChecker> check;
-	uint32 time_start;
-	int block_offset;
-	int reboot_seq_num;
-};
-
+	samples->exceptions( ofstream::failbit | ofstream::badbit);
+	timesync->exceptions(ofstream::failbit | ofstream::badbit);
 }
 
-#endif
+void DataWriter::start_new_record(int mote_id, int reboot_id, int first_block) {
+
+	ostringstream os;
+
+	os << 'm' << setfill('0') << setw(3) << mote_id << '_';
+	os << 'r' << setfill('0') << setw(3) << reboot_id << '_';
+	os << 'b' << first_block;
+
+	os.flush(); // TODO Is it needed?
+
+	string samples_filename(os.str());
+	string timesync_filename(samples_filename);
+
+
+	samples->open(  samples_filename.append(".csv").c_str());
+	timesync->open(timesync_filename.append(".tsm").c_str());
+}
+
+bool DataWriter::is_open() const {
+
+	const bool open = samples->is_open();
+
+	if (open!=timesync->is_open()) {
+		throw logic_error("illegal state of output files");
+	}
+
+	return open;
+}
+
+void DataWriter::write(const Sample& s) {
+
+	*samples << s;
+}
+
+void DataWriter::flush() {
+
+	samples->flush();
+	timesync->flush();
+}
+
+void DataWriter::close() {
+
+	samples->close();
+	timesync->close();
+}
+
+DataWriter::~DataWriter() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+}
+
+}

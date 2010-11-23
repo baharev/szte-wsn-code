@@ -63,9 +63,11 @@ public:
 
 	void timestamp() const;
 
-	// FIXME These last three should be either in another class or reboot should
+	// FIXME These last four should be either in another class or reboot should
 	// be moved here completely from SDCardImpl
-	int processed() const;
+	int line() const;
+
+	void reset_line_counter();
 
 	unsigned int get_current_timestamp() const;
 

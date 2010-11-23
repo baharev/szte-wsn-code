@@ -38,7 +38,7 @@ namespace sdc {
 
 const unsigned int TICKS_PER_SEC = 32768;
 const unsigned int SAMPLING_RATE = 110;
-const int TOLERANCE = 16;
+const int TOLERANCE = 22;
 
 }
 

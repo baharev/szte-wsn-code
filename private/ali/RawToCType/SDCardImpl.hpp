@@ -64,6 +64,8 @@ private:
 
 	void print_start_banner() const;
 	void print_finished_banner() const;
+	void print_record_start_banner() const;
+	void print_record_end_banner(int offset, uint32 length) const;
 	void close_out_if_open();
 	void create_new_file();
 	bool reboot(const int sample_in_block);

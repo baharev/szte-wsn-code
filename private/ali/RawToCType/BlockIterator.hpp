@@ -42,7 +42,7 @@ class BlockIterator {
 
 public:
 
-	explicit BlockIterator(const char* block) : itr(block) { }
+	explicit BlockIterator(const char* block);
 
 	uint16 next_uint16();
 
@@ -53,6 +53,10 @@ private:
 	BlockIterator(const BlockIterator& );
 
 	BlockIterator& operator=(const BlockIterator& );
+
+	void check_range();
+
+	const char* const end;
 
 	const char* itr;
 };

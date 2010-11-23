@@ -83,8 +83,10 @@ void SDCardImpl::print_start_banner() const {
 
 	cout << "Card size is ";
 	cout << setprecision(2) << fixed << device->size_GB() << " GB" << endl;
+	cout << "Mote ID: " << tracker->mote_id() << endl;
 	cout << "Starting at block " << block_offset << ", ";
 	cout << "previous reboot sequence number is " << reboot_seq_num << endl;
+	cout << "---------------------------------------------------------" << endl;
 }
 
 void SDCardImpl::print_finished_banner() const {
@@ -132,6 +134,13 @@ void SDCardImpl::process_new_measurements() {
 	print_finished_banner();
 }
 
+void SDCardImpl::print_record_end_banner(int last_block, uint32 length) const {
+
+	cout << "Record length " << ticks2time(length) << ", last block ";
+	cout << last_block << endl;
+	cout << "---------------------------------------------------------" << endl;
+}
+
 void SDCardImpl::close_out_if_open() {
 
 	if (out->is_open()) {
@@ -139,6 +148,8 @@ void SDCardImpl::close_out_if_open() {
 		uint32 length_in_ticks = check->get_previous_timestamp()-time_start;
 
 		tracker->append_to_db(block_offset-1, length_in_ticks);
+
+		print_record_end_banner(block_offset-1, length_in_ticks);
 
 		out->close();
 	}
@@ -157,6 +168,11 @@ void SDCardImpl::create_new_file() {
 	tracker->mark_beginning(block_offset, reboot_seq_num);
 }
 
+void SDCardImpl::print_record_start_banner() const {
+
+	cout << "Reboot " << reboot_seq_num << " at block " << block_offset << endl;
+}
+
 bool SDCardImpl::reboot(const int sample_in_block) {
 
 	bool reboot = check->reboot();
@@ -167,10 +183,11 @@ bool SDCardImpl::reboot(const int sample_in_block) {
 
 		++reboot_seq_num;
 
-		cout << "Reboot " << reboot_seq_num << " at processed sample ";
-		cout << check->processed() << endl;
+		check->reset_line_counter();
 
 		time_start = check->get_current_timestamp();
+
+		print_record_start_banner();
 
 		create_new_file();
 

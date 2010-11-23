@@ -56,7 +56,7 @@ BlockChecker::BlockChecker(int mote_id) : mote_ID(mote_id) {
 	// current will become previous by then
 	current.force_counter(1);
 
-	samples_processed = -1;
+	samples_processed = 0;
 }
 
 void BlockChecker::set_current_header(BlockIterator& i, int offset) {
@@ -135,9 +135,14 @@ void BlockChecker::timestamp() const {
 	}
 }
 
-int BlockChecker::processed() const {
+int BlockChecker::line() const {
 
 	return samples_processed;
+}
+
+void BlockChecker::reset_line_counter() {
+
+	samples_processed = 0;
 }
 
 unsigned int BlockChecker::get_current_timestamp() const {

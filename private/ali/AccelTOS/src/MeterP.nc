@@ -84,6 +84,7 @@ implementation
 
 	void dump(char* msg) {
 		if( call DiagMsg.record() ) {
+			call DiagMsg.uint16(TOS_NODE_ID);
 			call DiagMsg.str(msg);
 			call DiagMsg.send();
 		}	
@@ -154,12 +155,13 @@ implementation
 
 		error = call BufferedFlash.send(data, 2*length);
 		
-		if (error==EBUSY) {
-			dump("BF_EBUSY");
-		}
-		else if (error==FAIL) {
-			dump("BF_FAIL");
-		}
+		// FIXME Add check when debugging is done.
+		//if (error==EBUSY) {
+		//	dump("BF_EBUSY");
+		//}
+		//else if (error==FAIL) {
+		//	dump("BF_FAIL");
+		//}
 	}
 
 	task void signalStartDone() {

@@ -54,8 +54,8 @@ implementation
 {
 	enum
 	{
-		BUFFER_SIZE = 3,
-		MAX_DATA_LENGTH = 506 // FIXME It should not know this implementation detail
+		BUFFER_SIZE = 2,
+		MAX_DATA_LENGTH = 502 // FIXME It should not know this implementation detail
 	};
 	
 	typedef struct buffer_t {
@@ -88,6 +88,16 @@ implementation
 		}		
 	}
 */	
+
+	void dumpEbusy(uint16_t line) {
+		if( call DiagMsg.record() ) {
+			call DiagMsg.uint16(TOS_NODE_ID);
+			call DiagMsg.str("EBUSY");
+			call DiagMsg.uint16(line);
+			call DiagMsg.send();
+		}		
+	}
+
 	// TODO Implement these two with memset and memcpy?
 	event void SimpleFile.booted(uint32_t starting_at_block) {
 		
@@ -126,10 +136,13 @@ implementation
 				return;	
 			}
 
-			if( call SimpleFile.append(messages[first].data, messages[first].length) == SUCCESS )
+			if( call SimpleFile.append(messages[first].data, messages[first].length) == SUCCESS ) {
 				sending = TRUE;
-			else
+			}
+			else {
+				dumpEbusy(__LINE__);
 				post sendMessage();
+			}
 		}
 		
 		//dumpPending(__LINE__);
@@ -144,15 +157,19 @@ implementation
 			return FAIL;
 		}
 		
-		if( pending == BUFFER_SIZE )
+		if (pending == BUFFER_SIZE) {
+			dumpEbusy(__LINE__);
 			return EBUSY;
+		}
 			
 		if( position + length > MAX_DATA_LENGTH )
 		{
 			call BufferedFlash.flush(); // Just posts a task and increments current
 
-			if( pending == BUFFER_SIZE )
+			if(pending == BUFFER_SIZE) {
+				dumpEbusy(__LINE__); // FIXME We get here is flush is not called in a timely manner
 				return EBUSY;
+			}
 		}
 		
 		if (current >= BUFFER_SIZE) {
@@ -163,7 +180,7 @@ implementation
 
 		if (position==0) {
 			memcpy(messages[current].data, &timesync_info, sizeof(timesync_info));
-			position += sizeof(timesync_info);
+			position = sizeof(timesync_info);
 		}
 		
 		// FIXME Should properly check if the size of buffer is enough		
@@ -172,8 +189,13 @@ implementation
 		memcpy(messages[current].data + position, data, length);
 		position += length;
 
-		if( position == MAX_DATA_LENGTH )
+		if( position == MAX_DATA_LENGTH ) { // FIXME This check is not enough
 			call BufferedFlash.flush();
+		}
+		else if (position > MAX_DATA_LENGTH) {
+			ASSERT(FALSE);
+			return FAIL;
+		}
 
 		return SUCCESS;
 	}
@@ -187,6 +209,7 @@ implementation
 			ASSERT(pending<BUFFER_SIZE);
 		}
 		else {
+			dumpEbusy(__LINE__); // FIXME How can SD writeBlock fail?
 			post sendMessage();
 			ASSERT(pending<=BUFFER_SIZE);
 		}
@@ -201,12 +224,11 @@ implementation
 		
 		if( position > 0 )
 		{
-			
-			if (current >= BUFFER_SIZE) {
+
+			if (current >= BUFFER_SIZE || position>MAX_DATA_LENGTH) {
 				ASSERT(FALSE);
 				return;	
 			}
-			
 			// store the length
 			messages[current].length = position;
 

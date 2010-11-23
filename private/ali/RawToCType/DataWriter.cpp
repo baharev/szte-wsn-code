@@ -36,6 +36,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include "DataWriter.hpp"
+#include "Header.hpp"
 #include "Sample.hpp"
 
 using namespace std;
@@ -75,6 +76,11 @@ bool DataWriter::is_open() const {
 	}
 
 	return open;
+}
+
+void DataWriter::write_time_sync_info(const Header& h) {
+
+	h.write_timesync_info(*timesync);
 }
 
 void DataWriter::write(const Sample& s) {

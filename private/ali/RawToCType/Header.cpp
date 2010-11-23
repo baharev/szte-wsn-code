@@ -51,6 +51,27 @@ Header::Header(BlockIterator& itr) {
 	remote_start = itr.next_uint32();
 }
 
+void Header::set_timesync_zero() {
+
+	remote_id = remote_start = local_time = remote_time = 0;
+}
+
+bool Header::timesync_differs_from(const Header& h) const {
+
+	const bool differs = (remote_time  != h.remote_time ) ||
+						 (remote_start != h.remote_start) ||
+						 (local_time   != h.local_time  ) ||
+						 (remote_id    != h.remote_id   ) ;
+	// TODO Assert: if all remote fields equal then local_time should too
+	return differs;
+}
+
+void Header::write_timesync_info(std::ostream& out) const {
+
+	out <<  remote_id << '\t' << remote_start << '\t';
+	out << local_time << '\t' << remote_time  << '\n' << flush;
+}
+
 ostream& operator<<(ostream& out, const Header& h) {
 
 	out << "format id:    " << h.format_id << endl;

@@ -53,6 +53,12 @@ public:
 
 	uint16 mote() const { return mote_id; }
 
+	void set_timesync_zero();
+
+	bool timesync_differs_from(const Header& other) const;
+
+	void write_timesync_info(std::ostream& ) const;
+
 	friend std::ostream& operator<<(std::ostream& , const Header& );
 
 private:

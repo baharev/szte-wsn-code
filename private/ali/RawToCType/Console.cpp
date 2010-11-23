@@ -34,28 +34,55 @@
 #include <iostream>
 #include <iomanip>
 #include "Console.hpp"
+#include "BlockRelatedConsts.hpp"
+#include "Constants.hpp"
 #include "Utility.hpp"
+
+using namespace std;
 
 namespace sdc {
 
 void Console::start(double card_size, int mote_id, int first_block, int reboot) const {
 
-	;
+	cout << "Card size is ";
+	cout << setprecision(2) << fixed << card_size << " GB" << endl;
+	cout << "Mote ID: " << mote_id << endl;
+	cout << "Starting at block " << first_block << ", ";
+	cout << "previous reboot sequence number is " << reboot << endl;
+	cout << "---------------------------------------------------------" << endl;
 }
 
-void Console::finished(double card_size, int offset) const {
+void Console::finished(double card_size, int last_block) const {
 
-	;
+	const unsigned int GB = 1 << 30;
+
+	const double used_bytes = last_block*BLOCK_SIZE ;
+
+	const double used_GB = used_bytes/GB;
+
+	const double remaining = card_size-used_GB;
+
+	const double remaining_blocks = (remaining/BLOCK_SIZE*GB);
+
+	const double remaining_samples = remaining_blocks*MAX_SAMPLES;
+
+	const double remaining_sec = (remaining_samples*SAMPLING_RATE)/TICKS_PER_SEC;
+
+	cout << "Remaining " << remaining << " GB, approximately ";
+	cout << setprecision(2) << fixed << remaining_sec/3600 << " hours" << endl;
+	cout << "Finished!" << endl;
 }
 
-void Console::record_start(int reboot_id, int offset) const {
+void Console::record_start(int reboot_id, int first_block) const {
 
-	;
+	cout << "Reboot " << reboot_id << " at block " << first_block << endl;
 }
 
-void Console::record_end(int offset, uint32 length) const {
+void Console::record_end(int last_block, uint32 length) const {
 
-	;
+	cout << "Record length " << ticks2time(length) << ", last block ";
+	cout << last_block << endl;
+	cout << "---------------------------------------------------------" << endl;
 }
 
 }

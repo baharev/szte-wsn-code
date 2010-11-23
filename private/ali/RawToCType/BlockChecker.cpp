@@ -52,17 +52,49 @@ void fix_counter_overflow(int& i) {
 
 BlockChecker::BlockChecker(int mote_id) : mote_ID(mote_id) {
 
+	samples_processed = 0;
+
+	timesync.set_timesync_zero();
+
+	new_time_sync_info = false;
+
 	// on the first call reboot() needs nonzero for previous.counter()
 	// current will become previous by then
 	current.force_counter(1);
 
-	samples_processed = 0;
+}
+
+
+void BlockChecker::reset_time_sync() {
+
+	new_time_sync_info = false;
+	timesync.set_timesync_zero();
 }
 
 void BlockChecker::set_current_header(BlockIterator& i, int offset) {
 
 	header = Header(i);
 	block_offset = offset;
+
+	if ( header.timesync_differs_from(timesync) ) {
+
+		timesync = header;
+		new_time_sync_info = true;
+	}
+	else {
+
+		new_time_sync_info = false;
+	}
+}
+
+bool BlockChecker::time_sync_info_is_new() const {
+
+	return new_time_sync_info;
+}
+
+const Header& BlockChecker::get_timesync() const {
+
+	return timesync;
 }
 
 void BlockChecker::mote_id() const {

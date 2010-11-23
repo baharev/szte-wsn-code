@@ -52,7 +52,7 @@ public:
 
 	bool is_open() const;
 
-	void write_if_new(const Header& h);
+	void write_time_sync_info(const Header& h);
 
 	void write(const Sample& s);
 

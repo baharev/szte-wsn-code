@@ -44,11 +44,11 @@ public:
 
 	void start(double card_size, int mote_id, int first_block, int reboot) const;
 
-	void finished(double card_size, int offset) const;
+	void finished(double card_size, int last_block) const;
 
-	void record_start(int reboot_id, int offset) const;
+	void record_start(int reboot_id, int first_offset) const;
 
-	void record_end(int offset, uint32 length) const;
+	void record_end(int last_block, uint32 length_in_ticks) const;
 
 };
 

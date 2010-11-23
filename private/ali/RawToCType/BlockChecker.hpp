@@ -63,8 +63,7 @@ public:
 
 	void timestamp() const;
 
-	// FIXME These last four should be either in another class or reboot should
-	// be moved here completely from SDCardImpl
+	// FIXME These functions below should be in a different class
 	int line() const;
 
 	void reset_line_counter();
@@ -73,13 +72,23 @@ public:
 
 	unsigned int get_previous_timestamp() const;
 
+	void reset_time_sync();
+
+	bool time_sync_info_is_new() const;
+
+	const Header& get_timesync() const;
+
 private:
 
 	BlockChecker(const BlockChecker& );
 
 	BlockChecker& operator=(const BlockChecker& );
 
+	Header timesync;
+
 	Header header;
+
+	bool new_time_sync_info;
 
 	int block_offset;
 

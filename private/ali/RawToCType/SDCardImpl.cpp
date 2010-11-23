@@ -31,25 +31,21 @@
 * Author: Ali Baharev
 */
 
-#include <iostream>
-#include <iomanip>
 #include <stdexcept>
 #include "SDCardImpl.hpp"
 #include "BlockDevice.hpp"
 #include "BlockIterator.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "BlockChecker.hpp"
-#include "Constants.hpp"
 #include "DataWriter.hpp"
 #include "Tracker.hpp"
-#include "Utility.hpp"
 
 using namespace std;
 
 namespace sdc {
 
 SDCardImpl::SDCardImpl(BlockDevice* source)
-	: device(source), out(new DataWriter), tracker(0), check(0)
+	: device(source), out(new DataWriter), tracker(0), check(0), console(Console())
 {
 	time_start = 0;
 
@@ -76,37 +72,6 @@ double SDCardImpl::size_GB() const {
 	return device->size_GB();
 }
 
-void SDCardImpl::print_start_banner() const {
-
-	cout << "Card size is ";
-	cout << setprecision(2) << fixed << device->size_GB() << " GB" << endl;
-	cout << "Mote ID: " << tracker->mote_id() << endl;
-	cout << "Starting at block " << block_offset << ", ";
-	cout << "previous reboot sequence number is " << reboot_seq_num << endl;
-	cout << "---------------------------------------------------------" << endl;
-}
-
-void SDCardImpl::print_finished_banner() const {
-
-	const unsigned int GB = 1 << 30;
-
-	const double used_bytes = block_offset*BLOCK_SIZE ;
-
-	const double used_GB = used_bytes/GB;
-
-	const double remaining = device->size_GB()-used_GB;
-
-	const double remaining_blocks = (remaining/BLOCK_SIZE*GB);
-
-	const double remaining_samples = remaining_blocks*MAX_SAMPLES;
-
-	const double remaining_sec = (remaining_samples*SAMPLING_RATE)/TICKS_PER_SEC;
-
-	cout << "Remaining " << remaining << " GB, approximately ";
-	cout << setprecision(2) << fixed << remaining_sec/3600 << " hours" << endl;
-	cout << "Finished!" << endl;
-}
-
 void SDCardImpl::process_new_measurements() {
 
 	bool finished = false;
@@ -115,7 +80,7 @@ void SDCardImpl::process_new_measurements() {
 
 	reboot_seq_num = tracker->reboot();
 
-	print_start_banner();
+	console.start(device->size_GB(), tracker->mote_id(), block_offset, reboot_seq_num);
 
 	while (!finished ) {
 
@@ -128,14 +93,7 @@ void SDCardImpl::process_new_measurements() {
 
 	close_out_if_open();
 
-	print_finished_banner();
-}
-
-void SDCardImpl::print_record_end_banner(int last_block, uint32 length) const {
-
-	cout << "Record length " << ticks2time(length) << ", last block ";
-	cout << last_block << endl;
-	cout << "---------------------------------------------------------" << endl;
+	console.finished(device->size_GB(), block_offset);
 }
 
 void SDCardImpl::close_out_if_open() {
@@ -146,15 +104,10 @@ void SDCardImpl::close_out_if_open() {
 
 		tracker->append_to_db(block_offset-1, length_in_ticks);
 
-		print_record_end_banner(block_offset-1, length_in_ticks);
+		console.record_end(block_offset-1, length_in_ticks);
 
 		out->close();
 	}
-}
-
-void SDCardImpl::print_record_start_banner() const {
-
-	cout << "Reboot " << reboot_seq_num << " at block " << block_offset << endl;
 }
 
 bool SDCardImpl::reboot(const int sample_in_block) {
@@ -169,9 +122,11 @@ bool SDCardImpl::reboot(const int sample_in_block) {
 
 		check->reset_line_counter();
 
+		check->reset_time_sync();
+
 		time_start = check->get_current_timestamp();
 
-		print_record_start_banner();
+		console.record_start(reboot_seq_num, block_offset);
 
 		out->start_new_record(tracker->mote_id(), reboot_seq_num, block_offset);
 
@@ -213,6 +168,14 @@ void SDCardImpl::write_samples(BlockIterator& itr) {
 	out->flush();
 }
 
+void SDCardImpl::write_time_sync_info() {
+
+	if (check->time_sync_info_is_new()) {
+
+		out->write_time_sync_info(check->get_timesync());
+	}
+}
+
 bool SDCardImpl::process_block(const char* block) {
 
 	bool finished = false;
@@ -230,6 +193,10 @@ bool SDCardImpl::process_block(const char* block) {
 		check->mote_id();
 
 		write_samples(itr);
+		// Assumes that out is opened and time sync is reset by write_samples
+		// FIXME Now reboot can be identified from the header.local_start
+		// TODO Check if we are writing samples and time sync under the same file name
+		write_time_sync_info();
 	}
 
 	return finished;

@@ -35,6 +35,7 @@
 #define SDCARDIMPL_HPP_
 
 #include <memory>
+#include "Console.hpp"
 #include "TypeDefs.hpp"
 
 namespace sdc {
@@ -62,14 +63,11 @@ private:
 	SDCardImpl(const SDCardImpl& );
 	SDCardImpl& operator=(const SDCardImpl& );
 
-	void print_start_banner() const;
-	void print_finished_banner() const;
-	void print_record_start_banner() const;
-	void print_record_end_banner(int offset, uint32 length) const;
 	void close_out_if_open();
 	bool reboot(const int sample_in_block);
 	void check_sample(const int sample_in_block);
 	void write_samples(BlockIterator& itr);
+	void write_time_sync_info();
 	bool process_block(const char* block);
 	void init_tracker();
 
@@ -77,6 +75,7 @@ private:
 	const std::auto_ptr<DataWriter> out;
 	std::auto_ptr<Tracker> tracker;
 	std::auto_ptr<BlockChecker> check;
+	const Console console;
 	uint32 time_start;
 	int block_offset;
 	int reboot_seq_num;

@@ -64,8 +64,7 @@ private:
 	SDCardImpl& operator=(const SDCardImpl& );
 
 	void close_out_if_open();
-	bool reboot(const int sample_in_block);
-	void check_sample(const int sample_in_block);
+	void check_for_reboot();
 	void write_samples(BlockIterator& itr);
 	void write_time_sync_info();
 	bool process_block(const char* block);
@@ -76,7 +75,6 @@ private:
 	std::auto_ptr<Tracker> tracker;
 	std::auto_ptr<BlockChecker> check;
 	const Console console;
-	uint32 time_start;
 	int block_offset;
 	int reboot_seq_num;
 };

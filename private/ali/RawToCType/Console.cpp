@@ -85,4 +85,11 @@ void Console::record_end(int last_block, uint32 length) const {
 	cout << "---------------------------------------------------------" << endl;
 }
 
+
+void Console::warn_about_impossible_state() const {
+
+	cout << "Warning: impossible state detected, either the database is ";
+	cout << "corrupted or it is bug" << endl;
+}
+
 }

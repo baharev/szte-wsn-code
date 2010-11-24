@@ -32,6 +32,7 @@
 */
 
 #include <iostream>
+#include <stdexcept>
 #include <cstdlib>
 #include "BlockChecker.hpp"
 #include "BlockIterator.hpp"
@@ -40,6 +41,7 @@
 
 using std::cout;
 using std::endl;
+using std::runtime_error;
 using std::abs;
 
 namespace sdc {
@@ -52,23 +54,19 @@ void fix_counter_overflow(int& i) {
 
 BlockChecker::BlockChecker(int mote_id) : mote_ID(mote_id) {
 
-	samples_processed = 0;
-
-	timesync.set_timesync_zero();
-
+	local_start = -1;
+	time_start = 0;
+	set_time_start = false;
+	new_record = false;
 	new_time_sync_info = false;
-
-	// on the first call reboot() needs nonzero for previous.counter()
-	// current will become previous by then
-	current.force_counter(1);
-
+	block_offset = -1;
+	samples_processed = 0;
+	timesync.set_timesync_zero();
 }
 
+bool BlockChecker::reboot() const {
 
-void BlockChecker::reset_time_sync() {
-
-	new_time_sync_info = false;
-	timesync.set_timesync_zero();
+	return new_record;
 }
 
 void BlockChecker::set_current_header(BlockIterator& i, int offset) {
@@ -76,14 +74,11 @@ void BlockChecker::set_current_header(BlockIterator& i, int offset) {
 	header = Header(i);
 	block_offset = offset;
 
-	if ( header.timesync_differs_from(timesync) ) {
+	if (!finished()) {
 
-		timesync = header;
-		new_time_sync_info = true;
-	}
-	else {
+		check_for_new_reboot();
 
-		new_time_sync_info = false;
+		check_for_new_timesync();
 	}
 }
 
@@ -95,6 +90,37 @@ bool BlockChecker::time_sync_info_is_new() const {
 const Header& BlockChecker::get_timesync() const {
 
 	return timesync;
+}
+
+void BlockChecker::check_for_new_reboot() {
+
+	const int header_first_block = static_cast<int> (header.first_block());
+
+	if (local_start != header_first_block) {
+
+		new_record = true;
+		local_start = header_first_block;
+		set_time_start = true;
+		new_time_sync_info = false;
+		timesync.set_timesync_zero();
+		samples_processed = 0;
+	}
+	else {
+		new_record = false;
+	}
+}
+
+void BlockChecker::check_for_new_timesync() {
+
+	if ( header.timesync_differs_from(timesync) ) {
+
+		timesync = header;
+		new_time_sync_info = true;
+	}
+	else {
+
+		new_time_sync_info = false;
+	}
 }
 
 void BlockChecker::mote_id() const {
@@ -130,15 +156,33 @@ void BlockChecker::set_current(const Sample& s) {
 	previous = current;
 	current = s;
 
+	if (set_time_start) {
+
+		set_time_start = false;
+		time_start = s.timestamp();
+		check_counter_equals_one();
+	}
+	else {
+
+		check_counter();
+		check_timestamp();
+	}
+
 	++samples_processed;
 }
 
-bool BlockChecker::reboot() const {
-	// FIXME Bug: reboot may be unnoticed
-	return current.counter()==1 && previous.counter()!=0;
+void BlockChecker::check_counter_equals_one() const {
+
+	const unsigned short counter = current.counter();
+
+	if (counter!=1) {
+
+		cout << "Warning: counter should be 1 but it is " << counter << " in ";
+		cout << " block " << block_offset << endl;
+	}
 }
 
-void BlockChecker::counter() const {
+void BlockChecker::check_counter() const {
 
 	int diff = current.counter()-previous.counter();
 
@@ -154,7 +198,7 @@ void BlockChecker::counter() const {
 	}
 }
 
-void BlockChecker::timestamp() const {
+void BlockChecker::check_timestamp() const {
 
 	uint32 expected = previous.timestamp() + SAMPLING_RATE;
 
@@ -167,24 +211,20 @@ void BlockChecker::timestamp() const {
 	}
 }
 
-int BlockChecker::line() const {
 
-	return samples_processed;
+void BlockChecker::shift_timestamp(Sample& s) const {
+
+	if (time_start <= 0) {
+
+		throw runtime_error("most likely a bug");
+	}
+
+	s.shift_timestamp(time_start);
 }
 
-void BlockChecker::reset_line_counter() {
+unsigned int BlockChecker::length_in_ticks() const {
 
-	samples_processed = 0;
-}
-
-unsigned int BlockChecker::get_current_timestamp() const {
-
-	return current.timestamp();
-}
-
-unsigned int BlockChecker::get_previous_timestamp() const {
-
-	return previous.timestamp();
+	return current.timestamp()-time_start;
 }
 
 }

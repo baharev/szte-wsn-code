@@ -68,8 +68,9 @@ bool Header::timesync_differs_from(const Header& h) const {
 
 void Header::write_timesync_info(std::ostream& out) const {
 
+	int offset = static_cast<int>(local_time)-static_cast<int>(remote_time);
 	out <<  remote_id << '\t' << remote_start << '\t';
-	out << local_time << '\t' << remote_time  << '\n' << flush;
+	out << local_time << '\t' << remote_time  << '\t' << offset << '\n' << flush;
 }
 
 ostream& operator<<(ostream& out, const Header& h) {

@@ -53,6 +53,8 @@ public:
 
 	uint16 mote() const { return mote_id; }
 
+	uint32 first_block() const { return local_start; }
+
 	void set_timesync_zero();
 
 	bool timesync_differs_from(const Header& other) const;

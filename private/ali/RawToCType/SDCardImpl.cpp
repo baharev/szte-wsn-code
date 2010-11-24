@@ -47,8 +47,6 @@ namespace sdc {
 SDCardImpl::SDCardImpl(BlockDevice* source)
 	: device(source), out(new DataWriter), tracker(0), check(0), console(Console())
 {
-	time_start = 0;
-
 	block_offset = 0;
 
 	reboot_seq_num = 0;
@@ -74,24 +72,18 @@ double SDCardImpl::size_GB() const {
 
 void SDCardImpl::process_new_measurements() {
 
-	bool finished = false;
-
 	block_offset = tracker->start_from_here();
 
 	reboot_seq_num = tracker->reboot();
 
 	console.start(device->size_GB(), tracker->mote_id(), block_offset, reboot_seq_num);
 
-	while (!finished ) {
+	for (bool finished = false; !finished; ++block_offset) {
 
 		const char* const block = device->read_block(block_offset);
 
 		finished = process_block(block);
-
-		++block_offset;
 	}
-
-	close_out_if_open();
 
 	console.finished(device->size_GB(), block_offset);
 }
@@ -100,7 +92,7 @@ void SDCardImpl::close_out_if_open() {
 
 	if (out->is_open()) {
 
-		uint32 length_in_ticks = check->get_previous_timestamp()-time_start;
+		uint32 length_in_ticks = check->length_in_ticks();
 
 		tracker->append_to_db(block_offset-1, length_in_ticks);
 
@@ -110,43 +102,27 @@ void SDCardImpl::close_out_if_open() {
 	}
 }
 
-bool SDCardImpl::reboot(const int sample_in_block) {
+void SDCardImpl::check_for_reboot() {
 
-	bool reboot = check->reboot();
+	const bool reboot = check->reboot();
+	const bool open   = out->is_open();
 
-	if ((reboot && sample_in_block==0) || !out->is_open()) {
+	if (!reboot && !open) {
+
+		console.warn_about_impossible_state();
+	}
+
+	if (reboot || !open) {
 
 		close_out_if_open();
 
 		++reboot_seq_num;
-
-		check->reset_line_counter();
-
-		check->reset_time_sync();
-
-		time_start = check->get_current_timestamp();
 
 		console.record_start(reboot_seq_num, block_offset);
 
 		out->start_new_record(tracker->mote_id(), reboot_seq_num, block_offset);
 
 		tracker->mark_beginning(block_offset, reboot_seq_num);
-
-		return true;
-	}
-	// FIXME Should not we log if sample_in_block != 0 ?
-
-	return false;
-}
-
-void SDCardImpl::check_sample(const int sample_in_block) {
-
-	// TODO Maybe this should be pushed into BlockChecker
-	if (!reboot(sample_in_block)) {
-
-		check->counter();
-
-		check->timestamp();
 	}
 }
 
@@ -158,9 +134,7 @@ void SDCardImpl::write_samples(BlockIterator& itr) {
 
 		check->set_current(s);
 
-		check_sample(i);
-
-		s.shift_timestamp(time_start);
+		check->shift_timestamp(s);
 
 		out->write(s);
 	}
@@ -187,16 +161,18 @@ bool SDCardImpl::process_block(const char* block) {
 	if (check->finished()) {
 
 		finished = true;
+
+		close_out_if_open();
 	}
 	else if (check->datalength()) {
 
 		check->mote_id();
 
-		write_samples(itr);
-		// Assumes that out is opened and time sync is reset by write_samples
-		// FIXME Now reboot can be identified from the header.local_start
-		// TODO Check if we are writing samples and time sync under the same file name
+		check_for_reboot();
+
 		write_time_sync_info();
+
+		write_samples(itr);
 	}
 
 	return finished;

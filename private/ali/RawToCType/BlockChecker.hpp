@@ -55,24 +55,13 @@ public:
 
 	bool datalength() const;
 
-	void set_current(const Sample& s);
-
 	bool reboot() const;
 
-	void counter() const;
+	unsigned int length_in_ticks() const;
 
-	void timestamp() const;
+	void set_current(const Sample& s);
 
-	// FIXME These functions below should be in a different class
-	int line() const;
-
-	void reset_line_counter();
-
-	unsigned int get_current_timestamp() const;
-
-	unsigned int get_previous_timestamp() const;
-
-	void reset_time_sync();
+	void shift_timestamp(Sample& s) const;
 
 	bool time_sync_info_is_new() const;
 
@@ -84,21 +73,29 @@ private:
 
 	BlockChecker& operator=(const BlockChecker& );
 
-	Header timesync;
+	void check_for_new_reboot();
+	void check_for_new_timesync();
+	void check_counter_equals_one() const;
+	void check_counter() const;
+	void check_timestamp() const;
 
-	Header header;
+	const int mote_ID;
 
+	int local_start;
+	unsigned int time_start;
+	bool set_time_start;
+	bool new_record;
 	bool new_time_sync_info;
 
 	int block_offset;
-
-	Sample previous;
-
-	Sample current;
-
 	int samples_processed;
 
-	const int mote_ID;
+	Header timesync;
+	Header header;
+
+	Sample previous;
+	Sample current;
+
 };
 
 }

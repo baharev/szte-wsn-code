@@ -38,7 +38,7 @@
 #include "Constants.hpp"
 #include "BlockRelatedConsts.hpp"
 
-using std::clog;
+using std::cout;
 using std::endl;
 using std::abs;
 
@@ -101,8 +101,8 @@ void BlockChecker::mote_id() const {
 
 	if (header.mote() != mote_ID) {
 
-		clog << "Warning: mote id " << header.mote() << " in block ";
-		clog << block_offset << " differs from " << mote_ID << endl;
+		cout << "Warning: mote id " << header.mote() << " in block ";
+		cout << block_offset << " differs from " << mote_ID << endl;
 	}
 }
 
@@ -117,8 +117,8 @@ bool BlockChecker::datalength() const {
 
 	if (MAX_SAMPLES != header.data_length()/SAMPLE_LENGTH) {
 
-		clog << "Warning: invalid length " << header.data_length();
-		clog << " in block " << block_offset << endl;
+		cout << "Warning: invalid length " << header.data_length();
+		cout << " in block " << block_offset << endl;
 		is_ok = false;
 	}
 
@@ -148,9 +148,9 @@ void BlockChecker::counter() const {
 
 	if (missed) {
 
-		clog << "Warning: at sample " << samples_processed;
-		clog << " missing at least ";
-		clog << missed << " samples" << endl;
+		cout << "Warning: at sample " << samples_processed;
+		cout << " missing at least ";
+		cout << missed << " samples" << endl;
 	}
 }
 
@@ -162,8 +162,8 @@ void BlockChecker::timestamp() const {
 
 	if (abs(error_in_ticks)>TOLERANCE) {
 
-		clog << "Warning: at sample " << samples_processed << " ";
-		clog << error_in_ticks << " ticks error" << endl;
+		cout << "Warning: at sample " << samples_processed << " ";
+		cout << error_in_ticks << " ticks error" << endl;
 	}
 }
 

@@ -73,11 +73,14 @@ private:
 
 	BlockChecker& operator=(const BlockChecker& );
 
+	void reset(int first_block);
 	void check_for_new_reboot();
 	void check_for_new_timesync();
+	void check_first_block() const;
 	void check_counter_equals_one() const;
 	void check_counter() const;
 	void check_timestamp() const;
+	void assert_positive_time_start() const;
 
 	const int mote_ID;
 

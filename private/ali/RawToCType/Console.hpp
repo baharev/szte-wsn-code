@@ -50,7 +50,7 @@ public:
 
 	void record_end(int last_block, uint32 length_in_ticks) const;
 
-	void warn_about_impossible_state() const;
+	void error_impossible_state() const;
 
 };
 

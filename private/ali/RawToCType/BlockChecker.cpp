@@ -54,14 +54,19 @@ void fix_counter_overflow(int& i) {
 
 BlockChecker::BlockChecker(int mote_id) : mote_ID(mote_id) {
 
-	local_start = -1;
-	time_start = 0;
+	reset(-1);
+	time_start = -1;
+	block_offset = -1;
+}
+
+void BlockChecker::reset(int first_block) {
+
+	local_start = first_block;
 	set_time_start = false;
 	new_record = false;
 	new_time_sync_info = false;
-	block_offset = -1;
-	samples_processed = 0;
 	timesync.set_timesync_zero();
+	samples_processed = 0;
 }
 
 bool BlockChecker::reboot() const {
@@ -72,6 +77,7 @@ bool BlockChecker::reboot() const {
 void BlockChecker::set_current_header(BlockIterator& i, int offset) {
 
 	header = Header(i);
+
 	block_offset = offset;
 
 	if (!finished()) {
@@ -98,15 +104,26 @@ void BlockChecker::check_for_new_reboot() {
 
 	if (local_start != header_first_block) {
 
+		reset(header_first_block);
+
 		new_record = true;
-		local_start = header_first_block;
+
 		set_time_start = true;
-		new_time_sync_info = false;
-		timesync.set_timesync_zero();
-		samples_processed = 0;
+
+		check_first_block();
 	}
 	else {
+
 		new_record = false;
+	}
+}
+
+void BlockChecker::check_first_block() const {
+
+	if (local_start != block_offset) {
+
+		cout << "Warning: found a new record at block " << block_offset;
+		cout << " but the block field in the header is " << local_start << endl;
 	}
 }
 
@@ -115,6 +132,7 @@ void BlockChecker::check_for_new_timesync() {
 	if ( header.timesync_differs_from(timesync) ) {
 
 		timesync = header;
+
 		new_time_sync_info = true;
 	}
 	else {
@@ -145,6 +163,7 @@ bool BlockChecker::datalength() const {
 
 		cout << "Warning: invalid length " << header.data_length();
 		cout << " in block " << block_offset << endl;
+
 		is_ok = false;
 	}
 
@@ -154,17 +173,21 @@ bool BlockChecker::datalength() const {
 void BlockChecker::set_current(const Sample& s) {
 
 	previous = current;
+
 	current = s;
 
 	if (set_time_start) {
 
 		set_time_start = false;
+
 		time_start = s.timestamp();
+
 		check_counter_equals_one();
 	}
 	else {
 
 		check_counter();
+
 		check_timestamp();
 	}
 
@@ -178,7 +201,7 @@ void BlockChecker::check_counter_equals_one() const {
 	if (counter!=1) {
 
 		cout << "Warning: counter should be 1 but it is " << counter << " in ";
-		cout << " block " << block_offset << endl;
+		cout << "block " << block_offset << endl;
 	}
 }
 
@@ -211,18 +234,24 @@ void BlockChecker::check_timestamp() const {
 	}
 }
 
-
-void BlockChecker::shift_timestamp(Sample& s) const {
+void BlockChecker::assert_positive_time_start() const {
 
 	if (time_start <= 0) {
 
 		throw runtime_error("most likely a bug");
 	}
+}
+
+void BlockChecker::shift_timestamp(Sample& s) const {
+
+	assert_positive_time_start();
 
 	s.shift_timestamp(time_start);
 }
 
 unsigned int BlockChecker::length_in_ticks() const {
+
+	assert_positive_time_start();
 
 	return current.timestamp()-time_start;
 }

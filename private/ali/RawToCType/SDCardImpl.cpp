@@ -109,7 +109,7 @@ void SDCardImpl::check_for_reboot() {
 
 	if (!reboot && !open) {
 
-		console.warn_about_impossible_state();
+		console.error_impossible_state();
 	}
 
 	if (reboot || !open) {

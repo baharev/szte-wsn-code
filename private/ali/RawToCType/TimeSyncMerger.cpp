@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,55 +28,16 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <iostream>
-#include <exception>
-#include <typeinfo>
-#include <memory>
-#include "SDCard.hpp"
+#include "TimeSyncMerger.hpp"
 
-using namespace std;
+namespace sdc {
 
-using namespace sdc;
 
-int Main(const char* source) {
-
-	//auto_ptr<SDCard> sd(SDCard::from_win32_drive(source));
-	
-	//sd->process_new_measurements();
-
-	auto_ptr<SDCard> bd(SDCard::from_file(source));
-
-	bd->process_new_measurements();
-
-	bd.reset();
-
-	return 0;
+TimeSyncMerger::~TimeSyncMerger() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 
-int main(int argc, char* argv[]) {
-
-	enum { SUCCESS, FAILURE };
-
-	if (argc != 2) {
-
-		clog << "Error: source not specified or too many arguments!" << endl;
-
-		return FAILURE;
-	}
-
-	try {
-
-		Main(argv[1]);
-	}
-	catch (exception& e) {
-
-		clog << e.what() << " (" << typeid(e).name() << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
 }

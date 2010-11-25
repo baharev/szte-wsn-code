@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,55 +28,41 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <iostream>
-#include <exception>
-#include <typeinfo>
+#ifndef TIMESYNCMERGER_HPP_
+#define TIMESYNCMERGER_HPP_
+
 #include <memory>
-#include "SDCard.hpp"
 
-using namespace std;
+class TimeSyncReader;
 
-using namespace sdc;
+namespace sdc {
 
-int Main(const char* source) {
+class TimeSyncMerger {
 
-	//auto_ptr<SDCard> sd(SDCard::from_win32_drive(source));
-	
-	//sd->process_new_measurements();
+public:
 
-	auto_ptr<SDCard> bd(SDCard::from_file(source));
+	TimeSyncMerger(int mote, int first_block);
 
-	bd->process_new_measurements();
+	~TimeSyncMerger();
 
-	bd.reset();
+private:
 
-	return 0;
+	TimeSyncMerger(const TimeSyncMerger& );
+	TimeSyncMerger& operator=(const TimeSyncMerger& );
+
+	const std::auto_ptr<TimeSyncReader> reader;
+
+	const int mote1;
+	const int block1;
+
+	int mote2;
+	int block2;
+
+};
+
 }
 
-int main(int argc, char* argv[]) {
-
-	enum { SUCCESS, FAILURE };
-
-	if (argc != 2) {
-
-		clog << "Error: source not specified or too many arguments!" << endl;
-
-		return FAILURE;
-	}
-
-	try {
-
-		Main(argv[1]);
-	}
-	catch (exception& e) {
-
-		clog << e.what() << " (" << typeid(e).name() << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
-}
+#endif /* TIMESYNCMERGER_HPP_ */

@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,61 +28,97 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <ostream>
-#include "Header.hpp"
-#include "BlockIterator.hpp"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdexcept>
+#include "DataReader.hpp"
+#include "TimeSyncInfo.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
 namespace sdc {
 
-Header::Header(BlockIterator& itr) {
+DataReader::DataReader(int mote_id, int reboot_id, int first_block)
+	: mote(mote_id), reboot(reboot_id), block(first_block)
+{
 
-	format_id = itr.next_uint16();
-	mote_id   = itr.next_uint16();
-	length    = itr.next_uint16();
-	remote_id = itr.next_uint16();
-	local_time   = itr.next_uint32();
-	remote_time  = itr.next_uint32();
-	local_start  = itr.next_uint32();
-	remote_start = itr.next_uint32();
 }
 
-void Header::set_timesync_zero() {
+void DataReader::assert_empty_list() const {
 
-	remote_id = remote_start = local_time = remote_time = 0;
+	if (messages.size()) {
+
+		throw logic_error("the message list should be empty");
+	}
 }
 
-bool Header::timesync_differs_from(const Header& h) const {
+void DataReader::open() {
 
-	const bool differs = (remote_time  != h.remote_time ) ||
-						 (remote_start != h.remote_start) ||
-						 (local_time   != h.local_time  ) ||
-						 (remote_id    != h.remote_id   ) ;
-	// TODO Assert: if all remote fields equal then local_time should too
-	return differs;
+	string filename = get_filename(mote, reboot, block);
+
+	filename.append(".tsm"); // TODO Move extensions to Constants.hpp
+
+	in.reset(new ifstream);
+
+	in->open(filename.c_str());
+
+	if (!in->is_open()) {
+
+		string msg("failed to open file ");
+
+		msg.append(filename);
+
+		throw logic_error(msg);
+	}
+
+	cout << "Processing file " << filename << endl;
 }
 
-void Header::write_timesync_info(std::ostream& out) const {
+void DataReader::read_all() {
 
-	out << local_time << '\t' << remote_time  << '\t' ;
-	out <<  remote_id << '\t' << remote_start << '\n' << flush;
+	string line(".");
+
+	while (in->good() && line.size()) {
+
+		getline(*in, line);
+
+		if (line.size()) {
+
+			messages.push_back(TimeSyncInfo(line));
+		}
+	}
+
+	cout << messages.size() << " messages read" << endl;
 }
 
-ostream& operator<<(ostream& out, const Header& h) {
+void DataReader::close() {
 
-	out << "format id:    " << h.format_id << endl;
-	out << "mote id:      " << h.mote_id   << endl;
-	out << "length:       " << h.length    << endl;
-	out << "remote id:    " << h.remote_id << endl;
-	out << "local time:   " << h.local_time << endl;
-	out << "remote time:  " << h.remote_time << endl;
-	out << "local start:  " << h.local_start << endl;
-	out << "remote start: " << h.remote_start << endl;
-	return out;
+	in.reset();
+}
+
+void DataReader::read_messages_from_file() {
+
+	assert_empty_list();
+
+	open();
+
+	read_all();
+
+	close();
+}
+
+const std::list<TimeSyncInfo>& DataReader::messages_as_list() const {
+
+	return messages;
+}
+
+DataReader::~DataReader() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 
 }

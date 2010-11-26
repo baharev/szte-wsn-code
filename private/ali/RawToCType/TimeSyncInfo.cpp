@@ -31,17 +31,50 @@
 *      Author: Ali Baharev
 */
 
-#ifndef TIMESYNCREADER_HPP_
-#define TIMESYNCREADER_HPP_
+#include <ostream>
+#include <sstream>
+#include "TimeSyncInfo.hpp"
+
+using namespace std;
+
+typedef istringstream iss;
 
 namespace sdc {
 
-class TimeSyncReader {
+TimeSyncInfo::TimeSyncInfo() {
 
+	local_time = remote_time = remote_id = remote_start = 0;
+}
 
-};
+TimeSyncInfo::TimeSyncInfo(const string& line_from_file) {
 
+	iss in(line_from_file);
+
+	in.exceptions(iss::failbit | iss::badbit);
+
+	in >> local_time;
+	in >> remote_time;
+	in >> remote_id;
+	in >> remote_start;
+}
+
+bool TimeSyncInfo::consistent() const {
+
+	return (local_time  > 0 &&
+			remote_time > 0 &&
+			remote_id   > 0 &&
+			remote_start >= 0 );
 }
 
 
-#endif /* TIMESYNCREADER_HPP_ */
+ostream& operator<<(ostream& out, const TimeSyncInfo& msg) {
+
+	out << "local_time:   " << msg.local_time   << endl;
+	out << "remote_time:  " << msg.remote_time  << endl;
+	out << "remote_id:    " << msg.remote_id    << endl;
+	out << "remote_start: " << msg.remote_start << flush;
+
+	return out;
+}
+
+}

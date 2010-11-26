@@ -41,16 +41,24 @@ int main(int argc, char* argv[]) {
 
 	enum { SUCCESS, FAILURE };
 
+/*
 	if (argc != 3) {
 
 		clog << "Error: give two numbers as mote ID and first block!" << endl;
 
 		return FAILURE;
 	}
+*/
 
 	try {
 
-		TimeSyncMerger(4, 51234);
+		TimeSyncMerger(5, 23, 33576);
+
+		TimeSyncMerger(5, 42, 37435);
+
+		TimeSyncMerger(1, 1, 0);
+
+		TimeSyncMerger(2, 1, 0);
 	}
 	catch (exception& e) {
 

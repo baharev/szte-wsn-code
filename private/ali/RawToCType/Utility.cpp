@@ -74,6 +74,19 @@ const string current_time() {
 	return string(ctime(&t));
 }
 
+const string get_filename(int mote_id, int reboot_id, int first_block) {
+
+	ostringstream os;
+
+	os << 'm' << setfill('0') << setw(3) << mote_id << '_';
+	os << 'r' << setfill('0') << setw(3) << reboot_id << '_';
+	os << 'b' << first_block;
+
+	os.flush(); // TODO Is it needed?
+
+	return os.str();
+}
+
 const string time_to_filename() {
 
 	string time_stamp(current_time().substr(4, 20));

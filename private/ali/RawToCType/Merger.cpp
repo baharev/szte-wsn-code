@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,61 +28,44 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <ostream>
-#include "Header.hpp"
-#include "BlockIterator.hpp"
+#include <iostream>
+#include "Merger.hpp"
+#include "TimeSyncInfo.hpp"
 
 using namespace std;
 
+typedef list<sdc::TimeSyncInfo>::iterator li;
+
 namespace sdc {
 
-Header::Header(BlockIterator& itr) {
+Merger::Merger(const list<TimeSyncInfo>& msg_mote1) : mote1(msg_mote1) {
 
-	format_id = itr.next_uint16();
-	mote_id   = itr.next_uint16();
-	length    = itr.next_uint16();
-	remote_id = itr.next_uint16();
-	local_time   = itr.next_uint32();
-	remote_time  = itr.next_uint32();
-	local_start  = itr.next_uint32();
-	remote_start = itr.next_uint32();
 }
 
-void Header::set_timesync_zero() {
+void Merger::drop_inconsistent() {
 
-	remote_id = remote_start = local_time = remote_time = 0;
-}
+	list<TimeSyncInfo>::size_type size_before = mote1.size();
 
-bool Header::timesync_differs_from(const Header& h) const {
+	li i = mote1.begin();
 
-	const bool differs = (remote_time  != h.remote_time ) ||
-						 (remote_start != h.remote_start) ||
-						 (local_time   != h.local_time  ) ||
-						 (remote_id    != h.remote_id   ) ;
-	// TODO Assert: if all remote fields equal then local_time should too
-	return differs;
-}
+	while (i != mote1.end()) {
 
-void Header::write_timesync_info(std::ostream& out) const {
+		if (!i->consistent()) {
 
-	out << local_time << '\t' << remote_time  << '\t' ;
-	out <<  remote_id << '\t' << remote_start << '\n' << flush;
-}
+			cout << "Warning: inconsistent message " << endl << *i << endl;
 
-ostream& operator<<(ostream& out, const Header& h) {
+			i = mote1.erase(i);
+		}
+		else {
 
-	out << "format id:    " << h.format_id << endl;
-	out << "mote id:      " << h.mote_id   << endl;
-	out << "length:       " << h.length    << endl;
-	out << "remote id:    " << h.remote_id << endl;
-	out << "local time:   " << h.local_time << endl;
-	out << "remote time:  " << h.remote_time << endl;
-	out << "local start:  " << h.local_start << endl;
-	out << "remote start: " << h.remote_start << endl;
-	return out;
+			++i;
+		}
+	}
+
+	cout << "Dropped " << size_before - mote1.size() << " messages" << endl;
 }
 
 }

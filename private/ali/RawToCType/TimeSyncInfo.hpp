@@ -31,45 +31,35 @@
 *      Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "TimeSyncMerger.hpp"
-#include "TimeSyncInfo.hpp"
-#include "DataReader.hpp"
-#include "Merger.hpp"
+#ifndef TIMESYNCINFO_HPP_
+#define TIMESYNCINFO_HPP_
 
-using namespace std;
+#include <iosfwd>
+#include <string>
+#include "TypeDefs.hpp"
 
 namespace sdc {
 
-TimeSyncMerger::TimeSyncMerger(int mote, int reboot, int first_block)
-	: mote1(mote), block1(first_block)
-{
-	mote2  = -1;
-	block2 = -1;
+class TimeSyncInfo {
 
-	if (mote1 <= 0) {
-		throw logic_error("mote ID must be a positive integer");
-	}
+public:
 
-	if (reboot <= 0) {
-		throw logic_error("reboot ID must be a positive integer");
-	}
+	TimeSyncInfo();
 
-	if (block1 < 0) {
-		throw logic_error("index of the first block cannot be negative");
-	}
+	bool consistent() const;
 
-	DataReader reader1(mote1, reboot, block1);
+	TimeSyncInfo(const std::string& line_from_tsm_file);
 
-	reader1.read_messages_from_file();
+	friend std::ostream& operator<<(std::ostream& , const TimeSyncInfo& );
 
-	merger.reset(new Merger(reader1.messages_as_list()));
+private:
 
-	merger->drop_inconsistent();
-}
-
-TimeSyncMerger::~TimeSyncMerger() {
-	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
-}
+	uint32 local_time;
+	uint32 remote_time;
+	int remote_id;
+	int remote_start;
+};
 
 }
+
+#endif /* TIMESYNCINFO_HPP_ */

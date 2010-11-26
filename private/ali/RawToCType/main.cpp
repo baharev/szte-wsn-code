@@ -38,7 +38,6 @@
 #include "SDCard.hpp"
 
 using namespace std;
-
 using namespace sdc;
 
 int Main(const char* source) {

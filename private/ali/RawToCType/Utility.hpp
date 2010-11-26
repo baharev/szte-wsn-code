@@ -42,6 +42,8 @@ const std::string ticks2time(unsigned int t);
 
 const std::string current_time();
 
+const std::string get_filename(int mote_id, int reboot_id, int first_block);
+
 const std::string time_to_filename(); // TODO Do we need this function?
 
 const std::string recorded_length(int first_block, int last_block);

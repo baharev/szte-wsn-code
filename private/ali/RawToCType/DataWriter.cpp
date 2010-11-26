@@ -32,12 +32,11 @@
 */
 
 #include <fstream>
-#include <sstream>
-#include <iomanip>
 #include <stdexcept>
 #include "DataWriter.hpp"
 #include "Header.hpp"
 #include "Sample.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
@@ -51,20 +50,11 @@ DataWriter::DataWriter() : samples(new ofstream), timesync(new ofstream) {
 
 void DataWriter::start_new_record(int mote_id, int reboot_id, int first_block) {
 
-	ostringstream os;
+	string fsamples(get_filename(mote_id, reboot_id, first_block));
+	string ftimesync(fsamples);
 
-	os << 'm' << setfill('0') << setw(3) << mote_id << '_';
-	os << 'r' << setfill('0') << setw(3) << reboot_id << '_';
-	os << 'b' << first_block;
-
-	os.flush(); // TODO Is it needed?
-
-	string samples_filename(os.str());
-	string timesync_filename(samples_filename);
-
-
-	samples->open(  samples_filename.append(".csv").c_str());
-	timesync->open(timesync_filename.append(".tsm").c_str());
+	samples->open(  fsamples.append(".csv").c_str());
+	timesync->open(ftimesync.append(".tsm").c_str());
 }
 
 bool DataWriter::is_open() const {

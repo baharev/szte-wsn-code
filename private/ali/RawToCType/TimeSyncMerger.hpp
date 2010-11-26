@@ -36,15 +36,16 @@
 
 #include <memory>
 
-class TimeSyncReader;
-
 namespace sdc {
+
+class DataReader;
+class Merger;
 
 class TimeSyncMerger {
 
 public:
 
-	TimeSyncMerger(int mote, int first_block);
+	TimeSyncMerger(int mote, int reboot, int first_block);
 
 	~TimeSyncMerger();
 
@@ -53,14 +54,14 @@ private:
 	TimeSyncMerger(const TimeSyncMerger& );
 	TimeSyncMerger& operator=(const TimeSyncMerger& );
 
-	const std::auto_ptr<TimeSyncReader> reader;
-
 	const int mote1;
 	const int block1;
 
+	std::auto_ptr<DataReader> reader2;
 	int mote2;
 	int block2;
 
+	std::auto_ptr<Merger> merger;
 };
 
 }

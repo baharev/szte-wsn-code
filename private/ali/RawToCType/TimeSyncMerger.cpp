@@ -65,7 +65,6 @@ TimeSyncMerger::TimeSyncMerger(int mote, int reboot, int first_block)
 
 	merger.reset(new Merger(reader1.messages_as_list()));
 
-	merger->drop_inconsistent();
 }
 
 TimeSyncMerger::~TimeSyncMerger() {

@@ -46,12 +46,12 @@ public:
 
 	explicit Merger(const std::list<TimeSyncInfo>& messages_mote1);
 
-	void drop_inconsistent();
-
 private:
 
 	Merger(const Merger& );
 	Merger& operator=(Merger& );
+
+	void drop_inconsistent(std::list<TimeSyncInfo>& messages);
 
 	std::list<TimeSyncInfo> mote1;
 	std::list<TimeSyncInfo> mote2;

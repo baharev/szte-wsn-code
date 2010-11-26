@@ -43,21 +43,22 @@ namespace sdc {
 
 Merger::Merger(const list<TimeSyncInfo>& msg_mote1) : mote1(msg_mote1) {
 
+	drop_inconsistent(mote1);
 }
 
-void Merger::drop_inconsistent() {
+void Merger::drop_inconsistent(list<TimeSyncInfo>& messages) {
 
-	list<TimeSyncInfo>::size_type size_before = mote1.size();
+	list<TimeSyncInfo>::size_type size_before = messages.size();
 
-	li i = mote1.begin();
+	li i = messages.begin();
 
-	while (i != mote1.end()) {
+	while (i != messages.end()) {
 
 		if (!i->consistent()) {
 
 			cout << "Warning: inconsistent message " << endl << *i << endl;
 
-			i = mote1.erase(i);
+			i = messages.erase(i);
 		}
 		else {
 
@@ -65,7 +66,7 @@ void Merger::drop_inconsistent() {
 		}
 	}
 
-	cout << "Dropped " << size_before - mote1.size() << " messages" << endl;
+	cout << "Dropped " << size_before - messages.size() << " messages" << endl;
 }
 
 }

@@ -109,6 +109,9 @@ int FlatFileDB::reboot(int first_block) {
 		if (first_block==37435)
 			return 42;
 
+		if (first_block==64424)
+			return 43;
+
 		throw logic_error("update mock implementation mote 5");
 	}
 

@@ -77,22 +77,19 @@ void Merger::init_for_mote2() {
 
 	merged.clear();
 
-	vmote2.reset();
-
 	li beg = mote1.begin();
 
 	if (beg!=mote1.end()) {
 
-		vmote2 = *beg;
+		VirtualMoteID vmote = *beg;
 
-		mote2_id_new = true;
+		mote2_id_new = vmote.mote_id()==vmote2.mote_id() ? false : true;
+
+		vmote2 = vmote;
 
 		cout << "Found: " << vmote2 << endl;
 	}
-	else {
 
-		mote2_id_new = false;
-	}
 }
 
 bool Merger::set_next() {

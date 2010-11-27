@@ -50,8 +50,6 @@ public:
 
 	VirtualMoteID(const TimeSyncInfo& msg);
 
-	void reset();
-
 	int mote_id() const;
 
 	int first_block() const;

@@ -42,7 +42,7 @@ namespace sdc {
 
 VirtualMoteID::VirtualMoteID() {
 
-	reset();
+	mote_ID = start_at_block = 0;
 }
 
 VirtualMoteID::VirtualMoteID(int mote_id, int first_block) {
@@ -50,11 +50,6 @@ VirtualMoteID::VirtualMoteID(int mote_id, int first_block) {
 	mote_ID = mote_id;
 
 	start_at_block = first_block;
-}
-
-void VirtualMoteID::reset() {
-
-	mote_ID = start_at_block = 0;
 }
 
 VirtualMoteID::VirtualMoteID(const TimeSyncInfo& msg) {

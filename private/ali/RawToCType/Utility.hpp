@@ -50,6 +50,8 @@ const std::string recorded_length(int first_block, int last_block);
 
 const std::string failed_to_read_block(int i);
 
+const std::string rdb_file_name(int mote_id);
+
 }
 
 #endif

@@ -31,53 +31,36 @@
 *      Author: Ali Baharev
 */
 
-#ifndef MERGER_HPP_
-#define MERGER_HPP_
+#ifndef FLATFILEDB_HPP_
+#define FLATFILEDB_HPP_
 
-#include <list>
-#include "VirtualMoteID.hpp"
+#include <iosfwd>
+#include <memory>
 
 namespace sdc {
 
-class TimeSyncInfo;
-
-typedef std::list<TimeSyncInfo> List;
-
-class Merger {
+class FlatFileDB {
 
 public:
 
-	explicit Merger(const VirtualMoteID& vmote_1, const List& messages_mote1);
+	FlatFileDB(int mote_id);
 
-	bool set_next();
+	int reboot(int first_block);
 
-	bool mote2_id_changed() const;
+	int last_reboot();
 
-	int mote2_id() const;
-
-	int block2() const;
-
-	void set_mote2_messages(const List& messages_mote2);
+	~FlatFileDB();
 
 private:
 
-	Merger(const Merger& );
-	Merger& operator=(Merger& );
+	FlatFileDB(const FlatFileDB& );
+	FlatFileDB& operator=(const FlatFileDB& );
 
-	void drop_inconsistent(List& messages);
-	void drop_not_from_mote1();
-	void init_for_mote2();
+	const std::auto_ptr<std::ifstream> in;
+	const int mote_id;
 
-	const VirtualMoteID vmote1;
-
-	List mote1;
-	List mote2;
-	List merged;
-
-	VirtualMoteID vmote2;
-	bool mote2_id_new;
 };
 
 }
 
-#endif /* MERGER_HPP_ */
+#endif /* FLATFILEDB_HPP_ */

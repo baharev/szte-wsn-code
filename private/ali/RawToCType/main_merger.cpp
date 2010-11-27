@@ -52,6 +52,10 @@ int main(int argc, char* argv[]) {
 
 	try {
 
+		TimeSyncMerger tsm(4, 1, 57479);
+
+		tsm.process_pairs();
+/*
 		TimeSyncMerger(5, 23, 33576);
 
 		TimeSyncMerger(5, 42, 37435);
@@ -59,6 +63,7 @@ int main(int argc, char* argv[]) {
 		TimeSyncMerger(1, 1, 0);
 
 		TimeSyncMerger(2, 1, 0);
+*/
 	}
 	catch (exception& e) {
 

@@ -121,4 +121,14 @@ const string failed_to_read_block(int i) {
 	return os.str();
 }
 
+
+const std::string rdb_file_name(int mote_id) {
+
+	ostringstream os;
+
+	os << 'm' << setfill('0') << setw(3) << mote_id << ".rdb" << flush;
+
+	return os.str();
+}
+
 }

@@ -39,6 +39,7 @@
 namespace sdc {
 
 class DataReader;
+class FlatFileDB;
 class Merger;
 
 class TimeSyncMerger {
@@ -47,12 +48,16 @@ public:
 
 	TimeSyncMerger(int mote, int reboot, int first_block);
 
+	void process_pairs();
+
 	~TimeSyncMerger();
 
 private:
 
 	TimeSyncMerger(const TimeSyncMerger& );
 	TimeSyncMerger& operator=(const TimeSyncMerger& );
+
+	void reset_db_if_needed();
 
 	const int mote1;
 	const int block1;
@@ -62,6 +67,8 @@ private:
 	int block2;
 
 	std::auto_ptr<Merger> merger;
+
+	std::auto_ptr<FlatFileDB> db;
 };
 
 }

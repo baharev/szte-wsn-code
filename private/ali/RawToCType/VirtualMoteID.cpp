@@ -31,53 +31,69 @@
 *      Author: Ali Baharev
 */
 
-#ifndef MERGER_HPP_
-#define MERGER_HPP_
-
-#include <list>
+#include <ostream>
+#include <stdexcept>
 #include "VirtualMoteID.hpp"
+#include "TimeSyncInfo.hpp"
+
+using namespace std;
 
 namespace sdc {
 
-class TimeSyncInfo;
+VirtualMoteID::VirtualMoteID() {
 
-typedef std::list<TimeSyncInfo> List;
-
-class Merger {
-
-public:
-
-	explicit Merger(const VirtualMoteID& vmote_1, const List& messages_mote1);
-
-	bool set_next();
-
-	bool mote2_id_changed() const;
-
-	int mote2_id() const;
-
-	int block2() const;
-
-	void set_mote2_messages(const List& messages_mote2);
-
-private:
-
-	Merger(const Merger& );
-	Merger& operator=(Merger& );
-
-	void drop_inconsistent(List& messages);
-	void drop_not_from_mote1();
-	void init_for_mote2();
-
-	const VirtualMoteID vmote1;
-
-	List mote1;
-	List mote2;
-	List merged;
-
-	VirtualMoteID vmote2;
-	bool mote2_id_new;
-};
-
+	reset();
 }
 
-#endif /* MERGER_HPP_ */
+VirtualMoteID::VirtualMoteID(int mote_id, int first_block) {
+
+	mote_ID = mote_id;
+
+	start_at_block = first_block;
+}
+
+void VirtualMoteID::reset() {
+
+	mote_ID = start_at_block = 0;
+}
+
+VirtualMoteID::VirtualMoteID(const TimeSyncInfo& msg) {
+
+	if (msg.remote_id==0) {
+
+		throw logic_error("inconsistent messages should have been removed");
+	}
+
+	mote_ID        = msg.remote_id;
+
+	start_at_block = msg.remote_start;
+}
+
+int VirtualMoteID::mote_id() const {
+
+	return mote_ID;
+}
+
+int VirtualMoteID::first_block() const {
+
+	return start_at_block;
+}
+
+ostream& operator<<(ostream& out, const VirtualMoteID& id) {
+
+	out << "mote id " << id.mote_ID << ", first block " << id.start_at_block << flush;
+
+	return out;
+}
+
+bool operator==(const VirtualMoteID& lhs, const VirtualMoteID& rhs) {
+
+	return lhs.mote_ID==rhs.mote_ID && lhs.start_at_block==rhs.start_at_block;
+}
+
+bool operator!=(const VirtualMoteID& lhs, const VirtualMoteID& rhs) {
+
+	return !(lhs==rhs);
+}
+
+}

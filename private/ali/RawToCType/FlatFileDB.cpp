@@ -31,53 +31,92 @@
 *      Author: Ali Baharev
 */
 
-#ifndef MERGER_HPP_
-#define MERGER_HPP_
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include "FlatFileDB.hpp"
+#include "Utility.hpp"
 
-#include <list>
-#include "VirtualMoteID.hpp"
+using namespace std;
 
 namespace sdc {
 
-class TimeSyncInfo;
+typedef istringstream iss;
 
-typedef std::list<TimeSyncInfo> List;
-
-class Merger {
+class DBLine {
 
 public:
 
-	explicit Merger(const VirtualMoteID& vmote_1, const List& messages_mote1);
-
-	bool set_next();
-
-	bool mote2_id_changed() const;
-
-	int mote2_id() const;
-
-	int block2() const;
-
-	void set_mote2_messages(const List& messages_mote2);
+	explicit DBLine(const string& line);
 
 private:
 
-	Merger(const Merger& );
-	Merger& operator=(Merger& );
-
-	void drop_inconsistent(List& messages);
-	void drop_not_from_mote1();
-	void init_for_mote2();
-
-	const VirtualMoteID vmote1;
-
-	List mote1;
-	List mote2;
-	List merged;
-
-	VirtualMoteID vmote2;
-	bool mote2_id_new;
+	int first_block;
+	int last_block;
+	int reboot;
+	string length_computed;
+	string length_recorded;
+	string date_downloaded;
 };
 
+DBLine::DBLine(const string& line) {
+
+	iss in(line);
+
+	in.exceptions(iss::failbit | iss::badbit);
+
+	in >> first_block;
+	in >> last_block;
+	in >> reboot;
+	in >> length_computed;
+	in >> length_recorded;
+	in >> date_downloaded;
 }
 
-#endif /* MERGER_HPP_ */
+FlatFileDB::FlatFileDB(int mote_ID) : in(new ifstream), mote_id(mote_ID) {
+
+	if (mote_id<=0) {
+
+		logic_error("mote id must be positive");
+	}
+/*
+	string fname = rdb_file_name(mote_id);
+
+	in->open(fname.c_str());
+
+	if (in->is_open()) {
+		// TODO Finish
+	}
+	else {
+
+	}
+*/
+
+	cout << "DB of mote " << mote_ID << " is opened" << endl;
+}
+
+// TODO Replace this mock implementation
+int FlatFileDB::reboot(int first_block) {
+
+	if (mote_id==4) {
+
+		throw logic_error("update mock implementation mote 4");
+	}
+
+	if (mote_id==5) {
+
+		if (first_block==37435)
+			return 42;
+
+		throw logic_error("update mock implementation mote 5");
+	}
+
+	throw logic_error("update mock implementation mote ID");
+}
+
+FlatFileDB::~FlatFileDB() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+}
+
+}

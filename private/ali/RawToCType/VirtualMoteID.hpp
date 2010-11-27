@@ -31,53 +31,44 @@
 *      Author: Ali Baharev
 */
 
-#ifndef MERGER_HPP_
-#define MERGER_HPP_
+#ifndef VIRTUALMOTEID_HPP_
+#define VIRTUALMOTEID_HPP_
 
-#include <list>
-#include "VirtualMoteID.hpp"
+#include <iosfwd>
 
 namespace sdc {
 
 class TimeSyncInfo;
 
-typedef std::list<TimeSyncInfo> List;
-
-class Merger {
+class VirtualMoteID {
 
 public:
 
-	explicit Merger(const VirtualMoteID& vmote_1, const List& messages_mote1);
+	VirtualMoteID();
 
-	bool set_next();
+	VirtualMoteID(int mote_id, int first_block);
 
-	bool mote2_id_changed() const;
+	VirtualMoteID(const TimeSyncInfo& msg);
 
-	int mote2_id() const;
+	void reset();
 
-	int block2() const;
+	int mote_id() const;
 
-	void set_mote2_messages(const List& messages_mote2);
+	int first_block() const;
+
+	friend std::ostream& operator<<(std::ostream& , const VirtualMoteID& );
+
+	friend bool operator==(const VirtualMoteID& lhs, const VirtualMoteID& rhs);
 
 private:
 
-	Merger(const Merger& );
-	Merger& operator=(Merger& );
+	int mote_ID;
 
-	void drop_inconsistent(List& messages);
-	void drop_not_from_mote1();
-	void init_for_mote2();
-
-	const VirtualMoteID vmote1;
-
-	List mote1;
-	List mote2;
-	List merged;
-
-	VirtualMoteID vmote2;
-	bool mote2_id_new;
+	int start_at_block;
 };
+
+bool operator!=(const VirtualMoteID& lhs, const VirtualMoteID& rhs);
 
 }
 
-#endif /* MERGER_HPP_ */
+#endif /* VIRTUALMOTEID_HPP_ */

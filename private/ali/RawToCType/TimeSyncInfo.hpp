@@ -50,6 +50,8 @@ public:
 
 	TimeSyncInfo(const std::string& line_from_tsm_file);
 
+	friend class VirtualMoteID;
+
 	friend std::ostream& operator<<(std::ostream& , const TimeSyncInfo& );
 
 private:

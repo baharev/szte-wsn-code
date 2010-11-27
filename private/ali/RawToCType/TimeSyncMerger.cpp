@@ -35,7 +35,9 @@
 #include "TimeSyncMerger.hpp"
 #include "TimeSyncInfo.hpp"
 #include "DataReader.hpp"
+#include "FlatFileDB.hpp"
 #include "Merger.hpp"
+#include "VirtualMoteID.hpp"
 
 using namespace std;
 
@@ -63,8 +65,39 @@ TimeSyncMerger::TimeSyncMerger(int mote, int reboot, int first_block)
 
 	reader1.read_messages_from_file();
 
-	merger.reset(new Merger(reader1.messages_as_list()));
+	VirtualMoteID vmote1(mote1, block1);
 
+	merger.reset(new Merger(vmote1, reader1.messages_as_list()));
+}
+
+void TimeSyncMerger::reset_db_if_needed() {
+
+	if (merger->mote2_id_changed()) {
+
+		int mote2_id = merger->mote2_id();
+
+		db.reset(new FlatFileDB(mote2_id));
+	}
+}
+
+void TimeSyncMerger::process_pairs() {
+
+	while(merger->set_next()) {
+
+		reset_db_if_needed();
+
+		int mote2_id = merger->mote2_id();
+
+		int first_block2 = merger->block2();
+
+		int reboot2 = db->reboot(first_block2);
+
+		DataReader reader2(mote2_id, reboot2, first_block2);
+
+		reader2.read_messages_from_file();
+
+		merger->set_mote2_messages(reader2.messages_as_list());
+	}
 }
 
 TimeSyncMerger::~TimeSyncMerger() {

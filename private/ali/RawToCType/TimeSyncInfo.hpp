@@ -35,10 +35,13 @@
 #define TIMESYNCINFO_HPP_
 
 #include <iosfwd>
+#include <utility>
 #include <string>
 #include "TypeDefs.hpp"
 
 namespace sdc {
+
+typedef std::pair<uint32, uint32> Pair;
 
 class TimeSyncInfo {
 
@@ -49,6 +52,12 @@ public:
 	bool consistent() const;
 
 	TimeSyncInfo(const std::string& line_from_tsm_file);
+
+	int lost_messages_since(const TimeSyncInfo& other) const;
+
+	const Pair time_pair() const;
+
+	const Pair reversed_time_pair() const;
 
 	friend class VirtualMoteID;
 

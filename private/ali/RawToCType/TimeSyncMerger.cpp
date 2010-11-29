@@ -97,6 +97,10 @@ void TimeSyncMerger::process_pairs() {
 		reader2.read_messages_from_file();
 
 		merger->set_mote2_messages(reader2.messages_as_list());
+
+		merger->merge();
+
+		// TODO Dump results
 	}
 }
 

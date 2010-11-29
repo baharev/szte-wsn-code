@@ -38,7 +38,6 @@
 
 namespace sdc {
 
-class DataReader;
 class FlatFileDB;
 class Merger;
 
@@ -62,7 +61,6 @@ private:
 	const int mote1;
 	const int block1;
 
-	std::auto_ptr<DataReader> reader2;
 	int mote2;
 	int block2;
 

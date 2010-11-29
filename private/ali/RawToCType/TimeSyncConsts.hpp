@@ -31,79 +31,14 @@
 *      Author: Ali Baharev
 */
 
-#include <ostream>
-#include <sstream>
-#include <cmath>
-#include <stdexcept>
-#include "TimeSyncInfo.hpp"
-#include "TimeSyncConsts.hpp"
-
-using namespace std;
-
-typedef istringstream iss;
+#ifndef TIMESYNCCONSTS_HPP_
+#define TIMESYNCCONSTS_HPP_
 
 namespace sdc {
 
-TimeSyncInfo::TimeSyncInfo() {
-
-	local_time = remote_time = remote_id = remote_start = 0;
-}
-
-TimeSyncInfo::TimeSyncInfo(const string& line_from_file) {
-
-	iss in(line_from_file);
-
-	in.exceptions(iss::failbit | iss::badbit);
-
-	in >> local_time;
-	in >> remote_time;
-	in >> remote_id;
-	in >> remote_start;
-}
-
-bool TimeSyncInfo::consistent() const {
-
-	return (local_time  > 0 &&
-			remote_time > 0 &&
-			remote_id   > 0 &&
-			remote_start >= 0 );
-}
-
-int TimeSyncInfo::lost_messages_since(const TimeSyncInfo& other) const {
-
-	if (remote_id != other.remote_id || remote_start != other.remote_start) {
-
-		throw logic_error("trying to compare messages from different records");
-	}
-
-	double diff = static_cast<double> (remote_time) - other.remote_time;
-
-	if (diff <= 0) {
-
-		throw runtime_error("cannot handle this type of error (remote_time)");
-	}
-
-	return floor(diff/TIMESYNC_MSG_RATE + 0.5) - 1;
-}
-
-const Pair TimeSyncInfo::time_pair() const {
-
-	return Pair(local_time, remote_time);
-}
-
-const Pair TimeSyncInfo::reversed_time_pair() const {
-
-	return Pair(remote_time, local_time);
-}
-
-ostream& operator<<(ostream& out, const TimeSyncInfo& msg) {
-
-	out << "local_time:   " << msg.local_time   << endl;
-	out << "remote_time:  " << msg.remote_time  << endl;
-	out << "remote_id:    " << msg.remote_id    << endl;
-	out << "remote_start: " << msg.remote_start << flush;
-
-	return out;
-}
+const int TIMESYNC_MSG_RATE = 1024;
+const int OFFSET_TOLERANCE = 5;
 
 }
+
+#endif /* TIMESYNCCONSTS_HPP_ */

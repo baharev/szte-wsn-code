@@ -35,6 +35,7 @@
 #define MERGER_HPP_
 
 #include <list>
+#include <map>
 #include "VirtualMoteID.hpp"
 
 namespace sdc {
@@ -42,6 +43,9 @@ namespace sdc {
 class TimeSyncInfo;
 
 typedef std::list<TimeSyncInfo> List;
+typedef std::map<unsigned int, unsigned int> Map;
+typedef std::pair<unsigned int, unsigned int> Pair;
+typedef std::pair<const unsigned int, unsigned int> CPair;
 
 class Merger {
 
@@ -59,20 +63,29 @@ public:
 
 	void set_mote2_messages(const List& messages_mote2);
 
+	void merge();
+
 private:
 
 	Merger(const Merger& );
 	Merger& operator=(Merger& );
 
+	void insert(const Pair& sync_point);
+	void log_msg_loss(const List& messages, const VirtualMoteID& vmid) const;
 	void drop_inconsistent(List& messages);
 	void drop_not_from_mote1();
+	bool wrong_offset(const CPair& time_pair, int& previous_offset) const;
+	int initial_offset() const;
+	void drop_wrong_offsets();
+	void few_offsets();
 	void init_for_mote2();
 
 	const VirtualMoteID vmote1;
 
 	List mote1;
 	List mote2;
-	List merged;
+	List temp;
+	Map merged;
 
 	VirtualMoteID vmote2;
 	bool mote2_id_new;

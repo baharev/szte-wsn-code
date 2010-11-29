@@ -32,27 +32,36 @@
  */
 
 #include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <stdexcept>
 #include "Merger.hpp"
 #include "TimeSyncInfo.hpp"
+#include "TimeSyncConsts.hpp"
 
 using namespace std;
 
 namespace sdc {
 
 typedef List::iterator li;
-
+typedef List::const_iterator cli;
 typedef List::size_type Size_t;
+typedef Map::iterator mi;
+typedef Map::const_iterator cmi;
 
 Merger::Merger(const VirtualMoteID& vmote_1, const List& msg_mote1)
 	: vmote1(vmote_1), mote1(msg_mote1)
 {
-
 	drop_inconsistent(mote1);
 
 	mote2_id_new = false;
+
+	cout << "Initialized mote1 list" << endl;
 }
 
 void Merger::drop_inconsistent(List& messages) {
+
+	cout << "Dropping inconsistent messages" << endl;
 
 	Size_t size_before = messages.size();
 
@@ -73,26 +82,62 @@ void Merger::drop_inconsistent(List& messages) {
 	cout << "Dropped " << size_before - messages.size() << " messages" << endl;
 }
 
-void Merger::init_for_mote2() {
+void Merger::log_msg_loss(const List& messages, const VirtualMoteID& vmid) const {
 
-	merged.clear();
+	if (messages.empty()) {
 
-	li beg = mote1.begin();
-
-	if (beg!=mote1.end()) {
-
-		VirtualMoteID vmote = *beg;
-
-		mote2_id_new = vmote.mote_id()==vmote2.mote_id() ? false : true;
-
-		vmote2 = vmote;
-
-		cout << "Found: " << vmote2 << endl;
+		return;
 	}
 
+	cout << "Checking message frequency on: " << vmid << endl;
+
+	cli i = messages.begin();
+
+	TimeSyncInfo previous = *i;
+
+	++i;
+
+	while (i != messages.end()) {
+
+		const TimeSyncInfo current = *i;
+
+		int lost = current.lost_messages_since(previous);
+
+		if (lost) {
+
+			cout << "Warning: missing " << lost << " message(s)" << endl;
+		}
+
+		previous = current;
+
+		++i;
+	}
+
+	cout << "Message loss checked" << endl;
+}
+
+void Merger::init_for_mote2() {
+
+	mote2.clear();
+	temp.clear();
+	merged.clear();
+
+	VirtualMoteID vmote = *mote1.begin();
+
+	mote2_id_new = vmote.mote_id()==vmote2.mote_id() ? false : true;
+
+	vmote2 = vmote;
+
+	cout << "-----------------------------------------------------" << endl;
+	cout << "Found: " << vmote2 << endl;
 }
 
 bool Merger::set_next() {
+
+	if (mote1.empty()) {
+
+		return false;
+	}
 
 	init_for_mote2();
 
@@ -100,7 +145,7 @@ bool Merger::set_next() {
 
 		if (vmote2 == *i) {
 
-			merged.push_back(*i);
+			temp.push_back(*i);
 
 			i = mote1.erase(i);
 		}
@@ -110,7 +155,11 @@ bool Merger::set_next() {
 		}
 	}
 
-	return !merged.empty();
+	cout << "Relevant messages from " << vmote1 << " copied" << endl;
+
+	log_msg_loss(temp, vmote1);
+
+	return !temp.empty();
 }
 
 bool Merger::mote2_id_changed() const {
@@ -136,9 +185,13 @@ void Merger::set_mote2_messages(const List& messages_mote2) {
 	drop_inconsistent(mote2);
 
 	drop_not_from_mote1();
+
+	log_msg_loss(mote2, vmote2);
 }
 
 void Merger::drop_not_from_mote1() {
+
+	cout << "Discarding messages not from " << vmote1 << endl;
 
 	Size_t size_before = mote2.size();
 
@@ -155,6 +208,118 @@ void Merger::drop_not_from_mote1() {
 	}
 
 	cout << "Dropped " << size_before - mote2.size() << " messages" << endl;
+}
+
+void Merger::insert(const Pair& sync_point) {
+
+	pair<Map::iterator, bool>  pos = merged.insert(sync_point);
+
+	if (!pos.second) {
+
+		cout << "Warning: conflicting keys in time pairs, ";
+		cout << "dropping the first one shown below" << endl;
+		cout << sync_point.first << '\t' << sync_point.second << endl;
+		cout << pos.first->first << '\t' << pos.first->second << endl;
+	}
+}
+
+void Merger::few_offsets() {
+
+	// TODO Finish implementation
+	throw logic_error("few_offsets() not implemented yet");
+}
+
+int Merger::initial_offset() const {
+
+	const int n = 3, middle = 1;
+
+	int offset[n];
+
+	int i=0;
+
+	for (cmi j = merged.begin(); i<n; ++i, ++j) {
+
+		offset[i] = j->first - j->second;
+	}
+
+	cout << "First 3 offset: ";
+	cout << offset[0] << '\t' << offset[1] << '\t' << offset[2] << endl;
+
+	sort(offset, offset+n);
+
+	return offset[middle];
+}
+
+bool Merger::wrong_offset(const CPair& time_pair, int& previous_offset) const {
+
+	bool wrong = false;
+
+	int current_offset = time_pair.first - time_pair.second;
+
+	int diff = current_offset-previous_offset;
+
+	if (fabs(diff) > OFFSET_TOLERANCE) {
+
+		cout << "Warning: wrong offset found, previous " << previous_offset;
+		cout << ", current " << current_offset << ", diff " << diff << endl;
+		wrong = true;
+	}
+	else {
+
+		previous_offset = current_offset;
+	}
+
+	return wrong;
+}
+
+void Merger::drop_wrong_offsets() {
+
+	int offset = initial_offset();
+
+	int k = 1;
+
+	for (mi i = merged.begin(); i!=merged.end(); ++k) {
+
+		if (wrong_offset(*i, offset)) {
+			cout << "Erasing wrong time pair " << i->first << "  ";
+			cout << i->second << " (" << k << ")" << endl;
+			merged.erase(i++);
+		}
+		else {
+			++i;
+		}
+	}
+}
+
+void Merger::merge() {
+
+	cout << "Merging time sync info" << endl;
+
+	if (!merged.empty()) {
+
+		throw logic_error("merged should have been cleared");
+	}
+
+	for (cli i = temp.begin(); i != temp.end(); ++i) {
+
+		insert(i->time_pair());
+	}
+
+	for (cli i = mote2.begin(); i != mote2.end(); ++i) {
+
+		insert(i->reversed_time_pair());
+	}
+
+	if (merged.size()>2) {
+
+		drop_wrong_offsets();
+	}
+	else {
+
+		few_offsets();
+	}
+
+	cout << "Merged, size: " << merged.size() << endl;
 }
 
 }

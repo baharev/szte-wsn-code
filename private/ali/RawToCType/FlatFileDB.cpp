@@ -44,54 +44,78 @@ namespace sdc {
 
 typedef istringstream iss;
 
-class DBLine {
+struct Line {
 
-public:
+	explicit Line(const string& line);
+	Line(int first, int last, int reboot_id)
+		: first_block(first), last_block(last), reboot(reboot_id) { }
 
-	explicit DBLine(const string& line);
-
-private:
+	void consistent_with(const Line& previous) const;
 
 	int first_block;
 	int last_block;
 	int reboot;
-	string length_computed;
-	string length_recorded;
-	string date_downloaded;
 };
 
-DBLine::DBLine(const string& line) {
+Line::Line(const string& line) {
 
 	iss in(line);
 
-	in.exceptions(iss::failbit | iss::badbit);
+	in.exceptions(iss::failbit | iss::badbit | iss::eofbit);
 
 	in >> first_block;
 	in >> last_block;
 	in >> reboot;
-	in >> length_computed;
-	in >> length_recorded;
-	in >> date_downloaded;
+
+	if (first_block > last_block || reboot < 1) {
+		throw runtime_error("corrupted line");
+	}
 }
 
-FlatFileDB::FlatFileDB(int mote_ID) : in(new ifstream), mote_id(mote_ID) {
+void Line::consistent_with(const Line& previous) const {
+
+	if ((first_block != previous.last_block+1) ||
+		(reboot      != previous.reboot   +1) )
+	{
+		throw runtime_error("corrupted database");
+	}
+}
+
+FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 
 	if (mote_id<=0) {
-
 		logic_error("mote id must be positive");
 	}
-/*
+
 	string fname = rdb_file_name(mote_id);
 
-	in->open(fname.c_str());
+	ifstream in;
 
-	if (in->is_open()) {
-		// TODO Finish
+	in.open(fname.c_str());
+
+	if (in.is_open()) {
+
+		Line previous(0, -1, 0);
+
+		while (in.good()) {
+
+			string buffer;
+			getline(in, buffer);
+
+			if (buffer.size()>0) {
+				Line current(buffer);
+				current.consistent_with(previous);
+				previous = current;
+				record.push_back(current.first_block);
+			}
+		}
 	}
 	else {
-
+		string msg("perhaps records of mote ");
+		msg.append(int2str(mote_id));
+		msg.append(" have not been downloaded");
+		throw runtime_error(msg);
 	}
-*/
 
 	cout << "DB of mote " << mote_ID << " is opened" << endl;
 }
@@ -116,10 +140,6 @@ int FlatFileDB::reboot(int first_block) {
 	}
 
 	throw logic_error("update mock implementation mote ID");
-}
-
-FlatFileDB::~FlatFileDB() {
-	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 
 }

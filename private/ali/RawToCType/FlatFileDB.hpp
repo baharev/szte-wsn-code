@@ -34,8 +34,7 @@
 #ifndef FLATFILEDB_HPP_
 #define FLATFILEDB_HPP_
 
-#include <iosfwd>
-#include <memory>
+#include <vector>
 
 namespace sdc {
 
@@ -49,15 +48,13 @@ public:
 
 	int last_reboot();
 
-	~FlatFileDB();
-
 private:
 
 	FlatFileDB(const FlatFileDB& );
 	FlatFileDB& operator=(const FlatFileDB& );
 
-	const std::auto_ptr<std::ifstream> in;
 	const int mote_id;
+	std::vector<int> record;
 
 };
 

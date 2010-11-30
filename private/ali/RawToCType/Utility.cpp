@@ -131,4 +131,13 @@ const std::string rdb_file_name(int mote_id) {
 	return os.str();
 }
 
+const std::string int2str(int i) {
+
+	ostringstream os;
+
+	os << i << flush;
+
+	return os.str();
+}
+
 }

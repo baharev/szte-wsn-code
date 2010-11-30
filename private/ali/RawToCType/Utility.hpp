@@ -52,6 +52,8 @@ const std::string failed_to_read_block(int i);
 
 const std::string rdb_file_name(int mote_id);
 
+const std::string int2str(int i);
+
 }
 
 #endif

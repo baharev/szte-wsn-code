@@ -32,6 +32,7 @@
 */
 
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -44,13 +45,21 @@ namespace sdc {
 
 typedef istringstream iss;
 
-struct Line {
+class Line {
+
+public:
 
 	explicit Line(const string& line);
 	Line(int first, int last, int reboot_id)
 		: first_block(first), last_block(last), reboot(reboot_id) { }
 
 	void consistent_with(const Line& previous) const;
+
+	int start_at_block() const { return first_block; }
+
+	int finished_at_block() const { return last_block; }
+
+private:
 
 	int first_block;
 	int last_block;
@@ -67,7 +76,7 @@ Line::Line(const string& line) {
 	in >> last_block;
 	in >> reboot;
 
-	if (first_block > last_block || reboot < 1) {
+	if (first_block < 0 || first_block > last_block || reboot < 1) {
 		throw runtime_error("corrupted line");
 	}
 }
@@ -84,6 +93,7 @@ void Line::consistent_with(const Line& previous) const {
 FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 
 	if (mote_id<=0) {
+
 		logic_error("mote id must be positive");
 	}
 
@@ -95,51 +105,77 @@ FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 
 	if (in.is_open()) {
 
-		Line previous(0, -1, 0);
-
-		while (in.good()) {
-
-			string buffer;
-			getline(in, buffer);
-
-			if (buffer.size()>0) {
-				Line current(buffer);
-				current.consistent_with(previous);
-				previous = current;
-				record.push_back(current.first_block);
-			}
-		}
+		read_file(in);
 	}
-	else {
-		string msg("perhaps records of mote ");
-		msg.append(int2str(mote_id));
-		msg.append(" have not been downloaded");
-		throw runtime_error(msg);
+
+	if (record.size()==0) {
+
+		throw_not_downloaded_error();
 	}
+
+	size = static_cast<int>(record.size());
 
 	cout << "DB of mote " << mote_ID << " is opened" << endl;
 }
 
-// TODO Replace this mock implementation
+void FlatFileDB::throw_not_downloaded_error() const {
+
+	string msg("perhaps records of mote ");
+	msg.append(int2str(mote_id));
+	msg.append(" have not been downloaded yet");
+
+	throw runtime_error(msg);
+}
+
+void FlatFileDB::read_file(std::ifstream& in) {
+
+	Line previous(0, -1, 0);
+
+	while (in.good()) {
+
+		string buffer;
+
+		getline(in, buffer);
+
+		push_back(buffer, previous);
+	}
+
+	last_used_block = previous.finished_at_block();
+}
+
+void FlatFileDB::push_back(const string& line, Line& previous) {
+
+	if (line.size()==0) {
+
+		return;
+	}
+
+	Line current(line);
+
+	current.consistent_with(previous);
+
+	previous = current;
+
+	record.push_back(current.start_at_block());
+}
+
 int FlatFileDB::reboot(int first_block) {
 
-	if (mote_id==4) {
+	if (first_block > record.at(size-1)) {
 
-		throw logic_error("update mock implementation mote 4");
+		throw_not_downloaded_error();
 	}
 
-	if (mote_id==5) {
+	vector<int>::iterator pos = lower_bound(record.begin(), record.end(), first_block);
 
-		if (first_block==37435)
-			return 42;
+	int index = pos - record.begin();
 
-		if (first_block==64424)
-			return 43;
+	if (first_block != record.at(index)) {
 
-		throw logic_error("update mock implementation mote 5");
+		throw runtime_error("failed to find first block in the database");
 	}
 
-	throw logic_error("update mock implementation mote ID");
+	return index + 1;
 }
 
 }

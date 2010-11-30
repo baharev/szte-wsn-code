@@ -34,9 +34,12 @@
 #ifndef FLATFILEDB_HPP_
 #define FLATFILEDB_HPP_
 
+#include <string>
 #include <vector>
 
 namespace sdc {
+
+class Line;
 
 class FlatFileDB {
 
@@ -46,16 +49,19 @@ public:
 
 	int reboot(int first_block);
 
-	int last_reboot();
-
 private:
 
 	FlatFileDB(const FlatFileDB& );
 	FlatFileDB& operator=(const FlatFileDB& );
 
+	void read_file(std::ifstream& in);
+	void push_back(const std::string& line, Line& previous);
+	void throw_not_downloaded_error() const;
+
 	const int mote_id;
 	std::vector<int> record;
-
+	int last_used_block;
+	int size;
 };
 
 }

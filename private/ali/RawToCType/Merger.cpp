@@ -105,7 +105,7 @@ void Merger::log_msg_loss(const List& messages, const VirtualMoteID& vmid) const
 
 		if (lost) {
 
-			cout << "Warning: missing " << lost << " message(s)" << endl;
+			cout << "Warning: missing " << lost << " messages" << endl;
 		}
 
 		previous = current;
@@ -223,38 +223,54 @@ void Merger::insert(const Pair& sync_point) {
 	}
 }
 
-void Merger::few_offsets() {
+int Merger::offset(const CPair& p) const {
 
-	// TODO Finish implementation
-	throw logic_error("few_offsets() not implemented yet");
+	return p.first - p.second;
+}
+
+void Merger::two_offsets() {
+
+	cmi i = merged.begin();
+
+	int offset1 = offset(*i++);
+
+	int offset2 = offset(*i);
+
+	if (fabs(offset1-offset2) > OFFSET_TOLERANCE) {
+
+		cout << "Warning: got only 2 time sync points and they ";
+		cout << "differ too much, dropping both" << endl;
+
+		merged.clear();
+	}
 }
 
 int Merger::initial_offset() const {
 
 	const int n = 3, middle = 1;
 
-	int offset[n];
+	int ofs[n];
 
 	int i=0;
 
 	for (cmi j = merged.begin(); i<n; ++i, ++j) {
 
-		offset[i] = j->first - j->second;
+		ofs[i] = offset(*j);
 	}
 
-	cout << "First 3 offset: ";
-	cout << offset[0] << '\t' << offset[1] << '\t' << offset[2] << endl;
+	cout << "1st, 2nd, 3rd offset: ";
+	cout << ofs[0] << '\t' << ofs[1] << '\t' << ofs[2] << endl;
 
-	sort(offset, offset+n);
+	sort(ofs, ofs+n);
 
-	return offset[middle];
+	return ofs[middle];
 }
 
 bool Merger::wrong_offset(const CPair& time_pair, int& previous_offset) const {
 
 	bool wrong = false;
 
-	int current_offset = time_pair.first - time_pair.second;
+	int current_offset = offset(time_pair);
 
 	int diff = current_offset-previous_offset;
 
@@ -262,6 +278,7 @@ bool Merger::wrong_offset(const CPair& time_pair, int& previous_offset) const {
 
 		cout << "Warning: wrong offset found, previous " << previous_offset;
 		cout << ", current " << current_offset << ", diff " << diff << endl;
+
 		wrong = true;
 	}
 	else {
@@ -281,8 +298,10 @@ void Merger::drop_wrong_offsets() {
 	for (mi i = merged.begin(); i!=merged.end(); ++k) {
 
 		if (wrong_offset(*i, offset)) {
+
 			cout << "Erasing wrong time pair " << i->first << "  ";
 			cout << i->second << " (" << k << ")" << endl;
+
 			merged.erase(i++);
 		}
 		else {
@@ -314,9 +333,15 @@ void Merger::merge() {
 
 		drop_wrong_offsets();
 	}
-	else {
+	else if (merged.size()==2){
 
-		few_offsets();
+		two_offsets();
+	}
+
+	if (merged.size() < 2) {
+
+		cout << "Warning: time sync requires at least 2 sync points" << endl;
+		merged.clear();
 	}
 
 	cout << "Merged, size: " << merged.size() << endl;

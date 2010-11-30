@@ -74,10 +74,11 @@ private:
 	void log_msg_loss(const List& messages, const VirtualMoteID& vmid) const;
 	void drop_inconsistent(List& messages);
 	void drop_not_from_mote1();
+	int offset(const CPair& p) const;
 	bool wrong_offset(const CPair& time_pair, int& previous_offset) const;
 	int initial_offset() const;
 	void drop_wrong_offsets();
-	void few_offsets();
+	void two_offsets();
 	void init_for_mote2();
 
 	const VirtualMoteID vmote1;

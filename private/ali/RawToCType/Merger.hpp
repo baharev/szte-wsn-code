@@ -46,6 +46,7 @@ typedef std::list<TimeSyncInfo> List;
 typedef std::map<unsigned int, unsigned int> Map;
 typedef std::pair<unsigned int, unsigned int> Pair;
 typedef std::pair<const unsigned int, unsigned int> CPair;
+typedef Map::iterator mi;
 
 class Merger {
 
@@ -71,6 +72,7 @@ private:
 	Merger& operator=(Merger& );
 
 	void insert(const Pair& sync_point);
+	void handle_conflicting_keys(mi& pos, const Pair& sync_point);
 	void log_msg_loss(const List& messages, const VirtualMoteID& vmid) const;
 	void drop_inconsistent(List& messages);
 	void drop_not_from_mote1();

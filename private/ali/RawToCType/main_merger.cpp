@@ -44,13 +44,15 @@ int main(int argc, char* argv[]) {
 
 	FlatFileDB db(4);
 
-	for (int i=1; i<=db.number_of_records(); ++i) {
+	for (int i=19; i<=db.number_of_records(); ++i) {
+
+		cout << "#############################################################";
+		cout << endl;
 
 		TimeSyncMerger tsm(4, i, db.first_block(i));
 
 		tsm.process_pairs();
 	}
-
 /*
 	if (argc != 3) {
 
@@ -58,14 +60,14 @@ int main(int argc, char* argv[]) {
 
 		return FAILURE;
 	}
-*/
+
 
 	try {
 
 		TimeSyncMerger tsm(4, 1, 57479);
 
 		tsm.process_pairs();
-/*
+
 		TimeSyncMerger(5, 23, 33576);
 
 		TimeSyncMerger(5, 42, 37435);
@@ -73,7 +75,7 @@ int main(int argc, char* argv[]) {
 		TimeSyncMerger(1, 1, 0);
 
 		TimeSyncMerger(2, 1, 0);
-*/
+
 	}
 	catch (exception& e) {
 
@@ -81,6 +83,6 @@ int main(int argc, char* argv[]) {
 
 		return FAILURE;
 	}
-
+*/
 	return SUCCESS;
 }

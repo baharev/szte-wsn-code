@@ -46,7 +46,6 @@ namespace sdc {
 typedef List::iterator li;
 typedef List::const_iterator cli;
 typedef List::size_type Size_t;
-typedef Map::iterator mi;
 typedef Map::const_iterator cmi;
 
 Merger::Merger(const VirtualMoteID& vmote_1, const List& msg_mote1)
@@ -155,7 +154,8 @@ bool Merger::set_next() {
 		}
 	}
 
-	cout << "Relevant messages from " << vmote1 << " copied" << endl;
+	cout << temp.size() << " relevant messages from " << vmote1 << " copied";
+	cout << endl;
 
 	log_msg_loss(temp, vmote1);
 
@@ -207,19 +207,43 @@ void Merger::drop_not_from_mote1() {
 		}
 	}
 
-	cout << "Dropped " << size_before - mote2.size() << " messages" << endl;
+	cout << mote2.size() << " messages remain, dropped ";
+	cout << size_before - mote2.size() << endl;
+}
+
+void Merger::handle_conflicting_keys(mi& pos, const Pair& sync_point) {
+
+	uint32 point1 = sync_point.second;
+	uint32 point2 = pos->second;
+
+	cout << "Warning: conflicting keys in time pairs " << endl;
+	cout << sync_point.first << '\t' << point1 << endl;
+	cout << pos->first       << '\t' << point2 << endl;
+
+	if (point1>point2) {
+		swap(point1, point2);
+	}
+
+	uint32 diff = point2-point1;
+
+	if (diff > static_cast<uint32>(OFFSET_TOLERANCE)) {
+		cout << "they differ too much, dropping both" << endl;
+		merged.erase(pos);
+	}
+	else {
+		pos->second = point1 + (diff >> 1);
+		cout << "merged them as" << endl;
+		cout << pos->first << '\t' << pos->second << endl;
+	}
 }
 
 void Merger::insert(const Pair& sync_point) {
 
-	pair<Map::iterator, bool>  pos = merged.insert(sync_point);
+	pair<Map::iterator, bool> result = merged.insert(sync_point);
 
-	if (!pos.second) {
+	if (!result.second) {
 
-		cout << "Warning: conflicting keys in time pairs, ";
-		cout << "dropping the first one shown below" << endl;
-		cout << sync_point.first << '\t' << sync_point.second << endl;
-		cout << pos.first->first << '\t' << pos.first->second << endl;
+		handle_conflicting_keys(result.first, sync_point);
 	}
 }
 
@@ -259,7 +283,7 @@ int Merger::initial_offset() const {
 	}
 
 	cout << "1st, 2nd, 3rd offset: ";
-	cout << ofs[0] << '\t' << ofs[1] << '\t' << ofs[2] << endl;
+	cout << ofs[0] << "  " << ofs[1] << "  " << ofs[2] << endl;
 
 	sort(ofs, ofs+n);
 
@@ -313,6 +337,8 @@ void Merger::drop_wrong_offsets() {
 void Merger::merge() {
 
 	cout << "Merging time sync info" << endl;
+	cout << "Number of messages " << temp.size() << " + " << mote2.size();
+	cout << " = " << temp.size() + mote2.size() << endl;
 
 	if (!merged.empty()) {
 

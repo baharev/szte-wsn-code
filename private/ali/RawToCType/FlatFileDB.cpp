@@ -159,14 +159,14 @@ void FlatFileDB::push_back(const string& line, Line& previous) {
 	record.push_back(current.start_at_block());
 }
 
-int FlatFileDB::reboot(int first_block) {
+int FlatFileDB::reboot(int first_block) const {
 
 	if (first_block > record.at(size-1)) {
 
 		throw_not_downloaded_error();
 	}
 
-	vector<int>::iterator pos = lower_bound(record.begin(), record.end(), first_block);
+	vector<int>::const_iterator pos = lower_bound(record.begin(), record.end(), first_block);
 
 	int index = pos - record.begin();
 
@@ -176,6 +176,16 @@ int FlatFileDB::reboot(int first_block) {
 	}
 
 	return index + 1;
+}
+
+int FlatFileDB::first_block(int reboot) const {
+
+	return record.at(reboot-1);
+}
+
+int FlatFileDB::number_of_records() const {
+
+	return size;
 }
 
 }

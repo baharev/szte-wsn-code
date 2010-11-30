@@ -47,7 +47,11 @@ public:
 
 	FlatFileDB(int mote_id);
 
-	int reboot(int first_block);
+	int reboot(int first_block) const;
+
+	int first_block(int reboot) const;
+
+	int number_of_records() const;
 
 private:
 

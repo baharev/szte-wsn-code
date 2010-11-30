@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <typeinfo>
+#include "FlatFileDB.hpp"
 #include "TimeSyncMerger.hpp"
 using namespace std;
 using namespace sdc;
@@ -40,6 +41,15 @@ using namespace sdc;
 int main(int argc, char* argv[]) {
 
 	enum { SUCCESS, FAILURE };
+
+	FlatFileDB db(4);
+
+	for (int i=1; i<=db.number_of_records(); ++i) {
+
+		TimeSyncMerger tsm(4, i, db.first_block(i));
+
+		tsm.process_pairs();
+	}
 
 /*
 	if (argc != 3) {

@@ -35,7 +35,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
-#include "DataReader.hpp"
+#include "TimeSyncReader.hpp"
 #include "TimeSyncInfo.hpp"
 #include "Utility.hpp"
 
@@ -43,13 +43,13 @@ using namespace std;
 
 namespace sdc {
 
-DataReader::DataReader(int mote_id, int reboot_id, int first_block)
+TimeSyncReader::TimeSyncReader(int mote_id, int reboot_id, int first_block)
 	: mote(mote_id), reboot(reboot_id), block(first_block)
 {
 
 }
 
-void DataReader::assert_empty_list() const {
+void TimeSyncReader::assert_empty_list() const {
 
 	if (messages.size()) {
 
@@ -57,7 +57,7 @@ void DataReader::assert_empty_list() const {
 	}
 }
 
-void DataReader::open() {
+void TimeSyncReader::open() {
 
 	string filename = get_filename(mote, reboot, block);
 
@@ -79,7 +79,7 @@ void DataReader::open() {
 	cout << "Processing file " << filename << endl;
 }
 
-void DataReader::read_all() {
+void TimeSyncReader::read_all() {
 
 	string line(".");
 
@@ -96,12 +96,12 @@ void DataReader::read_all() {
 	cout << messages.size() << " messages read" << endl;
 }
 
-void DataReader::close() {
+void TimeSyncReader::close() {
 
 	in.reset();
 }
 
-void DataReader::read_messages_from_file() {
+void TimeSyncReader::read_messages_from_file() {
 
 	assert_empty_list();
 
@@ -112,12 +112,12 @@ void DataReader::read_messages_from_file() {
 	close();
 }
 
-const std::list<TimeSyncInfo>& DataReader::messages_as_list() const {
+const std::list<TimeSyncInfo>& TimeSyncReader::messages_as_list() const {
 
 	return messages;
 }
 
-DataReader::~DataReader() {
+TimeSyncReader::~TimeSyncReader() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 

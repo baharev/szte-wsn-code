@@ -31,73 +31,8 @@
 *      Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "TimeSyncMerger.hpp"
-#include "TimeSyncInfo.hpp"
-#include "TimeSyncReader.hpp"
-#include "FlatFileDB.hpp"
-#include "Merger.hpp"
-#include "VirtualMoteID.hpp"
+#include "TimeSyncWriter.hpp"
 
-using namespace std;
-
-namespace sdc {
-
-TimeSyncMerger::TimeSyncMerger(int mote, int reboot)
-	: db_mote1(new FlatFileDB(mote)), mote1(mote), block1(db_mote1->first_block(reboot))
-{
-	mote2  = -1;
-	block2 = -1;
-
-	TimeSyncReader reader1(mote1, reboot, block1);
-
-	reader1.read_messages_from_file();
-
-	VirtualMoteID vmote1(mote1, block1);
-
-	int length1 = db_mote1->length_in_ms(reboot);
-
-	merger.reset( new Merger(vmote1, reader1.messages_as_list(), length1) );
-}
-
-void TimeSyncMerger::reset_db_if_needed() {
-
-	if (merger->mote2_id_changed()) {
-
-		int mote2_id = merger->mote2_id();
-
-		db.reset(new FlatFileDB(mote2_id));
-	}
-}
-
-void TimeSyncMerger::process_pairs() {
-
-	while(merger->set_next()) {
-
-		reset_db_if_needed();
-
-		int mote2_id = merger->mote2_id();
-
-		int first_block2 = merger->block2();
-
-		int reboot2 = db->reboot(first_block2);
-
-		TimeSyncReader reader2(mote2_id, reboot2, first_block2);
-
-		reader2.read_messages_from_file();
-
-		int length2 = db->length_in_ms(reboot2);
-
-		merger->set_mote2_messages(reader2.messages_as_list(), length2);
-
-		merger->merge();
-
-		// TODO Dump results
-	}
-}
-
-TimeSyncMerger::~TimeSyncMerger() {
-	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
-}
+namespace asol {
 
 }

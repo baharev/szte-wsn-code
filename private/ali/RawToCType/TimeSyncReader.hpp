@@ -31,8 +31,8 @@
 *      Author: Ali Baharev
 */
 
-#ifndef DATAREADER_HPP_
-#define DATAREADER_HPP_
+#ifndef TIMESYNCREADER_HPP_
+#define TIMESYNCREADER_HPP_
 
 #include <iosfwd>
 #include <list>
@@ -42,22 +42,22 @@ namespace sdc {
 
 class TimeSyncInfo;
 
-class DataReader {
+class TimeSyncReader {
 
 public:
 
-	DataReader(int mote_id, int reboot_id, int first_block);
+	TimeSyncReader(int mote_id, int reboot_id, int first_block);
 
 	 void read_messages_from_file();
 
 	 const std::list<TimeSyncInfo>& messages_as_list() const;
 
-	~DataReader();
+	~TimeSyncReader();
 
 private:
 
-	DataReader(const DataReader& );
-	DataReader& operator=(const DataReader& );
+	TimeSyncReader(const TimeSyncReader& );
+	TimeSyncReader& operator=(const TimeSyncReader& );
 
 	void open();
 	void read_all();
@@ -73,4 +73,4 @@ private:
 
 }
 
-#endif /* DATAREADER_HPP_ */
+#endif /* TIMESYNCREADER_HPP_ */

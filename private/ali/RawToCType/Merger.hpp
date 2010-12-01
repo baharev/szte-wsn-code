@@ -81,7 +81,6 @@ private:
 	bool wrong_offset(const CPair& time_pair, int& previous_offset) const;
 	int initial_offset() const;
 	void drop_wrong_offsets();
-	void two_offsets();
 	void init_for_mote2();
 
 	const VirtualMoteID vmote1;

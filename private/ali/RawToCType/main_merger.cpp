@@ -42,9 +42,23 @@ int main(int argc, char* argv[]) {
 
 	enum { SUCCESS, FAILURE };
 
-	FlatFileDB db(4);
+	FlatFileDB db5(5);
 
-	for (int i=19; i<=db.number_of_records(); ++i) {
+	for (int i=1; i<=db5.number_of_records(); ++i) {
+
+		cout << "#############################################################";
+		cout << endl;
+
+		TimeSyncMerger tsm(5, i);
+
+		tsm.process_pairs();
+	}
+
+	cout<<"============================================================="<<endl;
+
+	FlatFileDB db4(4);
+
+	for (int i=19; i<=db4.number_of_records(); ++i) {
 
 		cout << "#############################################################";
 		cout << endl;
@@ -53,6 +67,7 @@ int main(int argc, char* argv[]) {
 
 		tsm.process_pairs();
 	}
+
 /*
 	if (argc != 3) {
 

@@ -255,23 +255,6 @@ int Merger::offset(const CPair& p) const {
 	return p.first - p.second;
 }
 
-void Merger::two_offsets() {
-
-	cmi i = merged.begin();
-
-	int offset1 = offset(*i++);
-
-	int offset2 = offset(*i);
-
-	if (abs(offset1-offset2) > OFFSET_TOLERANCE) {
-
-		cout << "Warning: got only 2 time sync points and they ";
-		cout << "differ too much, dropping both" << endl;
-
-		merged.clear();
-	}
-}
-
 int Merger::initial_offset() const {
 
 	const int n = 3, middle = 1;
@@ -345,9 +328,9 @@ void Merger::log_size_before_merge() const {
 
 	int diff = temp.size()-mote2.size();
 
-	if ( abs(diff) > 1 ) {
+	if ( abs(diff) > 2 ) {
 
-		cout << "Warning: difference = " << abs(diff) << " > 1" << endl;
+		cout << "Warning: difference = " << abs(diff) << " > 2" << endl;
 	}
 
 	double length = min(length1, length2);
@@ -356,7 +339,7 @@ void Merger::log_size_before_merge() const {
 
 	cout << "Estimated: " << estimated_msg << " / mote" << endl;
 
-	unsigned int max_expected = estimated_msg;
+	unsigned int max_expected = estimated_msg + 1;
 
 	if (temp.size() > max_expected || mote2.size() > max_expected) {
 
@@ -383,18 +366,14 @@ void Merger::merge() {
 		insert(i->reversed_time_pair());
 	}
 
-	if (merged.size()>2) {
+	if (merged.size()>=3) {
 
 		drop_wrong_offsets();
 	}
-	else if (merged.size()==2){
 
-		two_offsets();
-	}
+	if (merged.size() < 3) {
 
-	if (merged.size() < 2) {
-
-		cout << "Warning: time sync requires at least 2 sync points" << endl;
+		cout << "Warning: time sync requires at least 3 sync points" << endl;
 		merged.clear();
 	}
 

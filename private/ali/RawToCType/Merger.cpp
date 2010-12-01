@@ -34,6 +34,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <stdexcept>
 #include "Merger.hpp"
 #include "TimeSyncInfo.hpp"
@@ -48,8 +49,8 @@ typedef List::const_iterator cli;
 typedef List::size_type Size_t;
 typedef Map::const_iterator cmi;
 
-Merger::Merger(const VirtualMoteID& vmote_1, const List& msg_mote1)
-	: vmote1(vmote_1), mote1(msg_mote1)
+Merger::Merger(const VirtualMoteID& vmote, const List& msg, int length_in_ms)
+	: vmote1(vmote), length1(length_in_ms), mote1(msg)
 {
 	drop_inconsistent(mote1);
 
@@ -178,9 +179,11 @@ int Merger::block2() const {
 	return vmote2.first_block();
 }
 
-void Merger::set_mote2_messages(const List& messages_mote2) {
+void Merger::set_mote2_messages(const List& messages_mote2, int length2_in_ms) {
 
 	mote2 = messages_mote2;
+
+	length2 = length2_in_ms;
 
 	drop_inconsistent(mote2);
 
@@ -260,7 +263,7 @@ void Merger::two_offsets() {
 
 	int offset2 = offset(*i);
 
-	if (fabs(offset1-offset2) > OFFSET_TOLERANCE) {
+	if (abs(offset1-offset2) > OFFSET_TOLERANCE) {
 
 		cout << "Warning: got only 2 time sync points and they ";
 		cout << "differ too much, dropping both" << endl;
@@ -298,7 +301,7 @@ bool Merger::wrong_offset(const CPair& time_pair, int& previous_offset) const {
 
 	int diff = current_offset-previous_offset;
 
-	if (fabs(diff) > OFFSET_TOLERANCE) {
+	if (abs(diff) > OFFSET_TOLERANCE) {
 
 		cout << "Warning: wrong offset found, previous " << previous_offset;
 		cout << ", current " << current_offset << ", diff " << diff << endl;
@@ -334,11 +337,36 @@ void Merger::drop_wrong_offsets() {
 	}
 }
 
-void Merger::merge() {
+void Merger::log_size_before_merge() const {
 
 	cout << "Merging time sync info" << endl;
 	cout << "Number of messages " << temp.size() << " + " << mote2.size();
 	cout << " = " << temp.size() + mote2.size() << endl;
+
+	int diff = temp.size()-mote2.size();
+
+	if ( abs(diff) > 1 ) {
+
+		cout << "Warning: difference = " << abs(diff) << " > 1" << endl;
+	}
+
+	double length = min(length1, length2);
+
+	int estimated_msg = floor(length/TIMESYNC_MSG_RATE+0.5);
+
+	cout << "Estimated: " << estimated_msg << " / mote" << endl;
+
+	unsigned int max_expected = estimated_msg;
+
+	if (temp.size() > max_expected || mote2.size() > max_expected) {
+
+		cout << "Warning: more messages than expected" << endl;
+	}
+}
+
+void Merger::merge() {
+
+	log_size_before_merge();
 
 	if (!merged.empty()) {
 

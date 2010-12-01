@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 		cout << "#############################################################";
 		cout << endl;
 
-		TimeSyncMerger tsm(4, i, db.first_block(i));
+		TimeSyncMerger tsm(4, i);
 
 		tsm.process_pairs();
 	}

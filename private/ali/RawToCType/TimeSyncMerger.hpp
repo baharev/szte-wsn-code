@@ -45,7 +45,7 @@ class TimeSyncMerger {
 
 public:
 
-	TimeSyncMerger(int mote, int reboot, int first_block);
+	TimeSyncMerger(int mote, int reboot);
 
 	void process_pairs();
 
@@ -58,6 +58,7 @@ private:
 
 	void reset_db_if_needed();
 
+	const std::auto_ptr<const FlatFileDB> db_mote1;
 	const int mote1;
 	const int block1;
 

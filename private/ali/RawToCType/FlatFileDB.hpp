@@ -51,6 +51,8 @@ public:
 
 	int first_block(int reboot) const;
 
+	int length_in_ms(int reboot) const;
+
 	int number_of_records() const;
 
 private:
@@ -58,13 +60,12 @@ private:
 	FlatFileDB(const FlatFileDB& );
 	FlatFileDB& operator=(const FlatFileDB& );
 
-	void read_file(std::ifstream& in);
+	int read_file(std::ifstream& in);
 	void push_back(const std::string& line, Line& previous);
 	void throw_not_downloaded_error() const;
 
 	const int mote_id;
 	std::vector<int> record;
-	int last_used_block;
 	int size;
 };
 

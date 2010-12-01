@@ -52,7 +52,7 @@ class Merger {
 
 public:
 
-	explicit Merger(const VirtualMoteID& vmote_1, const List& messages_mote1);
+	Merger(const VirtualMoteID& vmote, const List& messages, int length_in_ms);
 
 	bool set_next();
 
@@ -62,7 +62,7 @@ public:
 
 	int block2() const;
 
-	void set_mote2_messages(const List& messages_mote2);
+	void set_mote2_messages(const List& messages_mote2, int length2_in_ms);
 
 	void merge();
 
@@ -73,7 +73,8 @@ private:
 
 	void insert(const Pair& sync_point);
 	void handle_conflicting_keys(mi& pos, const Pair& sync_point);
-	void log_msg_loss(const List& messages, const VirtualMoteID& vmid) const;
+	void log_msg_loss(const List& msg, const VirtualMoteID& vmid) const;
+	void log_size_before_merge() const;
 	void drop_inconsistent(List& messages);
 	void drop_not_from_mote1();
 	int offset(const CPair& p) const;
@@ -84,6 +85,7 @@ private:
 	void init_for_mote2();
 
 	const VirtualMoteID vmote1;
+	const int length1;
 
 	List mote1;
 	List mote2;
@@ -91,6 +93,7 @@ private:
 	Map merged;
 
 	VirtualMoteID vmote2;
+	int length2;
 	bool mote2_id_new;
 };
 

@@ -94,7 +94,7 @@ FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 
 	if (mote_id<=0) {
 
-		logic_error("mote id must be positive");
+		throw runtime_error("mote id must be positive");
 	}
 
 	string fname = rdb_file_name(mote_id);
@@ -103,9 +103,11 @@ FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 
 	in.open(fname.c_str());
 
+	int last_used_block = -1;
+
 	if (in.is_open()) {
 
-		read_file(in);
+		last_used_block = read_file(in);
 	}
 
 	if (record.size()==0) {
@@ -114,6 +116,8 @@ FlatFileDB::FlatFileDB(int mote_ID) : mote_id(mote_ID) {
 	}
 
 	size = static_cast<int>(record.size());
+
+	record.push_back(last_used_block+1);
 
 	cout << "DB of mote " << mote_ID << " is opened" << endl;
 }
@@ -127,7 +131,7 @@ void FlatFileDB::throw_not_downloaded_error() const {
 	throw runtime_error(msg);
 }
 
-void FlatFileDB::read_file(std::ifstream& in) {
+int FlatFileDB::read_file(std::ifstream& in) {
 
 	Line previous(0, -1, 0);
 
@@ -140,7 +144,7 @@ void FlatFileDB::read_file(std::ifstream& in) {
 		push_back(buffer, previous);
 	}
 
-	last_used_block = previous.finished_at_block();
+	return previous.finished_at_block();
 }
 
 void FlatFileDB::push_back(const string& line, Line& previous) {
@@ -172,7 +176,11 @@ int FlatFileDB::reboot(int first_block) const {
 
 	if (first_block != record.at(index)) {
 
-		throw runtime_error("failed to find first block in the database");
+		string msg("failed to find ");
+		msg.append(int2str(first_block));
+		msg.append(" as first block");
+
+		throw runtime_error(msg);
 	}
 
 	return index + 1;
@@ -186,6 +194,14 @@ int FlatFileDB::first_block(int reboot) const {
 int FlatFileDB::number_of_records() const {
 
 	return size;
+}
+
+int FlatFileDB::length_in_ms(int reboot) const {
+
+	int first = record.at(reboot-1);
+	int last  = record.at(reboot) - 1;
+
+	return recorded_length_in_ms(first, last);
 }
 
 }

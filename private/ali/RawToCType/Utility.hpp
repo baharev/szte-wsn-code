@@ -48,6 +48,8 @@ const std::string time_to_filename(); // TODO Do we need this function?
 
 const std::string recorded_length(int first_block, int last_block);
 
+int recorded_length_in_ms(int first_block, int last_block);
+
 const std::string failed_to_read_block(int i);
 
 const std::string rdb_file_name(int mote_id);

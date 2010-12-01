@@ -43,23 +43,11 @@ using namespace std;
 
 namespace sdc {
 
-TimeSyncMerger::TimeSyncMerger(int mote, int reboot, int first_block)
-	: mote1(mote), block1(first_block)
+TimeSyncMerger::TimeSyncMerger(int mote, int reboot)
+	: db_mote1(new FlatFileDB(mote)), mote1(mote), block1(db_mote1->first_block(reboot))
 {
 	mote2  = -1;
 	block2 = -1;
-
-	if (mote1 <= 0) {
-		throw logic_error("mote ID must be a positive integer");
-	}
-
-	if (reboot <= 0) {
-		throw logic_error("reboot ID must be a positive integer");
-	}
-
-	if (block1 < 0) {
-		throw logic_error("index of the first block cannot be negative");
-	}
 
 	DataReader reader1(mote1, reboot, block1);
 
@@ -67,7 +55,9 @@ TimeSyncMerger::TimeSyncMerger(int mote, int reboot, int first_block)
 
 	VirtualMoteID vmote1(mote1, block1);
 
-	merger.reset(new Merger(vmote1, reader1.messages_as_list()));
+	int length1 = db_mote1->length_in_ms(reboot);
+
+	merger.reset( new Merger(vmote1, reader1.messages_as_list(), length1) );
 }
 
 void TimeSyncMerger::reset_db_if_needed() {
@@ -96,7 +86,9 @@ void TimeSyncMerger::process_pairs() {
 
 		reader2.read_messages_from_file();
 
-		merger->set_mote2_messages(reader2.messages_as_list());
+		int length2 = db->length_in_ms(reboot2);
+
+		merger->set_mote2_messages(reader2.messages_as_list(), length2);
 
 		merger->merge();
 

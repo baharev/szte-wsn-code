@@ -32,6 +32,7 @@
  */
 
 #include <ctime>
+#include <cmath>
 #include <iomanip>
 #include <sstream>
 #include "Constants.hpp"
@@ -101,15 +102,27 @@ const string time_to_filename() {
 	return time_stamp;
 }
 
-const string recorded_length(int first_block, int last_block) {
+unsigned int length_in_ticks(int first_block, int last_block) {
 
 	int n_blocks = last_block-first_block+1;
 
 	int n_samples = n_blocks*MAX_SAMPLES-1;
 
-	unsigned int length_in_ticks = n_samples*SAMPLING_RATE;
+	return n_samples*SAMPLING_RATE;
+}
 
-	return ticks2time(length_in_ticks);
+const string recorded_length(int first_block, int last_block) {
+
+	unsigned int length = length_in_ticks(first_block, last_block);
+
+	return ticks2time(length);
+}
+
+int recorded_length_in_ms(int first_block, int last_block) {
+
+	double length = length_in_ticks(first_block, last_block);
+
+	return floor(length/(TICKS_PER_SEC/1024.0) + 0.5);
 }
 
 const string failed_to_read_block(int i) {

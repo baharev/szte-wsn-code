@@ -36,6 +36,7 @@
 
 #include <list>
 #include <map>
+#include <vector>
 #include "VirtualMoteID.hpp"
 
 namespace sdc {
@@ -64,24 +65,28 @@ public:
 
 	void set_mote2_messages(const List& messages_mote2, int length2_in_ms);
 
-	void merge();
+	int merge();
+
+	const std::vector<Pair> results_in_mote_id_order() const;
 
 private:
 
 	Merger(const Merger& );
 	Merger& operator=(Merger& );
 
-	void insert(const Pair& sync_point);
-	void handle_conflicting_keys(mi& pos, const Pair& sync_point);
-	void log_msg_loss(const List& msg, const VirtualMoteID& vmid) const;
-	void log_size_before_merge() const;
+	void copy_in_reveresed_order(std::vector<Pair>& pairs) const;
 	void drop_inconsistent(List& messages);
 	void drop_not_from_mote1();
-	int offset(const CPair& p) const;
-	bool wrong_offset(const CPair& time_pair, int& previous_offset) const;
-	int initial_offset() const;
 	void drop_wrong_offsets();
+	void handle_conflicting_keys(mi& pos, const Pair& sync_point);
 	void init_for_mote2();
+	int  initial_offset() const;
+	void insert(const Pair& sync_point);
+	void log_msg_loss(const List& msg, const VirtualMoteID& vmid) const;
+	void log_size_before_merge() const;
+	int  offset(const CPair& p) const;
+	bool sufficient_size();
+	bool wrong_offset(const CPair& time_pair, int& previous_offset) const;
 
 	const VirtualMoteID vmote1;
 	const int length1;

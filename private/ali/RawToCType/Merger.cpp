@@ -299,7 +299,28 @@ bool Merger::wrong_offset(const CPair& time_pair, int& previous_offset) const {
 	return wrong;
 }
 
+bool Merger::sufficient_size() {
+
+	bool sufficient = true;
+
+	if (merged.size() < 3) {
+
+		cout << "Warning: time sync requires at least 3 sync points" << endl;
+
+		merged.clear();
+
+		sufficient = false;
+	}
+
+	return sufficient;
+}
+
 void Merger::drop_wrong_offsets() {
+
+	if (!sufficient_size()) {
+
+		return;
+	}
 
 	int offset = initial_offset();
 
@@ -318,6 +339,8 @@ void Merger::drop_wrong_offsets() {
 			++i;
 		}
 	}
+
+	sufficient_size();
 }
 
 void Merger::log_size_before_merge() const {
@@ -347,7 +370,7 @@ void Merger::log_size_before_merge() const {
 	}
 }
 
-void Merger::merge() {
+int Merger::merge() {
 
 	log_size_before_merge();
 
@@ -366,18 +389,41 @@ void Merger::merge() {
 		insert(i->reversed_time_pair());
 	}
 
-	if (merged.size()>=3) {
-
-		drop_wrong_offsets();
-	}
-
-	if (merged.size() < 3) {
-
-		cout << "Warning: time sync requires at least 3 sync points" << endl;
-		merged.clear();
-	}
+	drop_wrong_offsets();
 
 	cout << "Merged, size: " << merged.size() << endl;
+
+	return static_cast<int>(merged.size());
+}
+
+void Merger::copy_in_reveresed_order(std::vector<Pair>& pairs) const {
+
+	for (cmi i=merged.begin(); i!=merged.end(); ++i) {
+
+		pairs.push_back( Pair(i->second, i->first) );
+	}
+}
+
+const std::vector<Pair> Merger::results_in_mote_id_order() const {
+
+	vector<Pair> pairs;
+
+	pairs.reserve(merged.size());
+
+	if (vmote1.mote_id() < vmote2.mote_id()) {
+
+		pairs.assign( merged.begin(), merged.end() );
+	}
+	else if (vmote1.mote_id() > vmote2.mote_id()) {
+
+		copy_in_reveresed_order(pairs);
+	}
+	else {
+
+		throw logic_error("mote cannot be in pair with itself");
+	}
+
+	return pairs;
 }
 
 }

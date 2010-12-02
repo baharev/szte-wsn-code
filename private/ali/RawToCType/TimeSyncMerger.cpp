@@ -88,6 +88,7 @@ void TimeSyncMerger::process_pairs() {
 
 		merger->merge();
 
+		merger->results_in_mote_id_order();
 		// TODO Dump results
 	}
 }

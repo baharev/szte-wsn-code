@@ -43,7 +43,7 @@ namespace sdc {
 class BlockDevice;
 class BlockChecker;
 class BlockIterator;
-class DataWriter;
+class Writer;
 class Tracker;
 
 class SDCardImpl {
@@ -71,7 +71,7 @@ private:
 	void init_tracker();
 
 	const std::auto_ptr<BlockDevice> device;
-	const std::auto_ptr<DataWriter> out;
+	const std::auto_ptr<Writer> out;
 	std::auto_ptr<Tracker> tracker;
 	std::auto_ptr<BlockChecker> check;
 	const Console console;

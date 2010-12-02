@@ -37,7 +37,7 @@
 #include "BlockIterator.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "BlockChecker.hpp"
-#include "DataWriter.hpp"
+#include "Writer.hpp"
 #include "Tracker.hpp"
 
 using namespace std;
@@ -45,7 +45,7 @@ using namespace std;
 namespace sdc {
 
 SDCardImpl::SDCardImpl(BlockDevice* source)
-	: device(source), out(new DataWriter), tracker(0), check(0), console(Console())
+	: device(source), out(new Writer), tracker(0), check(0), console(Console())
 {
 	block_offset = 0;
 

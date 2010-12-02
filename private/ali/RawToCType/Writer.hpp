@@ -31,8 +31,8 @@
 *   Author: Ali Baharev
 */
 
-#ifndef DATAWRITER_HPP_
-#define DATAWRITER_HPP_
+#ifndef WRITER_HPP_
+#define WRITER_HPP_
 
 #include <memory>
 #include <iosfwd>
@@ -42,11 +42,11 @@ namespace sdc {
 class Header;
 class Sample;
 
-class DataWriter {
+class Writer {
 
 public:
 
-	DataWriter();
+	Writer();
 
 	void start_new_record(int mote_id, int reboot_id, int first_block);
 
@@ -60,12 +60,12 @@ public:
 
 	void close();
 
-	~DataWriter();
+	~Writer();
 
 private:
 
-	DataWriter(const DataWriter& );
-	DataWriter& operator=(const DataWriter& );
+	Writer(const Writer& );
+	Writer& operator=(const Writer& );
 
 	const std::auto_ptr<std::ofstream> samples;
 	const std::auto_ptr<std::ofstream> timesync;
@@ -74,4 +74,4 @@ private:
 
 }
 
-#endif /* DATAWRITER_HPP_ */
+#endif /* WRITER_HPP_ */

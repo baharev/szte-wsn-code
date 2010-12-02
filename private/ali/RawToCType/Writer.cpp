@@ -33,7 +33,7 @@
 
 #include <fstream>
 #include <stdexcept>
-#include "DataWriter.hpp"
+#include "Writer.hpp"
 #include "Header.hpp"
 #include "Sample.hpp"
 #include "Utility.hpp"
@@ -42,13 +42,13 @@ using namespace std;
 
 namespace sdc {
 
-DataWriter::DataWriter() : samples(new ofstream), timesync(new ofstream) {
+Writer::Writer() : samples(new ofstream), timesync(new ofstream) {
 
 	samples->exceptions( ofstream::failbit | ofstream::badbit);
 	timesync->exceptions(ofstream::failbit | ofstream::badbit);
 }
 
-void DataWriter::start_new_record(int mote_id, int reboot_id, int first_block) {
+void Writer::start_new_record(int mote_id, int reboot_id, int first_block) {
 
 	string fsamples(get_filename(mote_id, reboot_id, first_block));
 	string ftimesync(fsamples);
@@ -57,7 +57,7 @@ void DataWriter::start_new_record(int mote_id, int reboot_id, int first_block) {
 	timesync->open(ftimesync.append(".tsm").c_str());
 }
 
-bool DataWriter::is_open() const {
+bool Writer::is_open() const {
 
 	const bool open = samples->is_open();
 
@@ -68,29 +68,29 @@ bool DataWriter::is_open() const {
 	return open;
 }
 
-void DataWriter::write_time_sync_info(const Header& h) {
+void Writer::write_time_sync_info(const Header& h) {
 
 	h.write_timesync_info(*timesync);
 }
 
-void DataWriter::write(const Sample& s) {
+void Writer::write(const Sample& s) {
 
 	*samples << s;
 }
 
-void DataWriter::flush() {
+void Writer::flush() {
 
 	samples->flush();
 	timesync->flush();
 }
 
-void DataWriter::close() {
+void Writer::close() {
 
 	samples->close();
 	timesync->close();
 }
 
-DataWriter::~DataWriter() {
+Writer::~Writer() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 

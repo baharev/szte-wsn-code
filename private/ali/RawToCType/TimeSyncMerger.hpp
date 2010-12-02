@@ -34,12 +34,18 @@
 #ifndef TIMESYNCMERGER_HPP_
 #define TIMESYNCMERGER_HPP_
 
+#include <map>
 #include <memory>
+#include <vector>
+#include "RecordPairID.hpp"
 
 namespace sdc {
 
 class FlatFileDB;
 class Merger;
+
+typedef std::pair<unsigned int, unsigned int> Pair;
+typedef std::map<RecordPairID, std::vector<Pair> > Map;
 
 class TimeSyncMerger {
 
@@ -47,7 +53,7 @@ public:
 
 	TimeSyncMerger(int mote, int reboot);
 
-	void process_pairs();
+	const Map& pairs() const;
 
 	~TimeSyncMerger();
 
@@ -56,18 +62,25 @@ private:
 	TimeSyncMerger(const TimeSyncMerger& );
 	TimeSyncMerger& operator=(const TimeSyncMerger& );
 
+	void insert(const RecordPairID& id, const std::vector<Pair>& sync_points);
+	void process_pairs();
 	void reset_db_if_needed();
 
-	const std::auto_ptr<const FlatFileDB> db_mote1;
+	 // TODO Move these to their own class, this a sort of duplication
+	const std::auto_ptr<const FlatFileDB> db1;
 	const int mote1;
+	const int reboot1;
 	const int block1;
+	const RecordID rec1;
 
+	std::auto_ptr<FlatFileDB> db2;
 	int mote2;
+	int reboot2;
 	int block2;
 
 	std::auto_ptr<Merger> merger;
 
-	std::auto_ptr<FlatFileDB> db;
+	Map result;
 };
 
 }

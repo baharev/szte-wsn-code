@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
 
 		TimeSyncMerger tsm(5, i);
 
-		tsm.process_pairs();
+		tsm.pairs();
 	}
 
 	cout<<"============================================================="<<endl;
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
 		TimeSyncMerger tsm(4, i);
 
-		tsm.process_pairs();
+		tsm.pairs();
 	}
 
 /*

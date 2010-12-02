@@ -47,7 +47,6 @@ namespace sdc {
 typedef List::iterator li;
 typedef List::const_iterator cli;
 typedef List::size_type Size_t;
-typedef Map::const_iterator cmi;
 
 Merger::Merger(const VirtualMoteID& vmote, const List& msg, int length_in_ms)
 	: vmote1(vmote), length1(length_in_ms), mote1(msg)

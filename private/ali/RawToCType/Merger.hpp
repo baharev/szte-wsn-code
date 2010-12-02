@@ -44,10 +44,7 @@ namespace sdc {
 class TimeSyncInfo;
 
 typedef std::list<TimeSyncInfo> List;
-typedef std::map<unsigned int, unsigned int> Map;
 typedef std::pair<unsigned int, unsigned int> Pair;
-typedef std::pair<const unsigned int, unsigned int> CPair;
-typedef Map::iterator mi;
 
 class Merger {
 
@@ -73,6 +70,11 @@ private:
 
 	Merger(const Merger& );
 	Merger& operator=(Merger& );
+
+	typedef std::pair<const unsigned int, unsigned int> CPair;
+	typedef std::map<unsigned int, unsigned int> Map;
+	typedef Map::iterator mi;
+	typedef Map::const_iterator cmi;
 
 	void copy_in_reveresed_order(std::vector<Pair>& pairs) const;
 	void drop_inconsistent(List& messages);

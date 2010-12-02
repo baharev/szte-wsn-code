@@ -49,11 +49,9 @@ TimeSyncMerger::TimeSyncMerger(int mote, int reboot)
 	mote2  = -1;
 	block2 = -1;
 
-	TimeSyncReader reader1(mote1, reboot, block1);
-
-	reader1.read_messages_from_file();
-
 	VirtualMoteID vmote1(mote1, block1);
+
+	TimeSyncReader reader1(mote1, reboot, block1);
 
 	int length1 = db_mote1->length_in_ms(reboot);
 
@@ -83,8 +81,6 @@ void TimeSyncMerger::process_pairs() {
 		int reboot2 = db->reboot(first_block2);
 
 		TimeSyncReader reader2(mote2_id, reboot2, first_block2);
-
-		reader2.read_messages_from_file();
 
 		int length2 = db->length_in_ms(reboot2);
 

@@ -48,8 +48,6 @@ public:
 
 	TimeSyncReader(int mote_id, int reboot_id, int first_block);
 
-	 void read_messages_from_file();
-
 	 const std::list<TimeSyncInfo>& messages_as_list() const;
 
 	~TimeSyncReader();
@@ -61,13 +59,11 @@ private:
 
 	void open();
 	void read_all();
-	void close();
-	void assert_empty_list() const;
 
-	std::auto_ptr<std::ifstream> in;
 	const int mote;
 	const int reboot;
 	const int block;
+	const std::auto_ptr<std::ifstream> in;
 	std::list<TimeSyncInfo> messages;
 };
 

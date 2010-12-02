@@ -160,7 +160,7 @@ bool Merger::set_next() {
 
 	log_msg_loss(temp, vmote1);
 
-	return !temp.empty();
+	return !temp.empty(); // FIXME temp.empty()==false
 }
 
 bool Merger::mote2_id_changed() const {

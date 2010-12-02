@@ -44,17 +44,13 @@ using namespace std;
 namespace sdc {
 
 TimeSyncReader::TimeSyncReader(int mote_id, int reboot_id, int first_block)
-	: mote(mote_id), reboot(reboot_id), block(first_block)
+	: mote(mote_id), reboot(reboot_id), block(first_block), in(new ifstream)
 {
+	open();
 
-}
+	read_all();
 
-void TimeSyncReader::assert_empty_list() const {
-
-	if (messages.size()) {
-
-		throw logic_error("the message list should be empty");
-	}
+	in->close();
 }
 
 void TimeSyncReader::open() {
@@ -62,8 +58,6 @@ void TimeSyncReader::open() {
 	string filename = get_filename(mote, reboot, block);
 
 	filename.append(".tsm"); // TODO Move extensions to Constants.hpp
-
-	in.reset(new ifstream);
 
 	in->open(filename.c_str());
 
@@ -81,7 +75,7 @@ void TimeSyncReader::open() {
 
 void TimeSyncReader::read_all() {
 
-	string line(".");
+	string line("dummy");
 
 	while (in->good() && line.size()) {
 
@@ -94,22 +88,6 @@ void TimeSyncReader::read_all() {
 	}
 
 	cout << messages.size() << " messages read" << endl;
-}
-
-void TimeSyncReader::close() {
-
-	in.reset();
-}
-
-void TimeSyncReader::read_messages_from_file() {
-
-	assert_empty_list();
-
-	open();
-
-	read_all();
-
-	close();
 }
 
 const std::list<TimeSyncInfo>& TimeSyncReader::messages_as_list() const {

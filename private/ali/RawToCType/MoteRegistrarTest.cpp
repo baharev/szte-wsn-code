@@ -31,37 +31,17 @@
 *      Author: Ali Baharev
 */
 
-#ifndef CONSOLE_HPP_
-#define CONSOLE_HPP_
+#include "MoteRegistrar.hpp"
 
-#include "TypeDefs.hpp"
+using namespace sdc;
 
-namespace sdc {
+int main() {
 
-class Console {
-
-public:
-
-	static void start(double card_size, int mote_id, int first_block, int reboot);
-
-	static void finished(double card_size, int last_block);
-
-	static void record_start(int reboot_id, int first_offset);
-
-	static void record_end(int last_block, uint32 length_in_ticks);
-
-	static void error_impossible_state();
-
-	static void creating_moteid_database();
-
-	static void reading_moteid_database();
-
-	static void moteid_already_in_db(int mote_id);
-
-	static void registering_moteid_in_db(int mote_id);
-
-};
-
+	MoteRegistrar(3);
+	MoteRegistrar(5);
+	MoteRegistrar(4);
+	MoteRegistrar(3);
+	MoteRegistrar(4);
+	MoteRegistrar(5);
+	MoteRegistrar(2);
 }
-
-#endif /* CONSOLE_HPP_ */

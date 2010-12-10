@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,13 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <fstream>
-#include "Tracker.hpp"
-#include "BlockIterator.hpp"
-#include "Header.hpp"
+#include <iomanip>
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
 #include "Line.hpp"
 #include "Utility.hpp"
 
@@ -42,95 +42,68 @@ using namespace std;
 
 namespace sdc {
 
-void Tracker::set_filename(int mote_ID) {
+typedef istringstream iss;
 
-	filename = rdb_file_name(mote_ID);
-}
+// FIXME Make consistent with operator<<
+Line::Line(const string& line) {
 
-void Tracker::process_last_line(const string& line) {
+	iss in(line);
 
-	Line last_record(line);
+	in.exceptions(iss::failbit | iss::badbit | iss::eofbit);
 
-	first_block = last_record.finished_at_block()+1;
+	in >> first_block;
+	in >> last_block;
+	in >> reboot;
 
-	reboot_id = last_record.reboot_id();
-}
-
-void Tracker::find_last_line(ifstream& in) {
-
-	string line;
-
-	while (in.good()) {
-
-		string buffer;
-
-		getline(in, buffer);
-
-		if (buffer.length()) {
-			line = buffer;
-		}
-	}
-
-	if (line.length()!=0) {
-
-		process_last_line(line);
+	if (first_block < 0 || first_block > last_block || reboot < 1) {
+		throw runtime_error("corrupted line");
 	}
 }
 
-void Tracker::set_first_block_reboot_id() {
+Line::Line(int first, int last, int reboot_id, unsigned int time_len)
+	: date(current_time())
+{
 
-	first_block = 0;
-
-	reboot_id = 0;
-
-	ifstream in;
-
-	in.open(filename.c_str());
-
-	find_last_line(in);
+	first_block = first;
+	last_block  = last;
+	reboot      = reboot_id;
+	time_length = time_len;
 }
 
-Tracker::Tracker(BlockIterator& zeroth_block) : db(new ofstream()) {
+void Line::consistent_with(const Line& previous) const {
 
-	mote_ID = Header(zeroth_block).mote();
-
-	set_filename(mote_ID);
-
-	set_first_block_reboot_id();
-
-	db->exceptions(ofstream::failbit | ofstream::badbit);
-
-	db->open(filename.c_str(), ofstream::app);
+	if ((first_block != previous.last_block+1) ||
+		(reboot      != previous.reboot   +1) )
+	{
+		throw runtime_error("corrupted database");
+	}
 }
 
-int Tracker::start_from_here() const {
+int Line::start_at_block() const {
 
 	return first_block;
 }
 
-int Tracker::reboot() const {
+int Line::finished_at_block() const {
 
-	return reboot_id;
+	return last_block;
 }
 
-int Tracker::mote_id() const {
+int Line::reboot_id() const {
 
-	return mote_ID;
+	return reboot;
 }
 
-void Tracker::mark_beginning(int block_beg, int reboot) {
+ostream& operator<<(ostream& out, const Line& line) {
 
-	first_block = block_beg;
-	reboot_id = reboot;
-}
+	out << setw(7) << right << line.first_block << '\t';
+	out << setw(7) << right << line.last_block  << '\t';
+	out << setw(3) << right << line.reboot      << '\t';
+	out << ticks2time(line.time_length) << '\t';
+	out << recorded_length(line.first_block, line.last_block) << '\t';
+	out << line.date;
 
-void Tracker::append_to_db(int last_block, unsigned int time_len) {
-	
-	*db << Line(first_block, last_block, reboot_id, time_len) << flush;
-}
-
-Tracker::~Tracker() {
-	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+	return out;
 }
 
 }

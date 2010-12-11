@@ -52,6 +52,8 @@ public:
 
 private:
 
+	MoteRegistrar& operator=(const MoteRegistrar& );
+
 	bool read_all_existing_ids();
 
 	bool read_file_content();
@@ -63,6 +65,7 @@ private:
 	const std::auto_ptr<std::fstream> db;
 
 	std::vector<int> ids;
+
 };
 
 }

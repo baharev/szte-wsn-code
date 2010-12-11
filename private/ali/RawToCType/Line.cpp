@@ -50,7 +50,7 @@ Line::Line(const string& line, int mote_ID) {
 
 	iss in(line);
 
-	in.exceptions(iss::failbit | iss::badbit | iss::eofbit);
+	in.exceptions(iss::failbit | iss::badbit);
 
 	in >> first_block;
 	in >> last_block;
@@ -61,7 +61,10 @@ Line::Line(const string& line, int mote_ID) {
 	}
 
 	in >> time_length;
-	in >> date;
+	string skipped;
+	in >> skipped;
+	in.get();
+	getline(in, date);
 }
 
 Line::Line(int first, int last, int reboot_id, unsigned int time_len)

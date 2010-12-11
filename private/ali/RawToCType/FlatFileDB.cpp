@@ -86,7 +86,7 @@ void FlatFileDB::throw_not_downloaded_error() const {
 
 int FlatFileDB::read_file(std::ifstream& in) {
 
-	Line previous(0, -1, 0, -1);
+	Line previous(0, -1, 0, 0);
 
 	while (in.good()) {
 

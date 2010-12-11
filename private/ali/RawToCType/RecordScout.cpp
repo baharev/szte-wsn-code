@@ -31,89 +31,67 @@
 *      Author: Ali Baharev
 */
 
-#include <iomanip>
-#include <ostream>
-#include <sstream>
-#include <stdexcept>
-#include "Line.hpp"
+#include <fstream>
+// FIXME Remove when finished
+#include <iostream>
+#include "RecordScout.hpp"
+#include "MoteRegistrar.hpp"
 #include "Utility.hpp"
 
 using namespace std;
 
 namespace sdc {
 
-typedef istringstream iss;
+void RecordScout::read_all_existing() {
 
-Line::Line(const string& line, int mote_ID) {
+	records.clear();
 
-	mote_id = mote_ID; // TODO Find a better way
+	vector<int> ids = MoteRegistrar::existing_ids();
 
-	iss in(line);
+	const int n = static_cast<int> (ids.size());
 
-	in.exceptions(iss::failbit | iss::badbit | iss::eofbit);
+	for (int i=0; i<n; ++i) {
 
-	in >> first_block;
-	in >> last_block;
-	in >> reboot;
+		mote_id = ids.at(i);
 
-	if (first_block < 0 || first_block > last_block || reboot < 1) {
-		throw runtime_error("corrupted line");
-	}
-
-	in >> time_length;
-	in >> date;
-}
-
-Line::Line(int first, int last, int reboot_id, unsigned int time_len)
-	: date(current_time())
-{
-
-	mote_id     = -1;
-	first_block = first;
-	last_block  = last;
-	reboot      = reboot_id;
-	time_length = ticks2time(time_len);
-}
-
-void Line::consistent_with(const Line& previous) const {
-
-	if ((first_block != previous.last_block+1) ||
-		(reboot      != previous.reboot   +1) )
-	{
-		throw runtime_error("corrupted database");
+		read_mote_rdb();
 	}
 }
 
-int Line::start_at_block() const {
+void RecordScout::read_mote_rdb() {
 
-	return first_block;
+	ifstream in;
+
+	in.open(rdb_file_name(mote_id).c_str());
+
+	while (in.good()) {
+
+		string buffer;
+
+		getline(in, buffer);
+
+		push_line(buffer);
+	}
 }
 
-int Line::finished_at_block() const {
+void RecordScout::push_line(const string& buffer) {
 
-	return last_block;
+	if (buffer.size()!=0) {
+
+		records.push_back(Line(buffer, mote_id));
+	}
 }
 
-int Line::reboot_id() const {
+void RecordScout::dump() const {
 
-	return reboot;
-}
+	const int n = static_cast<int> (records.size());
 
-int Line::mote() const {
+	for (int i=0; i<n; ++i) {
 
-	return mote_id;
-}
+		Line line = records.at(i);
 
-ostream& operator<<(ostream& out, const Line& line) {
-
-	out << setw(7) << right << line.first_block << '\t';
-	out << setw(7) << right << line.last_block  << '\t';
-	out << setw(3) << right << line.reboot      << '\t';
-	out <<                     line.time_length << '\t';
-	out << recorded_length(line.first_block, line.last_block) << '\t';
-	out << line.date;
-
-	return out;
+		cout << line.mote() << '\t' << line << endl;
+	}
 }
 
 }

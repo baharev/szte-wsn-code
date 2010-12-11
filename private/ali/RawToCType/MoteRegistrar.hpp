@@ -48,6 +48,8 @@ public:
 
 	~MoteRegistrar();
 
+	static std::vector<int> existing_ids();
+
 private:
 
 	bool read_all_existing_ids();

@@ -112,7 +112,7 @@ bool MoteRegistrar::read_file_content() {
 
 	int previous = 0;
 
-	while (!db->eof()) { // FIXME
+	while (!db->eof()) {
 
 		*db >> current;
 
@@ -146,6 +146,31 @@ bool MoteRegistrar::read_file_content() {
 
 MoteRegistrar::~MoteRegistrar() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+}
+
+vector<int> MoteRegistrar::existing_ids() {
+
+	vector<int> ids;
+
+	fstream db(MOTE_ID_DB, fstream::in);
+
+	if (!db.is_open()) {
+
+		return ids;
+	}
+
+	db.exceptions(fstream::failbit | fstream::badbit);
+
+	int mote_id;
+
+	while (!db.eof()) {
+
+		db >> mote_id;
+
+		ids.push_back(mote_id);
+	}
+
+	return ids;
 }
 
 }

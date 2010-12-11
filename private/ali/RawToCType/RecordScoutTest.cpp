@@ -31,89 +31,25 @@
 *      Author: Ali Baharev
 */
 
-#include <iomanip>
-#include <ostream>
-#include <sstream>
-#include <stdexcept>
-#include "Line.hpp"
-#include "Utility.hpp"
+#include <iostream>
+#include "RecordScout.hpp"
 
 using namespace std;
+using namespace sdc;
 
-namespace sdc {
+int main() {
 
-typedef istringstream iss;
+	RecordScout scout;
 
-Line::Line(const string& line, int mote_ID) {
+	scout.read_all_existing();
 
-	mote_id = mote_ID; // TODO Find a better way
+	scout.dump();
 
-	iss in(line);
+	cout << "==============================================================" << endl;
 
-	in.exceptions(iss::failbit | iss::badbit | iss::eofbit);
+	scout.read_all_existing();
 
-	in >> first_block;
-	in >> last_block;
-	in >> reboot;
+	scout.dump();
 
-	if (first_block < 0 || first_block > last_block || reboot < 1) {
-		throw runtime_error("corrupted line");
-	}
-
-	in >> time_length;
-	in >> date;
-}
-
-Line::Line(int first, int last, int reboot_id, unsigned int time_len)
-	: date(current_time())
-{
-
-	mote_id     = -1;
-	first_block = first;
-	last_block  = last;
-	reboot      = reboot_id;
-	time_length = ticks2time(time_len);
-}
-
-void Line::consistent_with(const Line& previous) const {
-
-	if ((first_block != previous.last_block+1) ||
-		(reboot      != previous.reboot   +1) )
-	{
-		throw runtime_error("corrupted database");
-	}
-}
-
-int Line::start_at_block() const {
-
-	return first_block;
-}
-
-int Line::finished_at_block() const {
-
-	return last_block;
-}
-
-int Line::reboot_id() const {
-
-	return reboot;
-}
-
-int Line::mote() const {
-
-	return mote_id;
-}
-
-ostream& operator<<(ostream& out, const Line& line) {
-
-	out << setw(7) << right << line.first_block << '\t';
-	out << setw(7) << right << line.last_block  << '\t';
-	out << setw(3) << right << line.reboot      << '\t';
-	out <<                     line.time_length << '\t';
-	out << recorded_length(line.first_block, line.last_block) << '\t';
-	out << line.date;
-
-	return out;
-}
-
+	return 0;
 }

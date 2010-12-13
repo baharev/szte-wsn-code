@@ -43,6 +43,9 @@ interface ShimmerAdc
 
 	event void sampleDone(uint16_t *data, uint8_t length);
 	
+	/** May not be able to restart after this */
+	async command void forceStopSampling();
+	
 	command void stop();
 	
 	event void stopDone();

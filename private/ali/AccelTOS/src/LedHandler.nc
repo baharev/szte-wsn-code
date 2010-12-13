@@ -33,7 +33,7 @@
 
 interface LedHandler{
 	
-	command void error();
+	async command void error();
 	
 	command void radioOn();
 	

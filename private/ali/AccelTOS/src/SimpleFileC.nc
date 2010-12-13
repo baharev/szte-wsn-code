@@ -52,9 +52,16 @@ implementation
 #endif
 
 	components LedHandlerC;
+	
+	// TODO Clean-up this mess
+	components ShimmerAdcC;
+	components SyncMsgSenderC;
 
 	SplitControl = SimpleFileP;
 	SimpleFile = SimpleFileP;
 
 	SimpleFileP.LedHandler -> LedHandlerC;
+	
+	SimpleFileP.ADC -> ShimmerAdcC;
+	SimpleFileP.SyncMsgControl -> SyncMsgSenderC;
 }

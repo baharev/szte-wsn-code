@@ -386,6 +386,11 @@ implementation
 		// TODO Can the last two lines be swapped?
 	}
 
+	async command void ShimmerAdc.forceStopSampling() {
+
+		call Alarm.stop();
+	}
+
 	task void shutDown() {
 
 		bool finished = FALSE;

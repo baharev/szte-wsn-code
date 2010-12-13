@@ -70,7 +70,7 @@ implementation{
 		call Leds.led2Toggle();
 	}
 
-	command void LedHandler.error() {
+	async command void LedHandler.error() {
 		call Leds.led0On();
 	}
 

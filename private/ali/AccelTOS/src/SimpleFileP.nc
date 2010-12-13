@@ -44,6 +44,8 @@ module SimpleFileP
 		interface LedHandler;
 		interface SD;
 		interface StdControl as SDControl;
+		interface ShimmerAdc as ADC;
+		interface StdControl as SyncMsgControl;
 	}
 
 	// TODO A deep format functionality?
@@ -70,7 +72,7 @@ implementation
 
 	uint8_t state = STATE_OFF;
 	// FIXME We got available==true with SD card out!
-	norace bool available = FALSE;
+	norace bool available = TRUE;
 
 	struct buffer
 	{
@@ -92,15 +94,33 @@ implementation
 
 	task void executeCommand();
 
+	// TODO Do not restart!
 	async event void SD.available()
 	{
-		available = TRUE;
-		post executeCommand();
+		//available = TRUE;
+		//post executeCommand();
+	}
+	
+	task void stopSendingSyncMsg() {
+	 
+		call SyncMsgControl.stop();
 	}
 
 	async event void SD.unavailable()
 	{
 		available = FALSE;
+		call ADC.forceStopSampling();
+		call LedHandler.error();
+		post stopSendingSyncMsg();
+	}
+	
+	// TODO These indicate a need for a new / different interface
+	event void ADC.stopDone() {
+		// DUMMY
+	}
+	
+	event void ADC.sampleDone(uint16_t *data, uint8_t length) {
+		// DUMMY
 	}
 	
 	void bad() {

@@ -32,61 +32,89 @@
  */
 
 #include <iostream>
+#include <stdexcept>
+#include <cstdlib>
+#include <string>
+#include <sstream>
 #include <typeinfo>
 #include "FlatFileDB.hpp"
 #include "TimeSyncMerger.hpp"
 using namespace std;
 using namespace sdc;
 
-int main(int argc, char* argv[]) {
+typedef istringstream iss;
 
-	enum { SUCCESS, FAILURE };
+void Main(int mote_id, int record_id) {
 
-	FlatFileDB db5(5);
+	const int n = FlatFileDB(mote_id).number_of_records();
 
-	for (int i=1; i<=db5.number_of_records(); ++i) {
+	do {
 
-		cout << "#############################################################";
-		cout << endl;
+		cout << "=============================================================";
+		cout << "===================" << endl;
 
-		TimeSyncMerger tsm(5, i);
-
-		tsm.pairs();
-	}
-
-	cout<<"============================================================="<<endl;
-
-	FlatFileDB db4(4);
-
-	for (int i=19; i<=db4.number_of_records(); ++i) {
-
-		cout << "#############################################################";
-		cout << endl;
-
-		TimeSyncMerger tsm(4, i);
+		TimeSyncMerger tsm(mote_id, record_id);
 
 		tsm.pairs();
-	}
 
-/*
-	if (argc != 3) {
+		++record_id;
 
-		clog << "Error: !" << endl;
+	} while (record_id<=n);
+}
 
-		return FAILURE;
-	}
+int str2int(char* str) {
 
+	iss in((string(str)));
+
+	in.exceptions(iss::failbit | iss::badbit);
+
+	int ret_val = -1;
 
 	try {
 
+		in >> ret_val;
+	}
+	catch (ios_base::failure&) {
 
+		string msg("failed to read ");
+		msg.append(str);
+
+		throw runtime_error(msg);
+	}
+
+	return ret_val;
+}
+
+enum { SUCCESS, FAILURE };
+
+void check_arg_count(int argc, char* argv[]) {
+
+	if (argc != 3) {
+
+		clog << "Usage: " << argv[0] << " mote_id  start_from_record" << endl;
+
+		exit(FAILURE);
+	}
+}
+
+int main(int argc, char* argv[]) {
+
+	check_arg_count(argc, argv);
+
+	try {
+
+		int mote_id       = str2int(argv[1]);
+
+		int starting_from = str2int(argv[2]);
+
+		Main(mote_id, starting_from);
 	}
 	catch (exception& e) {
 
-		clog << e.what() << " (" << typeid(e).name() << ")" << endl;
+		clog << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
 
 		return FAILURE;
 	}
-*/
+
 	return SUCCESS;
 }

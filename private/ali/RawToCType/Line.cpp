@@ -44,9 +44,7 @@ namespace sdc {
 
 typedef istringstream iss;
 
-Line::Line(const string& line, int mote_ID) {
-
-	mote_id = mote_ID; // TODO Find a better way
+Line::Line(const string& line) {
 
 	iss in(line);
 
@@ -61,17 +59,17 @@ Line::Line(const string& line, int mote_ID) {
 	}
 
 	in >> time_length;
-	string skipped;
-	in >> skipped;
+
+	string computed_length_skipped;
+	in >>  computed_length_skipped;
 	in.get();
+
 	getline(in, date);
 }
 
 Line::Line(int first, int last, int reboot_id, unsigned int time_len)
 	: date(current_time())
 {
-
-	mote_id     = -1;
 	first_block = first;
 	last_block  = last;
 	reboot      = reboot_id;
@@ -100,11 +98,6 @@ int Line::finished_at_block() const {
 int Line::reboot_id() const {
 
 	return reboot;
-}
-
-int Line::mote() const {
-
-	return mote_id;
 }
 
 ostream& operator<<(ostream& out, const Line& line) {

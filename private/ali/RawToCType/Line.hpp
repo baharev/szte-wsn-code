@@ -43,7 +43,7 @@ class Line {
 
 public:
 
-	explicit Line(const std::string& line, int mote_id = -1);
+	explicit Line(const std::string& line);
 
 	Line(int first, int last, int reboot_id, unsigned int time_len);
 
@@ -55,13 +55,10 @@ public:
 
 	int reboot_id() const;
 
-	int mote() const;
-
 	friend std::ostream& operator<<(std::ostream& , const Line& );
 
 private:
 
-	int mote_id;
 	int first_block;
 	int last_block;
 	int reboot;

@@ -78,7 +78,7 @@ void RecordScout::push_line(const string& buffer) {
 
 	if (buffer.size()!=0) {
 
-		records.push_back(Line(buffer, mote_id));
+		records.push_back(Line(buffer));
 	}
 }
 
@@ -90,7 +90,7 @@ void RecordScout::dump() const {
 
 		Line line = records.at(i);
 
-		cout << line.mote() << '\t' << line << endl;
+		cout << line << endl;
 	}
 }
 

@@ -208,9 +208,9 @@ MoteRegistrar::~MoteRegistrar() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 
-vector<int> MoteRegistrar::existing_ids() {
+const vector<MoteID_Size> MoteRegistrar::existing_ids() {
 
-	vector<int> ids;
+	vector<MoteID_Size> ids;
 
 	fstream db(MOTE_ID_DB, fstream::in);
 
@@ -221,13 +221,13 @@ vector<int> MoteRegistrar::existing_ids() {
 
 	db.exceptions(fstream::failbit | fstream::badbit);
 
-	int mote_id;
+	MoteID_Size m;
 
 	while (!db.eof()) {
 
-		db >> mote_id;
+		db >> m;
 
-		ids.push_back(mote_id);
+		ids.push_back(m);
 	}
 
 	return ids;

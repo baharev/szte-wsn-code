@@ -35,6 +35,7 @@
 // FIXME Remove when finished
 #include <iostream>
 #include "RecordScout.hpp"
+#include "MoteInfo.hpp"
 #include "MoteRegistrar.hpp"
 #include "Utility.hpp"
 
@@ -42,19 +43,38 @@ using namespace std;
 
 namespace sdc {
 
-void RecordScout::read_all_existing() {
+void RecordScout::clear() {
+
+	db.clear();
+
+	header.clear();
 
 	records.clear();
 
-	vector<int> ids = MoteRegistrar::existing_ids();
+	mote_id = card_size_in_blocks = -1;
+}
+
+void RecordScout::read_all_existing() {
+
+	clear();
+
+	const vector<MoteID_Size> ids = MoteRegistrar::existing_ids();
 
 	const int n = static_cast<int> (ids.size());
 
 	for (int i=0; i<n; ++i) {
 
-		mote_id = ids.at(i);
+		const MoteID_Size m = ids.at(i);
+
+		mote_id = m.mote_id();
+
+		card_size_in_blocks = m.size_in_blocks();
+
+		records.clear();
 
 		read_mote_rdb();
+
+		push_back();
 	}
 }
 
@@ -82,15 +102,52 @@ void RecordScout::push_line(const string& buffer) {
 	}
 }
 
-void RecordScout::dump() const {
+void RecordScout::push_back() {
 
-	const int n = static_cast<int> (records.size());
+	if (records.size() > 0) {
+
+		db.push_back(pair<int, vector<Line> > (mote_id, records));
+
+		typedef vector<Line>::const_reverse_iterator itr;
+
+		itr last_record = records.rbegin();
+
+		const string& date = last_record->download_date();
+
+		int end = last_record->finished_at_block();
+
+		header.push_back(MoteInfo(mote_id, card_size_in_blocks, end, date));
+	}
+}
+
+void RecordScout::dump_all() const {
+
+	const int n = static_cast<int> (db.size());
 
 	for (int i=0; i<n; ++i) {
 
-		Line line = records.at(i);
+		dump_header(header.at(i));
 
-		cout << line << endl;
+		const pair<int, vector<Line> >& p = db.at(i);
+
+		dump_mote(p.first, p.second);
+	}
+}
+
+void RecordScout::dump_header(const MoteInfo& moteinfo) const {
+
+	cout << "=========================================================";
+	cout << "=========================================================" << endl;
+	cout << moteinfo << endl;
+}
+
+void RecordScout::dump_mote(int mote, const vector<Line>& record) const {
+
+	const int n = static_cast<int> (record.size());
+
+	for (int i=0; i<n; ++i) {
+
+		cout << mote << '\t' << record.at(i) << endl;
 	}
 }
 

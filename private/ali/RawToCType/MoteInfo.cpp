@@ -31,50 +31,52 @@
 *      Author: Ali Baharev
 */
 
-#ifndef RECORDSCOUT_HPP_
-#define RECORDSCOUT_HPP_
-
-#include <string>
-#include <utility>
-#include <vector>
-#include "Line.hpp"
+#include <ostream>
 #include "MoteInfo.hpp"
+#include "BlockRelatedConsts.hpp"
+#include "Utility.hpp"
+
+using namespace std;
 
 namespace sdc {
 
-class RecordScout {
+MoteInfo::MoteInfo() {
 
-public:
-
-	void read_all_existing();
-
-	void dump_all() const;
-
-private:
-
-	void clear();
-
-	void read_mote_rdb();
-
-	void push_line(const std::string& buffer);
-
-	void push_back();
-
-	void dump_header(const MoteInfo& moteinfo) const;
-
-	void dump_mote(int, const std::vector<Line>& ) const;
-
-	std::vector<Line> records;
-
-	int mote_id;
-
-	int card_size_in_blocks;
-
-	std::vector<std::pair<int, std::vector<Line> > > db;
-
-	std::vector<MoteInfo> header;
-};
-
+	mote_ID = -1;
 }
 
-#endif /* RECORDSCOUT_HPP_ */
+MoteInfo::MoteInfo(int mote, double size, int last_block, const string& date) {
+
+	mote_ID = mote;
+
+	double card_size_GB = (size*BLOCK_SIZE)/GB();
+
+	hours_remaining = sdc::remaining_hours(card_size_GB, last_block);
+
+	last_seen = date;
+}
+
+int MoteInfo::mote_id() const {
+
+	return mote_ID;
+}
+
+const string MoteInfo::last_download() const {
+
+	return last_seen;
+}
+
+const string MoteInfo::remaining_hours() const {
+
+	return hours_remaining;
+}
+
+std::ostream& operator<<(std::ostream& out, const MoteInfo& m) {
+
+	out << m.mote_id() << '\t' << m.remaining_hours() << " hours remaining\t";
+	out << "last seen on " << m.last_download();
+
+	return out;
+}
+
+}

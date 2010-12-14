@@ -48,9 +48,9 @@ const std::string time_to_filename(); // TODO Do we need this function?
 
 const std::string recorded_length(int first_block, int last_block);
 
-const std::string remaining_GB(double card_size, int last_block);
+const std::string remaining_GB(double card_size_GB, int last_block);
 
-const std::string remaining_hours(double card_size, int last_block);
+const std::string remaining_hours(double card_size_GB, int last_block);
 
 int round(double x);
 

@@ -43,13 +43,15 @@ int main() {
 
 	scout.read_all_existing();
 
-	scout.dump();
+	scout.dump_all();
 
-	cout << "==============================================================" << endl;
+	scout.dump_all();
+
+	cout << "#########################################################" << endl;
 
 	scout.read_all_existing();
 
-	scout.dump();
+	scout.dump_all();
 
 	return 0;
 }

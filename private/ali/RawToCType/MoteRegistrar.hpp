@@ -71,7 +71,7 @@ public:
 
 	~MoteRegistrar();
 
-	static std::vector<int> existing_ids();
+	static const std::vector<MoteID_Size> existing_ids();
 
 private:
 

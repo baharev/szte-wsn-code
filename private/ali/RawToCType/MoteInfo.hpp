@@ -31,50 +31,42 @@
 *      Author: Ali Baharev
 */
 
-#ifndef RECORDSCOUT_HPP_
-#define RECORDSCOUT_HPP_
+#ifndef MOTEINFO_HPP_
+#define MOTEINFO_HPP_
 
+#include <iosfwd>
 #include <string>
-#include <utility>
-#include <vector>
-#include "Line.hpp"
-#include "MoteInfo.hpp"
 
 namespace sdc {
 
-class RecordScout {
+class MoteInfo {
 
 public:
 
-	void read_all_existing();
+	MoteInfo();
 
-	void dump_all() const;
+	MoteInfo(int    mote,
+			 double card_size_in_blocks,
+			 int    last_block,
+			 const  std::string& last_seen);
+
+	int mote_id() const;
+
+	const std::string last_download() const;
+
+	const std::string remaining_hours() const;
 
 private:
 
-	void clear();
+	int mote_ID;
 
-	void read_mote_rdb();
+	std::string hours_remaining;
 
-	void push_line(const std::string& buffer);
-
-	void push_back();
-
-	void dump_header(const MoteInfo& moteinfo) const;
-
-	void dump_mote(int, const std::vector<Line>& ) const;
-
-	std::vector<Line> records;
-
-	int mote_id;
-
-	int card_size_in_blocks;
-
-	std::vector<std::pair<int, std::vector<Line> > > db;
-
-	std::vector<MoteInfo> header;
+	std::string last_seen;
 };
+
+std::ostream& operator<<(std::ostream& , const MoteInfo& );
 
 }
 
-#endif /* RECORDSCOUT_HPP_ */
+#endif /* MOTEINFO_HPP_ */

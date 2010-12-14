@@ -55,6 +55,8 @@ public:
 
 	int reboot_id() const;
 
+	const std::string& download_date() const;
+
 	friend std::ostream& operator<<(std::ostream& , const Line& );
 
 private:

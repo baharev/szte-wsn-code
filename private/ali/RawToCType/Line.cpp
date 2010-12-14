@@ -100,6 +100,11 @@ int Line::reboot_id() const {
 	return reboot;
 }
 
+const string& Line::download_date() const {
+
+	return date;
+}
+
 ostream& operator<<(ostream& out, const Line& line) {
 
 	out << setw(7) << right << line.first_block << '\t';

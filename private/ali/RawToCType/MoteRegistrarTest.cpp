@@ -37,11 +37,12 @@ using namespace sdc;
 
 int main() {
 
-	MoteRegistrar(3);
-	MoteRegistrar(5);
-	MoteRegistrar(4);
-	MoteRegistrar(3);
-	MoteRegistrar(4);
-	MoteRegistrar(5);
-	MoteRegistrar(2);
+	MoteRegistrar(3, 1);
+	MoteRegistrar(5, 2);
+	MoteRegistrar(4, 9);
+	MoteRegistrar(3, 1);
+	MoteRegistrar(4, 9);
+	MoteRegistrar(5, 2);
+	MoteRegistrar(2, 7);
+	MoteRegistrar(3, 2);
 }

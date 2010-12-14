@@ -55,7 +55,7 @@ SDCardImpl::SDCardImpl(BlockDevice* source)
 
 	init_tracker();
 
-	MoteRegistrar(tracker->mote_id());
+	MoteRegistrar(tracker->mote_id(), device->end());
 
 	check.reset(new BlockChecker(tracker->mote_id()));
 }

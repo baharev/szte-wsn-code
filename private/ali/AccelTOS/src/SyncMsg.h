@@ -38,10 +38,10 @@ enum {
 	AM_SYNCMSG = 0x44
 };
 
-typedef nx_struct {
+typedef struct {
 
-	nx_uint32_t first_block;
-	nx_uint32_t event_time;
+	uint32_t first_block;
+	uint32_t event_time;
 
 } SyncMsg;
 

@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2010, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,51 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#ifndef CONSTANTS_HPP_
-#define CONSTANTS_HPP_
+#include <fstream>
+#include <sstream>
+#include "TimeSyncDB.hpp"
+#include "Constants.hpp"
+
+using namespace std;
+
+typedef istringstream iss;
 
 namespace sdc {
 
-const char MOTE_ID_DB[]   = "motes.mdb";
-const char MOTE_DATE_DB[] = "motes.ddb";
+TimeSyncDB::TimeSyncDB() : in(new ifstream(MOTE_DATE_DB)) {
 
-const unsigned int TICKS_PER_SEC = 32768;
-const unsigned int SAMPLING_RATE = 110;
-const int TOLERANCE = 22;
+	if (in->good()) {
+
+		init();
+	}
+
+	in.reset();
+}
+
+void TimeSyncDB::init() {
+
+	while (in->good()) {
+
+		string buffer;
+
+		getline(*in, buffer);
+
+	}
 
 }
 
-#endif
+void TimeSyncDB::parse_line(const string& line) {
 
+	iss ss(line);
+
+	ss.exceptions(iss::failbit | iss::badbit);
+
+	ss >> vmote_id;
+
+	ss >> date_seen;
+}
+
+}

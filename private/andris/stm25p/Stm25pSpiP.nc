@@ -68,10 +68,12 @@ implementation {
   } stm25p_cmd_t;
 
   norace uint8_t m_cmd[ 4 ];
-
-  norace bool m_is_writing = FALSE;
-  norace bool m_computing_crc = FALSE;
-  bool m_init=FALSE;
+  
+  norace struct status_t{
+    bool m_is_writing:1;
+    bool m_computing_crc:1;
+    bool m_init:1;
+  } status;
 
   norace stm25p_addr_t m_addr;
   norace uint8_t* m_buf;
@@ -99,6 +101,9 @@ implementation {
   }
 
   command error_t Init.init() {
+    status.m_is_writing=FALSE;
+    status.m_computing_crc=FALSE;
+    status.m_init=FALSE;
     call CSN.makeOutput();
     call Hold.makeOutput();
     call CSN.set();
@@ -107,7 +112,7 @@ implementation {
       call Spi.powerDown();
       call SpiResource.release();
     } else if(call SpiResource.request()==SUCCESS)
-      m_init=TRUE;//otherwise we can't put the chip to deep sleep
+      status.m_init=TRUE;//otherwise we can't put the chip to deep sleep
     return SUCCESS;
   }
 
@@ -152,7 +157,7 @@ implementation {
 
   async command error_t Spi.computeCrc( uint16_t crc, stm25p_addr_t addr,
 					stm25p_len_t len ) {
-    m_computing_crc = TRUE;
+    status.m_computing_crc = TRUE;
     m_crc = crc;
     m_addr = m_cur_addr = addr;
     m_len = m_cur_len = len;
@@ -207,7 +212,7 @@ implementation {
 	call SpiPacket.send( NULL, m_buf, m_len );
 	break;
       }
-      else if ( m_computing_crc ) {
+      else if ( status.m_computing_crc ) {
 	for ( i = 0; i < len; i++ )
 	  m_crc = crcByte( m_crc, m_crc_buf[ i ] );
 	m_cur_addr += len;
@@ -230,7 +235,7 @@ implementation {
       
     case S_SECTOR_ERASE: case S_BULK_ERASE:
       call CSN.set();
-      m_is_writing = TRUE;
+      status.m_is_writing = TRUE;
       releaseAndRequest();
       break;
 
@@ -242,12 +247,12 @@ implementation {
   }
 
   event void SpiResource.granted() {
-    if (m_init){
-      m_init=FALSE;
+    if (status.m_init){
+      status.m_init=FALSE;
       call Spi.powerDown();
       call SpiResource.release();
     }
-    else if ( !m_is_writing )
+    else if ( !status.m_is_writing )
       signal ClientResource.granted();
     else if ( sendCmd( 0x5, 2 ) & 0x1 )
       releaseAndRequest();
@@ -257,11 +262,11 @@ implementation {
   }
 
   void signalDone( error_t error ) {
-    m_is_writing = FALSE;
+    status.m_is_writing = FALSE;
     switch( m_cmd[ 0 ] ) {
     case S_READ:
-      if ( m_computing_crc ) {
-	m_computing_crc = FALSE;
+      if ( status.m_computing_crc ) {
+	status.m_computing_crc = FALSE;
 	signal Spi.computeCrcDone( m_crc, m_addr, m_len, error );
       }
       else {

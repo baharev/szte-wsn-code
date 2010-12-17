@@ -149,7 +149,7 @@ implementation
 		if (rem==0) {
 			call LedHandler.led2On();
 		}
-		else if (rem==50) {
+		else if (rem==20) {
 			call LedHandler.led2Off();
 		}
 
@@ -172,7 +172,7 @@ implementation
 	command error_t Sampling.start(){
 
 		// It can only fail if the previous sampling is not shut down.
-		error_t error = call ShimmerAdc.sample(110);
+		error_t error = call ShimmerAdc.sample(160);
 		
 		if (!error)
 			post signalStartDone();

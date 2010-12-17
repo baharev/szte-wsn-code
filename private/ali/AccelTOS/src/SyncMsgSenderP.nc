@@ -74,7 +74,7 @@ implementation {
 
 	command error_t StdControl.start(){
 		
-		call Timer.startPeriodic(1024);
+		call Timer.startPeriodic(10240);
 		
 		return SUCCESS;
 	}

@@ -49,25 +49,34 @@ typedef std::pair<Map::iterator, bool> Pair;
 
 public:
 
-	TimeSyncDB();
+	TimeSyncDB() { }
+
+	void read_all();
 
 	const std::string date(const VirtualMoteID& vmote_id) const;
 
 	void dump() const;
+
+	~TimeSyncDB();
 
 private:
 
 	TimeSyncDB(const TimeSyncDB& );
 	TimeSyncDB& operator=(const TimeSyncDB& );
 
-	void init();
+	void grab_line();
 
-	void parse_line(const std::string& line);
+	void parse_line();
+
+	void parse();
+
+	void push();
 
 	std::auto_ptr<std::ifstream> in;
 	Map motes;
 	VirtualMoteID vmote_id;
 	std::string date_seen;
+	std::string line;
 };
 
 }

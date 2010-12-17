@@ -58,6 +58,8 @@ void RecordScout::read_all_existing() {
 
 	clear();
 
+	mote_date_online.read_all();
+
 	const vector<MoteID_Size> ids = MoteRegistrar::existing_ids();
 
 	const int n = static_cast<int> (ids.size());
@@ -147,7 +149,11 @@ void RecordScout::dump_mote(int mote, const vector<Line>& record) const {
 
 	for (int i=0; i<n; ++i) {
 
-		cout << mote << '\t' << record.at(i) << endl;
+		const Line& line = record.at(i);
+		int first_block = line.start_at_block();
+
+		cout << mote << '\t' << line << '\t';
+		cout << mote_date_online.date(VirtualMoteID(mote, first_block)) << endl;
 	}
 }
 

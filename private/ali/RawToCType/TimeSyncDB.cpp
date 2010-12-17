@@ -32,39 +32,69 @@
 */
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include "TimeSyncDB.hpp"
 #include "Constants.hpp"
 
 using namespace std;
 
 typedef istringstream iss;
+typedef ostringstream oss;
 
 namespace sdc {
 
-TimeSyncDB::TimeSyncDB() : in(new ifstream(MOTE_DATE_DB)) {
+void TimeSyncDB::read_all() {
+
+	motes.clear();
+
+	in.reset(new ifstream(MOTE_DATE_DB));
 
 	if (in->good()) {
 
-		init();
+		grab_line();
 	}
 
 	in.reset();
 }
 
-void TimeSyncDB::init() {
+void TimeSyncDB::grab_line() {
 
 	while (in->good()) {
 
-		string buffer;
+		line.clear();
 
-		getline(*in, buffer);
+		getline(*in, line);
 
+		if (line.size()==0) {
+
+			break;
+		}
+
+		parse_line();
+
+		push();
 	}
-
 }
 
-void TimeSyncDB::parse_line(const string& line) {
+void TimeSyncDB::parse_line() {
+
+	try {
+
+		parse();
+	}
+	catch(ios_base::failure& ) {
+
+		oss os;
+
+		os << "failed to parse \"" << line << "\" in " << MOTE_DATE_DB << flush;
+
+		throw runtime_error(os.str());
+	}
+}
+
+void TimeSyncDB::parse() {
 
 	iss ss(line);
 
@@ -72,7 +102,46 @@ void TimeSyncDB::parse_line(const string& line) {
 
 	ss >> vmote_id;
 
-	ss >> date_seen;
+	ss.get();
+
+	getline(ss, date_seen);
+}
+
+void TimeSyncDB::push() {
+
+	Pair result = motes.insert(make_pair(vmote_id, date_seen));
+
+	if (result.second == false) {
+
+		oss os;
+
+		os << "Duplicate virtual mote id: " << vmote_id << flush;
+
+		throw runtime_error(os.str());
+	}
+}
+
+const string TimeSyncDB::date(const VirtualMoteID& vmote) const {
+
+	Map::const_iterator i = motes.find(vmote);
+
+	return (i!=motes.end()) ? i->second : string();
+}
+
+void TimeSyncDB::dump() const {
+
+	Map::const_iterator i = motes.begin();
+
+	cout << "---------------------------------------------------------" << endl;
+
+	while (i!=motes.end()) {
+
+		cout << i->first << '\t' << i->second << endl;
+	}
+}
+
+TimeSyncDB::~TimeSyncDB() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }
 
 }

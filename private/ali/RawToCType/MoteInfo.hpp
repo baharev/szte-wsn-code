@@ -48,7 +48,7 @@ public:
 	MoteInfo(int    mote,
 			 double card_size_in_blocks,
 			 int    last_block,
-			 const  std::string& last_seen);
+			 const  std::string& last_download);
 
 	int mote_id() const;
 

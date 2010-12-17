@@ -74,7 +74,7 @@ const string MoteInfo::remaining_hours() const {
 std::ostream& operator<<(std::ostream& out, const MoteInfo& m) {
 
 	out << m.mote_id() << '\t' << m.remaining_hours() << " hours remaining\t";
-	out << "last seen on " << m.last_download();
+	out << "last download on " << m.last_download();
 
 	return out;
 }

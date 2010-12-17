@@ -39,6 +39,7 @@
 #include <vector>
 #include "Line.hpp"
 #include "MoteInfo.hpp"
+#include "TimeSyncDB.hpp"
 
 namespace sdc {
 
@@ -73,6 +74,8 @@ private:
 	std::vector<std::pair<int, std::vector<Line> > > db;
 
 	std::vector<MoteInfo> header;
+
+	TimeSyncDB mote_date_online;
 };
 
 }

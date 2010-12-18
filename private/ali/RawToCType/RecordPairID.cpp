@@ -46,7 +46,7 @@ RecordPairID::RecordPairID(const RecordID& rid1, const RecordID& rid2) {
 
 		string msg("record cannot be in pair with itself, ");
 
-		msg.append(rid1.str());
+		msg.append(rid1.toString());
 
 		throw logic_error(msg);
 	}
@@ -71,6 +71,15 @@ ostream& operator<<(ostream& out, const RecordPairID& id) {
 	out << "record pair: " << id.id1 << " and " << id.id2;
 
 	return out;
+}
+
+const std::string RecordPairID::str() const {
+
+	string s(id1.str());
+	s.append(1, '_');
+	s.append(id2.str());
+
+	return s;
 }
 
 }

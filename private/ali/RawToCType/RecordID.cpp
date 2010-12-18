@@ -31,6 +31,7 @@
 *      Author: Ali Baharev
 */
 
+#include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <stdexcept>
@@ -61,11 +62,21 @@ RecordID::RecordID(int mote_id, int reboot) {
 	mote_ID = mote_id, reboot_ID = reboot;
 }
 
-const string RecordID::str() const {
+const string RecordID::toString() const {
 
 	ostringstream os;
 
 	os << *this << flush;
+
+	return os.str();
+}
+
+const std::string RecordID::str() const {
+
+	ostringstream os;
+
+	os << 'm' << setw(2) << setfill('0') << mote_ID;
+	os << 'r' << setw(3) << setfill('0') << reboot_ID << flush;
 
 	return os.str();
 }

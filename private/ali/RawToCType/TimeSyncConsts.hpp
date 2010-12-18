@@ -36,7 +36,7 @@
 
 namespace sdc {
 
-const int TIMESYNC_MSG_RATE = 1024;
+const int TIMESYNC_MSG_RATE = 10240;
 const int OFFSET_TOLERANCE = 9;
 
 }

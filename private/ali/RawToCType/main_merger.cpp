@@ -31,6 +31,7 @@
  *      Author: Ali Baharev
  */
 
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -60,6 +61,46 @@ void Main(int mote_id, int record_id) {
 		++record_id;
 
 	} while (record_id<=n);
+}
+
+void dump_time_sync_points(ofstream& out, const vector<Pair>& v) {
+
+	const int n = static_cast<int> (v.size());
+
+	for (int i=0; i<n; ++i) {
+
+		const Pair& p = v.at(i);
+
+		out << p.first << '\t' << p.second << endl;
+	}
+}
+
+void dump(const Map& results) {
+
+	for (Map::const_iterator i=results.begin(); i!=results.end(); ++i) {
+
+		string filename = i->first.str();
+
+		ofstream out(filename.c_str());
+
+		out << i->first << endl;
+
+		dump_time_sync_points(out, i->second);
+	}
+}
+
+void Main2(int mote_id, int record_id) {
+
+	const int n = FlatFileDB(mote_id).number_of_records();
+
+	while (record_id<=n) {
+
+		TimeSyncMerger tsm(mote_id, record_id);
+
+		dump(tsm.pairs());
+
+		++record_id;
+	}
 }
 
 int str2int(char* str) {
@@ -107,7 +148,7 @@ int main(int argc, char* argv[]) {
 
 		int starting_from = str2int(argv[2]);
 
-		Main(mote_id, starting_from);
+		Main2(mote_id, starting_from);
 	}
 	catch (exception& e) {
 

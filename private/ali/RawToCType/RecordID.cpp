@@ -62,7 +62,7 @@ RecordID::RecordID(int mote_id, int reboot) {
 	mote_ID = mote_id, reboot_ID = reboot;
 }
 
-const string RecordID::toString() const {
+const string RecordID::str() const {
 
 	ostringstream os;
 
@@ -71,7 +71,7 @@ const string RecordID::toString() const {
 	return os.str();
 }
 
-const std::string RecordID::str() const {
+const string RecordID::toFilenameString() const {
 
 	ostringstream os;
 

@@ -75,6 +75,7 @@ public:
 
 private:
 
+	MoteRegistrar(const MoteRegistrar& );
 	MoteRegistrar& operator=(const MoteRegistrar& );
 
 	void push_back();

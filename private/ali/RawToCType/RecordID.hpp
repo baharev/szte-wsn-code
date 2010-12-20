@@ -47,9 +47,9 @@ public:
 
 	RecordID(int mote_id, int reboot);
 
-	const std::string toString() const;
-
 	const std::string str() const;
+
+	const std::string toFilenameString() const;
 
 	friend bool operator<(const RecordID& lhs, const RecordID& rhs);
 

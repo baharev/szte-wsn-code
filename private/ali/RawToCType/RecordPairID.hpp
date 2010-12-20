@@ -49,7 +49,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& , const RecordPairID& );
 
-	const std::string str() const;
+	const std::string toFilenameString() const;
 
 private:
 

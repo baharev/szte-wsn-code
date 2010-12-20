@@ -79,7 +79,7 @@ void dump(const Map& results) {
 
 	for (Map::const_iterator i=results.begin(); i!=results.end(); ++i) {
 
-		string filename = i->first.str();
+		string filename = i->first.toFilenameString();
 
 		ofstream out(filename.c_str());
 

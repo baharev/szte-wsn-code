@@ -102,6 +102,10 @@ void TimeSyncDB::parse() {
 
 	ss >> vmote_id;
 
+	unsigned int dummy_mote_time;
+
+	ss >> dummy_mote_time;
+
 	ss.get();
 
 	getline(ss, date_seen);
@@ -113,11 +117,10 @@ void TimeSyncDB::push() {
 
 	if (result.second == false) {
 
-		oss os;
+		const string& date = result.first->second;
 
-		os << "Duplicate virtual mote id: " << vmote_id << flush;
-
-		throw runtime_error(os.str());
+		cout << "Warning: duplicate " << vmote_id << ", only ";
+		cout << date << " is kept" << endl;
 	}
 }
 

@@ -65,9 +65,10 @@ Window::Window()
     setLayout(mainLayout);
 
     currentGlWidget = glWidgets[0][0];
+    counter = 0;
 
     QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(rotateOneStep()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
     timer->start(200);
 
     setWindowTitle(tr("Textures"));
@@ -78,8 +79,48 @@ void Window::setCurrentGlWidget()
     currentGlWidget = qobject_cast<GLWidget *>(sender());
 }
 
-void Window::rotateOneStep()
+void Window::rotateToNext()
 {
+
+    enum { X, Y, Z };
+
+//    //  Rotation around the Z-axis
+//    static const int euler[][3] = {
+//        { 0, 0,  0 },
+//        { 0, 0,  5 },
+//        { 0, 0, 10 },
+//        { 0, 0, 15 },
+//        { 0, 0, 10 },
+//        { 0, 0,  5 },
+//        { 0, 0,  0 }
+//    };
+//
+//    //  Rotation around the Y-axis
+//    static const int euler[][3] = {
+//        { 0,  0, 0 },
+//        { 0,  5, 0 },
+//        { 0, 10, 0 },
+//        { 0, 15, 0 },
+//        { 0, 10, 0 },
+//        { 0,  5, 0 },
+//        { 0,  0, 0 }
+//    };
+
+    //  Rotation around the X-axis
+    static const int euler[][3] = {
+        {  0, 0, 0 },
+        {  5, 0, 0 },
+        { 10, 0, 0 },
+        { 15, 0, 0 },
+        { 10, 0, 0 },
+        {  5, 0, 0 },
+        {  0, 0, 0 }
+    };
+
+    const int n = sizeof(euler)/(3*sizeof(int));
+
+    counter = (++counter)%n;
+
     if (currentGlWidget)
-        currentGlWidget->rotate(+2 * 16, +2 * 16, -1 * 16);
+        currentGlWidget->rotate(euler[counter][X], euler[counter][Y], euler[counter][Z]);
 }

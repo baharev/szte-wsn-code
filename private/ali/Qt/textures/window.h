@@ -55,13 +55,15 @@ public:
 
 private slots:
     void setCurrentGlWidget();
-    void rotateOneStep();
+    void rotateToNext();
 
 private:
     enum { NumRows = 1, NumColumns = 1 };
 
     GLWidget *glWidgets[NumRows][NumColumns];
     GLWidget *currentGlWidget;
+
+    int counter;
 };
 
 #endif

@@ -101,7 +101,7 @@ void GLWidget::paintGL()
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -10.0f);
 
-
+    // Rotation using the Euler angles (XYZ)
     glRotated(xRot, 1.0, 0.0, 0.0);
     glRotated(yRot, 0.0, 1.0, 0.0);
     glRotated(zRot, 0.0, 0.0, 1.0);

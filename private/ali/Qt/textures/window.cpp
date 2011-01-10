@@ -43,6 +43,7 @@
 
 #include "glwidget.h"
 #include "window.h"
+#include "EulerAngles.hpp"
 
 Window::Window()
 {
@@ -55,7 +56,6 @@ Window::Window()
 
             glWidgets[i][j] = new GLWidget(0, 0);
             glWidgets[i][j]->setClearColor(clearColor);
-            glWidgets[i][j]->rotate(+42 * 16, +42 * 16, -21 * 16);
             mainLayout->addWidget(glWidgets[i][j], i, j);
 
             connect(glWidgets[i][j], SIGNAL(clicked()),
@@ -105,15 +105,31 @@ void Window::rotateToNext()
 //        { 0,  5, 0 },
 //        { 0,  0, 0 }
 //    };
+//
+//    //  Rotation around the X-axis
+//    static const int euler[][3] = {
+//        {  0, 0, 0 },
+//        {  5, 0, 0 },
+//        { 10, 0, 0 },
+//        { 15, 0, 0 },
+//        { 10, 0, 0 },
+//        {  5, 0, 0 },
+//        {  0, 0, 0 }
+//    };
 
-    //  Rotation around the X-axis
     static const int euler[][3] = {
         {  0, 0, 0 },
         {  5, 0, 0 },
         { 10, 0, 0 },
         { 15, 0, 0 },
-        { 10, 0, 0 },
-        {  5, 0, 0 },
+        { 15, 5, 0 },
+        { 15,10, 0 },
+        { 15,15, 0 },
+        { 15,15, 5 },
+        { 15,15,10 },
+        { 15,15,15 },
+        { 10,10,10 },
+        {  5, 5, 5 },
         {  0, 0, 0 }
     };
 
@@ -121,6 +137,14 @@ void Window::rotateToNext()
 
     counter = (++counter)%n;
 
+    double mat[9];
+
+    double angles[] = { euler[counter][X], euler[counter][Y], euler[counter][Z] };
+
+    gyro::angles_deg_to_rotmat(angles, mat);
+
+    //=========================================================================
+
     if (currentGlWidget)
-        currentGlWidget->rotate(euler[counter][X], euler[counter][Y], euler[counter][Z]);
+        currentGlWidget->rotate(mat);
 }

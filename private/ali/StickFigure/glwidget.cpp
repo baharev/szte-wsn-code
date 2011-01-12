@@ -34,7 +34,6 @@
 #include <QtGui>
 #include <QtOpenGL>
 #include <QDebug>
-#include <GL/glut.h>
 #include <cmath>
 #include "glwidget.hpp"
 
@@ -100,15 +99,9 @@ void GLWidget::rotate(double mat[9])
 void GLWidget::initializeGL()
 {
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    //glShadeModel(GL_FLAT);
-
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
 }
 
-void GLWidget::paintGL()
-{
-    qDebug() << "paintGL()";
+void clearAll() {
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,28 +110,31 @@ void GLWidget::paintGL()
     glMatrixMode(GL_MODELVIEW);
 
     glLoadIdentity();
+}
 
-    gluLookAt(0.0, 0.0, 5.0,
-              0.0, 0.0, 0.0,
-              0.0, 1.0, 0.0);
+void settings() {
 
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
     glLineWidth(2.0);
 
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glPolygonMode(GL_BACK, GL_LINE);
+}
+
+void drawArm() {
+
+    static const double h = std::sqrt(3.0)/5.0;
+
     glBegin(GL_LINES);
         glVertex3d(0.0, 0.0, 0.0);
         glVertex3d(0.0, 2.0, 0.0);
     glEnd();
 
-    glRotated(30.0, 0.0, 0.0, 1.0);
-    glRotated(50.0, 1.0, 0.0, 0.0);
-
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glPolygonMode(GL_BACK, GL_LINE);
-
-    const double h = std::sqrt(3.0)/5.0;
+    glRotated(-10.0, 0.0, 1.0, 0.0);
+    glRotated( 30.0, 0.0, 0.0, 1.0);
+    glRotated( 40.0, 0.0, 1.0, 0.0);
 
     glBegin(GL_TRIANGLES);
        glVertex3d(0.0,-1.6, 0.0);
@@ -150,7 +146,33 @@ void GLWidget::paintGL()
         glVertex3d(0.0,-2.0, 0.0);
         glVertex3d(0.0, 0.0, 0.0);
     glEnd();
+}
 
+void GLWidget::paintGL()
+{
+    qDebug() << "paintGL()";
+
+    clearAll();
+
+    glTranslated(0.0, 0.0, -5.0);
+
+    settings();
+
+    glPushMatrix();
+        glTranslated(-5.0, 0.0, 0.0);
+        drawArm();
+    glPopMatrix();
+
+    glPushMatrix();
+        glRotated( 90.0, 1.0, 0.0, 0.0);
+        drawArm();
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslated( 5.0, 0.0, 0.0);
+        glRotated(-90.0, 0.0, 1.0, 0.0);
+        drawArm();
+    glPopMatrix();
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -162,6 +184,6 @@ void GLWidget::resizeGL(int width, int height)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-3, +3, -3, +3, 2.0, 8.0);
+    glOrtho(-7, +7, -7, +7, 2.0, 8.0);
     glMatrixMode(GL_MODELVIEW);
 }

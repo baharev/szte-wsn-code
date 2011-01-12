@@ -10,5 +10,3 @@ SOURCES += main.cpp \
 HEADERS += mainwindow.h \
     glwidget.hpp
 FORMS += mainwindow.ui
-LIBS+=-lglut
-

@@ -34,7 +34,8 @@
 #include <QtGui>
 #include <QtOpenGL>
 #include <QDebug>
-
+#include <GL/glut.h>
+#include <cmath>
 #include "glwidget.hpp"
 
 namespace {
@@ -56,8 +57,6 @@ namespace {
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
     : QGLWidget(parent, shareWidget)
 {
-    clearColor = Qt::black;
-
     for (int i=0;i<16; ++i)
         rotmat[i] = (GLfloat) 0.0;
 
@@ -98,35 +97,71 @@ void GLWidget::rotate(double mat[9])
     updateGL();
 }
 
-void GLWidget::setClearColor(const QColor &color)
-{
-    clearColor = color;
-    updateGL();
-}
-
 void GLWidget::initializeGL()
 {
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    //glShadeModel(GL_FLAT);
+
+    //glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
 }
 
 void GLWidget::paintGL()
 {
     qDebug() << "paintGL()";
-    qglClearColor(clearColor);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glLoadMatrixf(rotmat);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f (1.0, 1.0, 1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+
+    glLoadIdentity();
+
+    gluLookAt(0.0, 0.0, 5.0,
+              0.0, 0.0, 0.0,
+              0.0, 1.0, 0.0);
+
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+    glLineWidth(2.0);
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 0.0, 0.0);
+        glVertex3d(0.0, 2.0, 0.0);
+    glEnd();
+
+    glRotated(30.0, 0.0, 0.0, 1.0);
+    glRotated(50.0, 1.0, 0.0, 0.0);
+
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glPolygonMode(GL_BACK, GL_LINE);
+
+    const double h = std::sqrt(3.0)/5.0;
+
+    glBegin(GL_TRIANGLES);
+       glVertex3d(0.0,-1.6, 0.0);
+       glVertex3d(0.0,-2.0, 0.0);
+       glVertex3d(  h,-1.8, 0.0);
+    glEnd();
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0,-2.0, 0.0);
+        glVertex3d(0.0, 0.0, 0.0);
+    glEnd();
+
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
     qDebug() << "resizeGL()";
+
     int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
+    glOrtho(-3, +3, -3, +3, 2.0, 8.0);
     glMatrixMode(GL_MODELVIEW);
 }

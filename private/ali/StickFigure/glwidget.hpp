@@ -48,7 +48,6 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
     void rotate(double matrix[9]);
-    void setClearColor(const QColor &color);
 
 protected:
 
@@ -58,10 +57,7 @@ protected:
 
 private:
 
-    QColor clearColor;
-
     GLfloat rotmat[16];
-
 };
 
 #endif // GLWIDGET_HPP

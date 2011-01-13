@@ -233,15 +233,15 @@ void GLWidget::paintGL() {
 
 void GLWidget::resizeGL(int width, int height) {
 
-    int side = qMin(width, height);
+    double unit = qMin(width/15.0, height/5.0);
 
-    glViewport((width - side) / 2, (height - side) / 2, side, side);
+    glViewport((width-15*unit)/2, (height-5*unit)/2, 15*unit, 5*unit);
 
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
 
-    glOrtho(-7, +7, -7, +7, 2.0, 8.0);
+    glOrtho(-7.5, +7.5, -2.5, +2.5, 2.0, 8.0);
 
     glMatrixMode(GL_MODELVIEW);
 }

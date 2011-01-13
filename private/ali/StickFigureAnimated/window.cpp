@@ -49,7 +49,7 @@ window::window() {
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
-    timer->start(200);
+    timer->start(10);
 }
 
 void window::rotateToNext() {

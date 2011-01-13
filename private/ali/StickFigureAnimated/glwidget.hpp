@@ -57,6 +57,10 @@ protected:
 
 private:
 
+    void clearAll();
+    void drawArm();
+    void settings();
+
     GLfloat rotmat[16];
 };
 

@@ -62,30 +62,21 @@ GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
     rotmat[M11] = rotmat[M22] = rotmat[M33] = rotmat[M44] = (GLfloat) 1.0;
 }
 
-GLWidget::~GLWidget()
-{
+GLWidget::~GLWidget() {
+
 }
 
-QSize GLWidget::minimumSizeHint() const
-{
+QSize GLWidget::minimumSizeHint() const {
+
     return QSize(50, 50);
 }
 
-QSize GLWidget::sizeHint() const
-{
+QSize GLWidget::sizeHint() const {
+
     return QSize(200, 200);
 }
 
-void GLWidget::rotate(const double mat[9])
-{
-    //double mat[9];
-
-    //for (int i=0; i<9; ++i) {
-    //    mat[i] = 0.0;
-    //}
-
-    //mat[R11] = mat[R22] = mat[R33] = 1.0;
-    //mat[R21] = 1.0; mat[R32] = mat[R13] = -1.0;
+void GLWidget::rotate(const double mat[9]) {
 
     rotmat[M31] = (GLfloat)-mat[R11];
     rotmat[M21] = (GLfloat)-mat[R31];
@@ -102,12 +93,12 @@ void GLWidget::rotate(const double mat[9])
     updateGL();
 }
 
-void GLWidget::initializeGL()
-{
+void GLWidget::initializeGL() {
+
     glClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
-void GLWidget::clearAll() {
+void GLWidget::reset() {
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -118,7 +109,7 @@ void GLWidget::clearAll() {
     glLoadIdentity();
 }
 
-void GLWidget::settings() {
+void GLWidget::setState() {
 
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -127,19 +118,17 @@ void GLWidget::settings() {
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
     glLineWidth(2.0);
-
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glPolygonMode(GL_BACK, GL_LINE);
 }
 
-void GLWidget::drawArm() {
-
-    static const double h = std::sqrt(3.0)/5.0;
+void GLWidget::upperArm() {
 
     glBegin(GL_LINES);
         glVertex3d(0.0, 0.0, 0.0);
         glVertex3d(0.0, 2.0, 0.0);
     glEnd();
+}
+
+void GLWidget::elbow() {
 
     glPointSize(8.0);
 
@@ -148,18 +137,14 @@ void GLWidget::drawArm() {
     glEnd();
 
     glPointSize(1.0);
+}
+
+void GLWidget::rotateForeArm() {
 
     glMultMatrixf(rotmat);
+}
 
-    //glRotated(-10.0, 0.0, 1.0, 0.0);
-    //glRotated( 30.0, 0.0, 0.0, 1.0);
-    //glRotated( 40.0, 0.0, 1.0, 0.0);
-
-    glBegin(GL_TRIANGLES);
-       glVertex3d(1.6, 0.0, 0.0);
-       glVertex3d(2.0, 0.0, 0.0);
-       glVertex3d(1.8,   h, 0.0);
-    glEnd();
+void GLWidget::foreArm() {
 
     glBegin(GL_LINES);
         glVertex3d(2.0, 0.0, 0.0);
@@ -167,42 +152,96 @@ void GLWidget::drawArm() {
     glEnd();
 }
 
-void GLWidget::paintGL()
-{
-    //qDebug() << "paintGL()";
+void GLWidget::hand() {
 
-    clearAll();
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glPolygonMode(GL_BACK, GL_LINE);
+
+    static const double h = std::sqrt(3.0)/5.0;
+
+    glBegin(GL_TRIANGLES);
+       glVertex3d(1.6, 0.0, 0.0);
+       glVertex3d(2.0, 0.0, 0.0);
+       glVertex3d(1.8,   h, 0.0);
+    glEnd();
+}
+
+
+void GLWidget::drawArm() {
+
+    upperArm();
+
+    elbow();
+
+    rotateForeArm();
+
+    foreArm();
+
+    hand();
+}
+
+void GLWidget::setCameraPosition() {
 
     glTranslated(0.0, 0.0, -5.0);
+}
 
-    settings();
+void GLWidget::sideView() {
 
     glPushMatrix();
+
         glTranslated(-5.0, 0.0, 0.0);
-        drawArm();
-    glPopMatrix();
 
-    glPushMatrix();
-        glRotated( 90.0, 1.0, 0.0, 0.0);
-        drawArm();
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslated( 5.0, 0.0, 0.0);
-        glRotated(-90.0, 0.0, 1.0, 0.0);
         drawArm();
     glPopMatrix();
 }
 
-void GLWidget::resizeGL(int width, int height)
-{
-    qDebug() << "resizeGL()";
+void GLWidget::planView() {
+
+    glPushMatrix();
+
+        glRotated( 90.0, 1.0, 0.0, 0.0);
+
+        drawArm();
+    glPopMatrix();
+}
+
+void GLWidget::frontView() {
+
+    glPushMatrix();
+
+        glTranslated( 5.0, 0.0, 0.0);
+        glRotated(-90.0, 0.0, 1.0, 0.0);
+
+        drawArm();
+    glPopMatrix();
+}
+
+void GLWidget::paintGL() {
+
+    reset();
+
+    setCameraPosition();
+
+    setState();
+
+    sideView();
+
+    planView();
+
+    frontView();
+}
+
+void GLWidget::resizeGL(int width, int height) {
 
     int side = qMin(width, height);
+
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
     glMatrixMode(GL_PROJECTION);
+
     glLoadIdentity();
+
     glOrtho(-7, +7, -7, +7, 2.0, 8.0);
+
     glMatrixMode(GL_MODELVIEW);
 }

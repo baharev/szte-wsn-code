@@ -42,7 +42,9 @@ class GLWidget : public QGLWidget
     Q_OBJECT
 
 public:
+
     GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
+
     ~GLWidget();
 
     QSize minimumSizeHint() const;
@@ -57,9 +59,20 @@ protected:
 
 private:
 
-    void clearAll();
+    void reset();
+    void setCameraPosition();
+    void setState();
+    void sideView();
+    void planView();
+    void frontView();
+
+    void upperArm();
+    void elbow();
+    void rotateForeArm();
+    void foreArm();
+    void hand();
     void drawArm();
-    void settings();
+
 
     GLfloat rotmat[16];
 };

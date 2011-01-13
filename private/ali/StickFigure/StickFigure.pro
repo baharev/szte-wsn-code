@@ -6,7 +6,9 @@ TARGET = StickFigure
 TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
-    glwidget.cpp
+    glwidget.cpp \
+    datareader.cpp
 HEADERS += mainwindow.h \
-    glwidget.hpp
+    glwidget.hpp \
+    datareader.hpp
 FORMS += mainwindow.ui

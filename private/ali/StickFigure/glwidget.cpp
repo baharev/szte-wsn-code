@@ -78,7 +78,7 @@ QSize GLWidget::sizeHint() const
     return QSize(200, 200);
 }
 
-void GLWidget::rotate(double mat[9])
+void GLWidget::rotate(const double mat[9])
 {
 
     rotmat[M11] = (GLfloat) mat[R11];

@@ -31,33 +31,57 @@
 * Author: Ali Baharev
 */
 
-#ifndef GLWIDGET_HPP
-#define GLWIDGET_HPP
+#include <fstream>
+#include <stdexcept>
+#include "datareader.hpp"
 
-#include <QtGui>
-#include <QGLWidget>
+using namespace std;
 
-class GLWidget : public QGLWidget
-{
-    Q_OBJECT
+datareader::datareader() {
 
-public:
-    GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
-    ~GLWidget();
+    rotation_matrices = 0;
+    size = counter = 0;
+}
 
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
-    void rotate(const double matrix[9]);
+datareader::~datareader() {
 
-protected:
+    delete rotation_matrices;
+}
 
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int width, int height);
+void datareader::grab_content(const char *filename) {
 
-private:
+    ifstream in;
 
-    GLfloat rotmat[16];
-};
+    in.exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
 
-#endif // GLWIDGET_HPP
+    in.open(filename);
+
+    in >> size;
+
+    const int n_elem = 9*size;
+
+    rotation_matrices = new double[n_elem];
+
+    for (int i=0; i<n_elem; ++i) {
+
+        in >> rotation_matrices[i];
+    }
+}
+
+const double* datareader::matrix_at(int i) const {
+
+    if (i<0 || i>=size) {
+        throw range_error("Index is out of range in datareader::matrix_at()");
+    }
+
+    return rotation_matrices + (9*i);
+}
+
+const double* datareader::next_matrix() {
+
+    const double* const m = matrix_at(counter%size);
+
+    ++counter;
+
+    return m;
+}

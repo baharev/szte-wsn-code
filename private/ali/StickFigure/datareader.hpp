@@ -31,33 +31,32 @@
 * Author: Ali Baharev
 */
 
-#ifndef GLWIDGET_HPP
-#define GLWIDGET_HPP
+#ifndef DATAREADER_HPP
+#define DATAREADER_HPP
 
-#include <QtGui>
-#include <QGLWidget>
-
-class GLWidget : public QGLWidget
-{
-    Q_OBJECT
+class datareader {
 
 public:
-    GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
-    ~GLWidget();
 
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
-    void rotate(const double matrix[9]);
+    datareader();
 
-protected:
+    void grab_content(const char* filename);
 
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int width, int height);
+    const double* next_matrix();
+
+    ~datareader();
 
 private:
 
-    GLfloat rotmat[16];
+    datareader(const datareader& );
+    datareader& operator=(const datareader& );
+
+    const double* matrix_at(int i) const;
+
+    int size;
+    double* rotation_matrices;
+
+    int counter;
 };
 
-#endif // GLWIDGET_HPP
+#endif // DATAREADER_HPP

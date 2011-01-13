@@ -35,6 +35,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "datareader.hpp"
 
 class GLWidget;
 
@@ -51,10 +52,15 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
+private slots:
+
+    void rotateToNext();
+
 private:
     Ui::MainWindow *ui;
 
     GLWidget* widget;
+    datareader data_reader;
 };
 
 #endif // MAINWINDOW_H

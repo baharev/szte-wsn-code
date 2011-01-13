@@ -43,6 +43,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setCentralWidget(new GLWidget(0, 0));
+
+    data_reader.grab_content("matrices");
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
+    //timer->start(200);
 }
 
 MainWindow::~MainWindow()
@@ -60,4 +66,9 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MainWindow::rotateToNext() {
+
+    widget->rotate(data_reader.next_matrix());
 }

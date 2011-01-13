@@ -45,7 +45,7 @@ window::window() {
 
     setLayout(mainLayout);
 
-    data_reader.grab_content("matrices");
+    data_reader.grab_content("MMtricky2");
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));

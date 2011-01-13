@@ -78,18 +78,17 @@ QSize GLWidget::sizeHint() const {
 
 void GLWidget::rotate(const double mat[9]) {
 
-    // FIXME Handedness is messed up :(
-    rotmat[M31] = (GLfloat) -mat[R11];
-    rotmat[M21] = (GLfloat) -mat[R31];
-    rotmat[M11] = (GLfloat) -mat[R21];
+    rotmat[M31] = (GLfloat) mat[R11];
+    rotmat[M21] = (GLfloat) mat[R31];
+    rotmat[M11] = (GLfloat) mat[R21];
 
-    rotmat[M32] = (GLfloat) -mat[R12];
-    rotmat[M22] = (GLfloat) -mat[R32];
-    rotmat[M12] = (GLfloat) -mat[R22];
+    rotmat[M32] = (GLfloat) mat[R12];
+    rotmat[M22] = (GLfloat) mat[R32];
+    rotmat[M12] = (GLfloat) mat[R22];
 
-    rotmat[M33] = (GLfloat) -mat[R13];
-    rotmat[M23] = (GLfloat) -mat[R33];
-    rotmat[M13] = (GLfloat) -mat[R23];
+    rotmat[M33] = (GLfloat) mat[R13];
+    rotmat[M23] = (GLfloat) mat[R33];
+    rotmat[M13] = (GLfloat) mat[R23];
 
     updateGL();
 }

@@ -38,6 +38,7 @@
 #include "datareader.hpp"
 
 class GLWidget;
+class QTimer;
 
 class window : public QWidget
 {
@@ -50,10 +51,13 @@ public:
 private slots:
 
     void rotateToNext();
+    void toggleAnimationState();
 
 private:
 
+    const int ANIMATION_STEP_MS;
     GLWidget* widget;
+    QTimer*   timer;
 
     datareader data_reader;
 };

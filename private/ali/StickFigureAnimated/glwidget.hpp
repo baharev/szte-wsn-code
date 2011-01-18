@@ -51,11 +51,17 @@ public:
     QSize sizeHint() const;
     void rotate(const double matrix[9]);
 
+signals:
+
+    void clicked();
+
 protected:
 
     void initializeGL();
     void paintGL();
     void resizeGL(int width, int height);
+
+    void mousePressEvent(QMouseEvent *event);
 
 private:
 

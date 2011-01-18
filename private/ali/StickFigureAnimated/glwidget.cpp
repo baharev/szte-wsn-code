@@ -245,3 +245,8 @@ void GLWidget::resizeGL(int width, int height) {
 
     glMatrixMode(GL_MODELVIEW);
 }
+
+void GLWidget::mousePressEvent(QMouseEvent * /* event */)
+{
+    emit clicked();
+}

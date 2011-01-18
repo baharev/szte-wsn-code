@@ -35,7 +35,7 @@
 #include "glwidget.hpp"
 #include "window.hpp"
 
-window::window() {
+window::window() : ANIMATION_STEP_MS(5) {
 
     QGridLayout *mainLayout = new QGridLayout;
 
@@ -47,12 +47,25 @@ window::window() {
 
     data_reader.grab_content("MMtricky2");
 
-    QTimer *timer = new QTimer(this);
+    timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
-    timer->start(5);
+    connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+    timer->start(ANIMATION_STEP_MS);
 }
 
 void window::rotateToNext() {
 
     widget->rotate(data_reader.next_matrix());
+}
+
+void window::toggleAnimationState() {
+
+    if (timer->isActive()) {
+
+        timer->stop();
+    }
+    else {
+
+        timer->start(ANIMATION_STEP_MS);
+    }
 }

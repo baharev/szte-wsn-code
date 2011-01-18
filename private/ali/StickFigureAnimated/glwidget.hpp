@@ -74,7 +74,7 @@ private:
     void planView();
     void frontView();
 
-    void showAngles();
+    void writeAngles();
 
     void upperArm();
     void elbow();

@@ -53,8 +53,7 @@ namespace {
             M41 = 3, M42 = 7, M43 = 11, M44 = 15
     };
 
-    const double RAD = 57.2957795131;
-    const double PI  = 3.14159265359;
+    const double RAD2DEG = 57.2957795131;
     const double PI_HALF = 1.57079632679;
 }
 
@@ -200,7 +199,7 @@ void GLWidget::sideView() {
     glPopMatrix();
 }
 
-void GLWidget::showAngles() {
+void GLWidget::writeAngles() {
 
     glPushMatrix();
 
@@ -214,11 +213,14 @@ void GLWidget::showAngles() {
 
     //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
 
-    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD << " deg   ";
+    // -90...270
+    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG << " deg   ";
 
-    ts << "Supination: " << (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD << " deg   ";
+    // -180...180   //  -90...270   (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD2DEG
+    ts << "Supination: " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG << " deg   ";
 
-    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD << " deg";
+    // -90...90
+    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG << " deg";
 
     ts.flush();
 
@@ -258,7 +260,7 @@ void GLWidget::paintGL() {
 
     sideView();
 
-    showAngles();
+    //writeAngles();
 
     planView();
 

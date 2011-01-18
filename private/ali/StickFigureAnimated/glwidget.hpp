@@ -66,11 +66,15 @@ protected:
 private:
 
     void reset();
+
     void setCameraPosition();
     void setState();
+
     void sideView();
     void planView();
     void frontView();
+
+    void showAngles();
 
     void upperArm();
     void elbow();

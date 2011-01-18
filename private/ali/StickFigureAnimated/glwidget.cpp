@@ -33,6 +33,7 @@
 
 #include <QtGui>
 #include <QtOpenGL>
+#include <QTextStream>
 #include <QDebug>
 #include <cmath>
 #include "glwidget.hpp"
@@ -51,6 +52,10 @@ namespace {
             M31 = 2, M32 = 6, M33 = 10, M34 = 14,
             M41 = 3, M42 = 7, M43 = 11, M44 = 15
     };
+
+    const double RAD = 57.2957795131;
+    const double PI  = 3.14159265359;
+    const double PI_HALF = 1.57079632679;
 }
 
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
@@ -195,6 +200,33 @@ void GLWidget::sideView() {
     glPopMatrix();
 }
 
+void GLWidget::showAngles() {
+
+    glPushMatrix();
+
+    QString text;
+
+    QTextStream ts(&text);
+
+    ts.setRealNumberNotation(QTextStream::FixedNotation);
+
+    ts.setRealNumberPrecision(2);
+
+    //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
+
+    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD << " deg   ";
+
+    ts << "Supination: " << (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD << " deg   ";
+
+    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD << " deg";
+
+    ts.flush();
+
+    renderText(-6.5, 2.15, 0.0, text);
+
+    glPopMatrix();
+}
+
 void GLWidget::planView() {
 
     glPushMatrix();
@@ -225,6 +257,8 @@ void GLWidget::paintGL() {
     setState();
 
     sideView();
+
+    showAngles();
 
     planView();
 

@@ -47,6 +47,8 @@ public:
 
     ~GLWidget();
 
+    void set_extrema(const double m[6]);
+
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
     void rotate(const double matrix[9]);
@@ -83,6 +85,7 @@ private:
     void hand();
     void drawArm();
 
+    double extrema[6];
 
     GLfloat rotmat[16];
 };

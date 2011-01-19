@@ -34,6 +34,11 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
+struct min_max {
+    double min;
+    double max;
+};
+
 class datareader {
 
 public:
@@ -44,6 +49,8 @@ public:
 
     const double* next_matrix();
 
+    const double* get_extrema() const { return extrema; }
+
     ~datareader();
 
 private:
@@ -51,10 +58,24 @@ private:
     datareader(const datareader& );
     datareader& operator=(const datareader& );
 
+    void find_min_max();
+
+    double flexion_deg(int i) const;
+
+    double supination_deg(int i) const;
+
+    double yaw_deg(int i) const;
+
     const double* matrix_at(int i) const;
 
     int size;
     double* rotation_matrices;
+
+    min_max flexion;
+    min_max supination;
+    min_max yaw;
+
+    double extrema[6];
 
     int counter;
 };

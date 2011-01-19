@@ -45,7 +45,9 @@ window::window() : ANIMATION_STEP_MS(5) {
 
     setLayout(mainLayout);
 
-    data_reader.grab_content("MMtricky2");
+    data_reader.grab_content("regular2");
+
+    widget->set_extrema(data_reader.get_extrema());
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));

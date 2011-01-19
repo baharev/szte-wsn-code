@@ -214,13 +214,19 @@ void GLWidget::writeAngles() {
     //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
 
     // -90...270
-    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG << " deg   ";
+    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG;
+    ts << " (" << extrema[0] << "/" << extrema[1] << "/" << extrema[1]-extrema[0] << ")";
+    ts << " deg   ";
 
     // -180...180   //  -90...270   (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD2DEG
-    ts << "Supination: " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG << " deg   ";
+    ts << "Supination: " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG;
+    ts << " (" << extrema[2] << "/" << extrema[3] << "/" << extrema[3]-extrema[2] << ")";
+    ts << " deg   ";
 
     // -90...90
-    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG << " deg";
+    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG;
+    ts << " (" << extrema[4] << "/" << extrema[5] << "/" << extrema[5]-extrema[4] << ")";
+    ts << " deg";
 
     ts.flush();
 
@@ -285,4 +291,11 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::mousePressEvent(QMouseEvent * /* event */)
 {
     emit clicked();
+}
+
+void GLWidget::set_extrema(const double m[6]) {
+
+    for (int i=0; i<6; ++i) {
+        extrema[i] = m[i];
+    }
 }

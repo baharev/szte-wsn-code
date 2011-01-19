@@ -31,6 +31,7 @@
 * Author: Ali Baharev
 */
 
+#include <cmath>
 #include <fstream>
 #include <stdexcept>
 #include "datareader.hpp"
@@ -45,7 +46,7 @@ datareader::datareader() {
 
 datareader::~datareader() {
 
-    delete rotation_matrices;
+    delete[] rotation_matrices;
 }
 
 void datareader::grab_content(const char *filename) {
@@ -66,6 +67,8 @@ void datareader::grab_content(const char *filename) {
 
         in >> rotation_matrices[i];
     }
+
+    find_min_max();
 }
 
 const double* datareader::matrix_at(int i) const {
@@ -84,4 +87,78 @@ const double* datareader::next_matrix() {
     ++counter;
 
     return m;
+}
+
+namespace {
+
+    enum {
+            R11, R12, R13,
+            R21, R22, R23,
+            R31, R32, R33
+    };
+
+    const double RAD2DEG = 57.2957795131;
+    const double PI_HALF = 1.57079632679;
+}
+
+void datareader::find_min_max() {
+
+    flexion.min = flexion.max = flexion_deg(0);
+    supination.min = supination.max = supination_deg(0);
+    yaw.min = yaw.max = yaw_deg(0);
+
+    for (int i=1; i<size; ++i) {
+
+        const double flex = flexion_deg(i);
+        if (flex < flexion.min) {
+            flexion.min = flex;
+        }
+        else if (flex > flexion.max) {
+            flexion.max = flex;
+        }
+
+        const double sup = supination_deg(i);
+        if (sup < supination.min) {
+            supination.min = sup;
+        }
+        else if (sup > supination.max) {
+            supination.max = sup;
+        }
+
+        const double yawi = yaw_deg(i);
+        if (yawi < yaw.min) {
+            yaw.min = yawi;
+        }
+        else if (yawi > yaw.max) {
+            yaw.max =  yawi;
+        }
+    }
+
+    extrema[0] = flexion.min;
+    extrema[1] = flexion.max;
+    extrema[2] = supination.min;
+    extrema[3] = supination.max;
+    extrema[4] = yaw.min;
+    extrema[5] = yaw.max;
+}
+
+double datareader::flexion_deg(int i) const {
+
+    const double* const m = matrix_at(i);
+
+    return (atan2(m[R31], m[R21])+PI_HALF)*RAD2DEG;
+}
+
+double datareader::supination_deg(int i) const {
+
+    const double* const m = matrix_at(i);
+
+    return (atan2(m[R12], m[R13]))*RAD2DEG;
+}
+
+double datareader::yaw_deg(int i) const {
+
+    const double* const m = matrix_at(i);
+
+    return (acos(m[R11])-PI_HALF)*RAD2DEG;
 }

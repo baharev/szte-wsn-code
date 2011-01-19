@@ -89,6 +89,7 @@ const double* datareader::next_matrix() {
     return m;
 }
 
+// FIXME Duplication, same as in glwidget.cpp
 namespace {
 
     enum {
@@ -103,9 +104,9 @@ namespace {
 
 void datareader::find_min_max() {
 
-    flexion.min = flexion.max = flexion_deg(0);
+    flexion.min    = flexion.max    = flexion_deg(0);
     supination.min = supination.max = supination_deg(0);
-    yaw.min = yaw.max = yaw_deg(0);
+    yaw.min        = yaw.max        = yaw_deg(0);
 
     for (int i=1; i<size; ++i) {
 
@@ -134,6 +135,9 @@ void datareader::find_min_max() {
         }
     }
 
+    // TODO Intruduce enum instead of magic number
+    // TODO Compute all angles in advance and make them members?
+    // It would also eliminate the loop above.
     extrema[0] = flexion.min;
     extrema[1] = flexion.max;
     extrema[2] = supination.min;
@@ -142,6 +146,12 @@ void datareader::find_min_max() {
     extrema[5] = yaw.max;
 }
 
+const double* datareader::get_extrema() const {
+
+    return extrema;
+}
+
+// FIXME Duplication: also computed in glwidget.cpp
 double datareader::flexion_deg(int i) const {
 
     const double* const m = matrix_at(i);
@@ -153,7 +163,7 @@ double datareader::supination_deg(int i) const {
 
     const double* const m = matrix_at(i);
 
-    return (atan2(m[R12], m[R13]))*RAD2DEG;
+    return atan2(m[R12], m[R13])*RAD2DEG;
 }
 
 double datareader::yaw_deg(int i) const {

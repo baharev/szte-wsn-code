@@ -34,11 +34,7 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
-struct min_max {
-    double min;
-    double max;
-};
-
+// FIXME Not just reads the data, computes the too
 class datareader {
 
 public:
@@ -49,7 +45,7 @@ public:
 
     const double* next_matrix();
 
-    const double* get_extrema() const { return extrema; }
+    const double* get_extrema() const;
 
     ~datareader();
 
@@ -70,6 +66,11 @@ private:
 
     int size;
     double* rotation_matrices;
+
+    struct min_max {
+        double min;
+        double max;
+    };
 
     min_max flexion;
     min_max supination;

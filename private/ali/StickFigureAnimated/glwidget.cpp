@@ -97,9 +97,35 @@ void GLWidget::rotate(const double mat[9]) {
     updateGL();
 }
 
+// TODO Can we pass a member function to GLU?
+void errorCallback() {
+
+    const GLubyte* estring = gluErrorString(glGetError());
+
+    printf("OpenGL Error: %s\n", estring);
+
+    exit(0);
+}
+
 void GLWidget::initializeGL() {
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
+
+    list = glGenLists(1);
+
+    GLUquadricObj* qobj = gluNewQuadric();
+
+    gluQuadricCallback(qobj, GLU_ERROR, errorCallback);
+
+    gluQuadricDrawStyle(qobj, GLU_SILHOUETTE);
+
+    gluQuadricNormals(qobj, GLU_NONE);
+
+    glNewList(list, GL_COMPILE);
+
+        gluDisk(qobj, 0.0, 0.5, 32, 4);
+
+    glEndList();
 }
 
 void GLWidget::reset() {
@@ -189,16 +215,39 @@ void GLWidget::setCameraPosition() {
     glTranslated(0.0, 0.0, -5.0);
 }
 
+void GLWidget::sideHead() {
+
+    glPushMatrix();
+
+        glTranslated(0.0, 3.0, 0.0);
+
+        glPointSize(8.0);
+
+        glBegin(GL_POINTS);
+            glVertex3d(0.4, 0.1, 0.0);
+        glEnd();
+
+        glPointSize(1.0);
+
+        glCallList(list);
+
+
+    glPopMatrix();
+}
+
 void GLWidget::sideView() {
 
     glPushMatrix();
 
         glTranslated(-5.0, 0.0, 0.0);
 
+        sideHead();
+
         drawArm();
     glPopMatrix();
 }
 
+// FIXME Computatation should be moved to datareader.cpp, clean-up the mess
 void GLWidget::writeAngles() {
 
     glPushMatrix();
@@ -230,12 +279,34 @@ void GLWidget::writeAngles() {
 
     ts.flush();
 
-    renderText(-6.5, 2.15, 0.0, text);
+    renderText(-6.5, 3.65, 0.0, text);
+
+    glPopMatrix();
+}
+
+void GLWidget::planHead() {
+
+    glPushMatrix();
+
+        glTranslated(0.0, 1.0, 0.0);
+
+        glPointSize(8.0);
+
+        glBegin(GL_POINTS);
+            glVertex3d(0.4, 0.1, 0.0);
+            glVertex3d(0.4,-0.1, 0.0);
+        glEnd();
+
+        glPointSize(1.0);
+
+        glCallList(list);
 
     glPopMatrix();
 }
 
 void GLWidget::planView() {
+
+    planHead();
 
     glPushMatrix();
 
@@ -245,11 +316,34 @@ void GLWidget::planView() {
     glPopMatrix();
 }
 
+void GLWidget::frontHead() {
+
+    glPushMatrix();
+
+        glTranslated(1.0, 3.0, 0.0);
+
+        glPointSize(8.0);
+
+        glBegin(GL_POINTS);
+            glVertex3d(-0.1, 0.1, 0.0);
+            glVertex3d( 0.1, 0.1, 0.0);
+        glEnd();
+
+        glPointSize(1.0);
+
+        glCallList(list);
+
+    glPopMatrix();
+}
+
 void GLWidget::frontView() {
 
     glPushMatrix();
 
         glTranslated( 5.0, 0.0, 0.0);
+
+        frontHead();
+
         glRotated(-90.0, 0.0, 1.0, 0.0);
 
         drawArm();
@@ -266,7 +360,7 @@ void GLWidget::paintGL() {
 
     sideView();
 
-    //writeAngles();
+    writeAngles();
 
     planView();
 
@@ -275,15 +369,15 @@ void GLWidget::paintGL() {
 
 void GLWidget::resizeGL(int width, int height) {
 
-    double unit = qMin(width/15.0, height/5.0);
+    double unit = qMin(width/15.0, height/6.5);
 
-    glViewport((width-15*unit)/2, (height-5*unit)/2, 15*unit, 5*unit);
+    glViewport((width-15*unit)/2, (height-6.5*unit)/2, 15*unit, 6.5*unit);
 
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
 
-    glOrtho(-7.5, +7.5, -2.5, +2.5, 2.0, 8.0);
+    glOrtho(-7.5, +7.5, -2.5, +4.0, 2.0, 8.0);
 
     glMatrixMode(GL_MODELVIEW);
 }

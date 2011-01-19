@@ -47,7 +47,7 @@ public:
 
     ~GLWidget();
 
-    void set_extrema(const double m[6]);
+    void set_extrema(const double min_max[6]);
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
@@ -76,6 +76,10 @@ private:
     void planView();
     void frontView();
 
+    void sideHead();
+    void planHead();
+    void frontHead();
+
     void writeAngles();
 
     void upperArm();
@@ -88,6 +92,8 @@ private:
     double extrema[6];
 
     GLfloat rotmat[16];
+
+    GLuint list;
 };
 
 #endif // GLWIDGET_HPP

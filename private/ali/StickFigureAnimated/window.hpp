@@ -58,8 +58,6 @@ private:
     const int ANIMATION_STEP_MS;
     GLWidget* widget;
     QTimer*   timer;
-
-    datareader data_reader;
 };
 
 #endif // WINDOW_HPP

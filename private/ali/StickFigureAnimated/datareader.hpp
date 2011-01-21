@@ -34,9 +34,9 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
-#include "extrema.hpp"
+#include <string>
 
-// FIXME Not just reads the data, computes the too
+// FIXME Not just reads the data, computes them too
 class datareader {
 
 public:
@@ -45,9 +45,19 @@ public:
 
     void grab_content(const char* filename);
 
-    const double* next_matrix();
+    int number_of_samples() const;
 
-    const double* get_extrema() const;
+    const char* flex_info() const;
+    const char* sup_info()  const;
+    const char* pron_info() const;
+    const char* lat_info()  const;
+    const char* med_info()  const;
+
+    const double* matrix_at(int i) const;
+
+    const std::string flex(int i) const;
+    const std::string sup(int i)  const;
+    const std::string dev(int i)  const;
 
     ~datareader();
 
@@ -62,12 +72,12 @@ private:
 
     void set_pronation();
     void set_med_dev();
+    void save_ranges();
+    const std::string range(int MIN, int MAX);
 
     double flexion_deg(int i) const;
     double supination_deg(int i) const;
     double deviation_deg(int i) const;
-
-    const double* matrix_at(int i) const;
 
     int size;
     double* rotation_matrices;
@@ -75,10 +85,13 @@ private:
     double* flexion;
     double* supination;
     double* deviation;
+    double* extrema;
 
-    double extrema[SIZE];
-
-    int counter;
+    std::string flex_range;
+    std::string sup_range;
+    std::string pron_range;
+    std::string lat_range;
+    std::string med_range;
 };
 
 #endif // DATAREADER_HPP

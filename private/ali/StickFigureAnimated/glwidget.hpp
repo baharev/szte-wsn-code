@@ -36,7 +36,8 @@
 
 #include <QtGui>
 #include <QGLWidget>
-#include "extrema.hpp"
+
+class datareader;
 
 class GLWidget : public QGLWidget
 {
@@ -46,13 +47,13 @@ public:
 
     GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
 
-    ~GLWidget();
+    void set_data(const char* filename);
 
-    void set_extrema(const double min_max[6]);
+    ~GLWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void rotate(const double matrix[9]);
+    void rotate();
 
 signals:
 
@@ -90,11 +91,14 @@ private:
     void hand();
     void drawArm();
 
-    double extrema[SIZE];
+    datareader* data;
 
     GLfloat rotmat[16];
 
     GLuint list;
+
+    int position;
+    int size;
 };
 
 #endif // GLWIDGET_HPP

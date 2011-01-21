@@ -31,12 +31,13 @@
 * Author: Ali Baharev
 */
 
+#include <cmath>
 #include <QtGui>
 #include <QtOpenGL>
 #include <QTextStream>
 #include <QDebug>
-#include <cmath>
 #include "glwidget.hpp"
+#include "datareader.hpp"
 
 namespace {
 
@@ -52,9 +53,6 @@ namespace {
             M31 = 2, M32 = 6, M33 = 10, M34 = 14,
             M41 = 3, M42 = 7, M43 = 11, M44 = 15
     };
-
-    const double RAD2DEG = 57.2957795131;
-    const double PI_HALF = 1.57079632679;
 }
 
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
@@ -64,6 +62,23 @@ GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
         rotmat[i] = (GLfloat) 0.0;
 
     rotmat[M11] = rotmat[M22] = rotmat[M33] = rotmat[M44] = (GLfloat) 1.0;
+
+    position = size = 0;
+
+    data = 0;
+}
+
+void GLWidget::set_data(const char *filename) {
+
+    delete data;
+
+    data = new datareader;
+
+    data->grab_content(filename);
+
+    size = data->number_of_samples();
+
+    position = 0;
 }
 
 GLWidget::~GLWidget() {
@@ -80,7 +95,12 @@ QSize GLWidget::sizeHint() const {
     return QSize(200, 200);
 }
 
-void GLWidget::rotate(const double mat[9]) {
+// TODO Threading?
+void GLWidget::rotate() {
+
+    position %= size;
+
+    const double* mat = data->matrix_at(position);
 
     rotmat[M31] = (GLfloat) mat[R11];
     rotmat[M21] = (GLfloat) mat[R31];
@@ -95,6 +115,8 @@ void GLWidget::rotate(const double mat[9]) {
     rotmat[M13] = (GLfloat) mat[R23];
 
     updateGL();
+
+    ++position;
 }
 
 // TODO Can we pass a member function to GLU?
@@ -253,31 +275,18 @@ void GLWidget::writeAngles() {
     glPushMatrix();
 
     QString text;
-
     QTextStream ts(&text);
-
-    ts.setRealNumberNotation(QTextStream::FixedNotation);
-
-    ts.setRealNumberPrecision(2);
 
     //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
 
     // -90...270
-    ts << "Flex " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG;
-    ts << " (" << extrema[FLEX_MIN] << "/" << extrema[FLEX_MAX] << "/" << extrema[FLEX_MAX]-extrema[FLEX_MIN] << ")";
-    ts << " deg   ";
+    ts << data->flex(position).c_str() << " " << data->flex_info() << "   ";
 
-    // -180...180   //  -90...270   (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD2DEG
-    ts << "Sup " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG;
-    ts << " (" << extrema[SUP_MIN] << "/" << extrema[SUP_MAX] << "/" << extrema[SUP_MAX]-extrema[SUP_MIN] << ")";
-    ts << " (" << extrema[PRON_MIN] << "/" << extrema[PRON_MAX] << "/" << extrema[PRON_MAX]-extrema[PRON_MIN] << ")";
-    ts << " deg   ";
+    // -180...180
+    ts << data->sup(position).c_str() << " " << data->sup_info() << " " << data->pron_info() << "   ";
 
     // -90...90
-    ts << "Dev " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG;
-    ts << " (" << extrema[LAT_DEV_MIN] << "/" << extrema[LAT_DEV_MAX] << "/" << extrema[LAT_DEV_MAX]-extrema[LAT_DEV_MIN] << ")";
-    ts << " (" << extrema[MED_DEV_MIN] << "/" << extrema[MED_DEV_MAX] << "/" << extrema[MED_DEV_MAX]-extrema[MED_DEV_MIN] << ")";
-    ts << " deg";
+    ts << data->dev(position).c_str() << " " << data->lat_info() << " " << data->med_info();
 
     ts.flush();
 
@@ -387,11 +396,4 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::mousePressEvent(QMouseEvent * /* event */)
 {
     emit clicked();
-}
-
-void GLWidget::set_extrema(const double m[]) {
-
-    for (int i=0; i<SIZE; ++i) {
-        extrema[i] = m[i];
-    }
 }

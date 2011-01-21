@@ -4,6 +4,5 @@ SOURCES += main.cpp \
     window.cpp
 HEADERS += datareader.hpp \
     glwidget.hpp \
-    window.hpp \
-    extrema.hpp
+    window.hpp
 QT += opengl

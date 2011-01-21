@@ -34,15 +34,33 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include "datareader.hpp"
 
 using namespace std;
 
+enum {
+    FLEX_MIN,
+    FLEX_MAX,
+    SUP_MIN,
+    SUP_MAX,
+    PRON_MIN,
+    PRON_MAX,
+    LAT_MIN,
+    LAT_MAX,
+    MED_MIN,
+    MED_MAX,
+    SIZE
+};
+
 datareader::datareader() {
 
     rotation_matrices = flexion = supination = deviation = 0;
-    size = counter = 0;
+    size = 0;
+
+    extrema = new double[SIZE];
 }
 
 datareader::~datareader() {
@@ -52,6 +70,8 @@ datareader::~datareader() {
     delete[] flexion;
     delete[] supination;
     delete[] deviation;
+
+    delete[] extrema;
 }
 
 void datareader::grab_content(const char *filename) {
@@ -74,6 +94,11 @@ void datareader::grab_content(const char *filename) {
     }
 
     find_min_max();
+}
+
+int datareader::number_of_samples() const {
+
+    return size;
 }
 
 void datareader::init_angle_arrays() {
@@ -107,15 +132,6 @@ const double* datareader::matrix_at(int i) const {
     return rotation_matrices + (9*i);
 }
 
-const double* datareader::next_matrix() {
-
-    const double* const m = matrix_at(counter%size);
-
-    ++counter;
-
-    return m;
-}
-
 void datareader::find_min_max() {
 
     init_angle_arrays();
@@ -127,11 +143,12 @@ void datareader::find_min_max() {
     extrema[SUP_MIN] = *min_element(supination, supination+size);
     extrema[SUP_MAX] = *max_element(supination, supination+size);
 
-    extrema[LAT_DEV_MIN] = *min_element(deviation, deviation+size);
-    extrema[LAT_DEV_MAX] = *max_element(deviation, deviation+size);
+    extrema[LAT_MIN] = *min_element(deviation, deviation+size);
+    extrema[LAT_MAX] = *max_element(deviation, deviation+size);
 
     set_pronation();
     set_med_dev();
+    save_ranges();
 }
 
 void datareader::set_pronation() {
@@ -155,34 +172,52 @@ void datareader::set_pronation() {
     }
 }
 
+// TODO Eliminate duplication -- would make the code more difficult to understand
 void datareader::set_med_dev() {
 
-    if (extrema[LAT_DEV_MAX] < 0) {
+    if (extrema[LAT_MAX] < 0) {
 
-        extrema[MED_DEV_MIN] = -extrema[LAT_DEV_MAX];
-        extrema[MED_DEV_MAX] = -extrema[LAT_DEV_MIN];
+        extrema[MED_MIN] = -extrema[LAT_MAX];
+        extrema[MED_MAX] = -extrema[LAT_MIN];
 
-        extrema[LAT_DEV_MIN] = extrema[LAT_DEV_MAX] = 0.0;
+        extrema[LAT_MIN] = extrema[LAT_MAX] = 0.0;
     }
-    else if (extrema[LAT_DEV_MIN] < 0) {
+    else if (extrema[LAT_MIN] < 0) {
 
-        extrema[MED_DEV_MAX] = -extrema[LAT_DEV_MIN];
+        extrema[MED_MAX] = -extrema[LAT_MIN];
 
-        extrema[MED_DEV_MIN] = extrema[LAT_DEV_MIN] = 0.0;
+        extrema[MED_MIN] = extrema[LAT_MIN] = 0.0;
 
     }
     else {
 
-        extrema[MED_DEV_MIN] = extrema[MED_DEV_MAX] = 0.0;
+        extrema[MED_MIN] = extrema[MED_MAX] = 0.0;
     }
 }
 
-const double* datareader::get_extrema() const {
+void datareader::save_ranges() {
 
-    return extrema;
+    flex_range = range(FLEX_MIN, FLEX_MAX);
+    sup_range  = range( SUP_MIN,  SUP_MAX);
+    pron_range = range(PRON_MIN, PRON_MAX);
+    lat_range  = range( LAT_MIN,  LAT_MAX);
+    med_range  = range( MED_MIN,  MED_MAX);
 }
 
-// FIXME Duplication, same as in glwidget.cpp
+
+typedef ostringstream oss;
+
+const string datareader::range(int MIN, int MAX) {
+
+    oss os;
+    os << fixed << setprecision(1);
+
+    os << "(" << extrema[MIN] << "/" << extrema[MAX] << "/";
+    os << extrema[MAX]-extrema[MIN] << ")";
+
+    return os.str();
+}
+
 namespace {
 
     enum {
@@ -195,7 +230,6 @@ namespace {
     const double PI_HALF = 1.57079632679;
 }
 
-// FIXME Duplication: also computed in glwidget.cpp
 double datareader::flexion_deg(int i) const {
 
     const double* const m = matrix_at(i);
@@ -214,5 +248,90 @@ double datareader::deviation_deg(int i) const {
 
     const double* const m = matrix_at(i);
 
-    return -(acos(m[R11])-PI_HALF)*RAD2DEG;  // Sign: make lateral-medial correct for right arm
+    // Sign: to make lateral-medial correct for right arm
+    return -(acos(m[R11])-PI_HALF)*RAD2DEG;
+}
+
+const std::string datareader::flex(int i) const {
+
+    if (i<0 || i>=size) {
+        throw range_error("Index is out of range in datareader::flex()");
+    }
+
+    oss os;
+
+    os << fixed << setprecision(1);
+
+    os << "Flex " << flexion[i] << " deg";
+
+    return os.str();
+}
+
+const std::string datareader::sup(int i) const {
+
+    if (i<0 || i>=size) {
+        throw range_error("Index is out of range in datareader::sup()");
+    }
+
+    oss os;
+
+    os << fixed << setprecision(1);
+
+    if (supination[i] >= 0) {
+
+        os << "Sup " <<   supination[i] << " deg";
+    }
+    else {
+
+        os << "Pron " << -supination[i] << " deg";
+    }
+
+    return os.str();
+}
+
+const std::string datareader::dev(int i) const {
+
+    if (i<0 || i>=size) {
+        throw range_error("Index is out of range in datareader::dev()");
+    }
+
+    oss os;
+
+    os << fixed << setprecision(1);
+
+    if (deviation[i] > 0) {
+
+        os << "Lat Dev " <<  deviation[i] << " deg";
+    }
+    else {
+
+        os << "Med Dev " << -deviation[i] << " deg";
+    }
+
+    return os.str();
+}
+
+const char* datareader::flex_info() const {
+
+    return flex_range.c_str();
+}
+
+const char* datareader::sup_info()  const {
+
+    return sup_range.c_str();
+}
+
+const char* datareader::pron_info() const {
+
+    return pron_range.c_str();
+}
+
+const char* datareader::lat_info()  const {
+
+    return lat_range.c_str();
+}
+
+const char* datareader::med_info()  const {
+
+    return med_range.c_str();
 }

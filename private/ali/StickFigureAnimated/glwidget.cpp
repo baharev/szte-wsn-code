@@ -34,7 +34,6 @@
 #include <cmath>
 #include <QtGui>
 #include <QtOpenGL>
-#include <QTextStream>
 #include <QDebug>
 #include "glwidget.hpp"
 #include "datareader.hpp"
@@ -261,36 +260,36 @@ void GLWidget::sideView() {
 
     glPushMatrix();
 
-        glTranslated(-5.0, 0.0, 0.0);
-
         sideHead();
 
         drawArm();
     glPopMatrix();
 }
 
-// FIXME Computatation should be moved to datareader.cpp, clean-up the mess
 void GLWidget::writeAngles() {
 
     glPushMatrix();
 
-    QString text;
-    QTextStream ts(&text);
+    //(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31];
+    // Flex: -90...270; Sup: -180...180; Dev: -90...90
 
-    //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
+    renderText(-1.0, 3.65, 0.0, data->flex(position).c_str());
 
-    // -90...270
-    ts << data->flex(position).c_str() << " " << data->flex_info() << "   ";
+    renderText( 5.0, 3.65, 0.0, data->sup(position).c_str());
 
-    // -180...180
-    ts << data->sup(position).c_str() << " " << data->sup_info() << " " << data->pron_info() << "   ";
+    renderText(-1.0, -2.85, 0.0, data->dev(position).c_str());
 
-    // -90...90
-    ts << data->dev(position).c_str() << " " << data->lat_info() << " " << data->med_info();
+    renderText(3.0, -2.5, 0.0, "           min / max / range  deg");
 
-    ts.flush();
+    renderText(3.0, -3.0, 0.0, data->flex_info());
 
-    renderText(-6.5, 3.65, 0.0, text);
+    renderText(3.0, -3.5, 0.0, data->sup_info());
+
+    renderText(3.0, -4.0, 0.0, data->pron_info());
+
+    renderText(3.0, -4.5, 0.0, data->med_info());
+
+    renderText(3.0, -5.0, 0.0, data->lat_info());
 
     glPopMatrix();
 }
@@ -317,9 +316,11 @@ void GLWidget::planHead() {
 
 void GLWidget::planView() {
 
-    planHead();
-
     glPushMatrix();
+
+        glTranslated(0.0, -5.0, 0.0);
+
+        planHead();
 
         glRotated( 90.0, 1.0, 0.0, 0.0);
 
@@ -380,15 +381,23 @@ void GLWidget::paintGL() {
 
 void GLWidget::resizeGL(int width, int height) {
 
-    double unit = qMin(width/15.0, height/6.5);
+    const double left  = -2.5;
+    const double right =  7.5;
+    const double bottom = -7.5;
+    const double up     =  4;
 
-    glViewport((width-15*unit)/2, (height-6.5*unit)/2, 15*unit, 6.5*unit);
+    const double w = right-left;
+    const double h = up-bottom;
+
+    const double unit = qMin(width/w, height/h);
+
+    glViewport((width-w*unit)/2, (height-h*unit)/2, w*unit, h*unit);
 
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
 
-    glOrtho(-7.5, +7.5, -2.5, +4.0, 2.0, 8.0);
+    glOrtho(left, right, bottom, up, 2.0, 8.0);
 
     glMatrixMode(GL_MODELVIEW);
 }

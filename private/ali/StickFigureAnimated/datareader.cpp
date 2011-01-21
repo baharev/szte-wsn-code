@@ -61,6 +61,12 @@ datareader::datareader() {
     size = 0;
 
     extrema = new double[SIZE];
+
+    flex_range = "Flex  ";
+    sup_range  = "Sup  ";
+    pron_range = "Pron  ";
+    lat_range  = "Lat Dev  ";
+    med_range  = "Med Dev  ";
 }
 
 datareader::~datareader() {
@@ -197,11 +203,11 @@ void datareader::set_med_dev() {
 
 void datareader::save_ranges() {
 
-    flex_range = range(FLEX_MIN, FLEX_MAX);
-    sup_range  = range( SUP_MIN,  SUP_MAX);
-    pron_range = range(PRON_MIN, PRON_MAX);
-    lat_range  = range( LAT_MIN,  LAT_MAX);
-    med_range  = range( MED_MIN,  MED_MAX);
+    flex_range += range(FLEX_MIN, FLEX_MAX);
+    sup_range  += range( SUP_MIN,  SUP_MAX);
+    pron_range += range(PRON_MIN, PRON_MAX);
+    lat_range  += range( LAT_MIN,  LAT_MAX);
+    med_range  += range( MED_MIN,  MED_MAX);
 }
 
 
@@ -212,8 +218,8 @@ const string datareader::range(int MIN, int MAX) {
     oss os;
     os << fixed << setprecision(1);
 
-    os << "(" << extrema[MIN] << "/" << extrema[MAX] << "/";
-    os << extrema[MAX]-extrema[MIN] << ")";
+    os << extrema[MIN] << " / " << extrema[MAX] << " / ";
+    os << extrema[MAX]-extrema[MIN] << " deg" << flush;
 
     return os.str();
 }

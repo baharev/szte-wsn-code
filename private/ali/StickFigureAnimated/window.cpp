@@ -45,7 +45,7 @@ window::window() : ANIMATION_STEP_MS(1) {
 
     setLayout(mainLayout);
 
-    widget->set_data("MMtricky2");
+    widget->set_data("flipflop2");
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));

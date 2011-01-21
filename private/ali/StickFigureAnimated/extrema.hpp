@@ -31,70 +31,21 @@
 * Author: Ali Baharev
 */
 
-#ifndef GLWIDGET_HPP
-#define GLWIDGET_HPP
+#ifndef EXTREMA_HPP
+#define EXTREMA_HPP
 
-#include <QtGui>
-#include <QGLWidget>
-#include "extrema.hpp"
-
-class GLWidget : public QGLWidget
-{
-    Q_OBJECT
-
-public:
-
-    GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
-
-    ~GLWidget();
-
-    void set_extrema(const double min_max[6]);
-
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
-    void rotate(const double matrix[9]);
-
-signals:
-
-    void clicked();
-
-protected:
-
-    void initializeGL();
-    void paintGL();
-    void resizeGL(int width, int height);
-
-    void mousePressEvent(QMouseEvent *event);
-
-private:
-
-    void reset();
-
-    void setCameraPosition();
-    void setState();
-
-    void sideView();
-    void planView();
-    void frontView();
-
-    void sideHead();
-    void planHead();
-    void frontHead();
-
-    void writeAngles();
-
-    void upperArm();
-    void elbow();
-    void rotateForeArm();
-    void foreArm();
-    void hand();
-    void drawArm();
-
-    double extrema[SIZE];
-
-    GLfloat rotmat[16];
-
-    GLuint list;
+enum {
+    FLEX_MIN,
+    FLEX_MAX,
+    SUP_MIN,
+    SUP_MAX,
+    PRON_MIN,
+    PRON_MAX,
+    LAT_DEV_MIN,
+    LAT_DEV_MAX,
+    MED_DEV_MIN,
+    MED_DEV_MAX,
+    SIZE
 };
 
-#endif // GLWIDGET_HPP
+#endif // EXTREMA_HPP

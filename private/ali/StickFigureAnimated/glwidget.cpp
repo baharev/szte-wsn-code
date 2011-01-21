@@ -263,18 +263,20 @@ void GLWidget::writeAngles() {
     //ts << "(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31] << "  ";
 
     // -90...270
-    ts << "Flexion: " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG;
-    ts << " (" << extrema[0] << "/" << extrema[1] << "/" << extrema[1]-extrema[0] << ")";
+    ts << "Flex " << (atan2(rotmat[M21], rotmat[M11])+PI_HALF)*RAD2DEG;
+    ts << " (" << extrema[FLEX_MIN] << "/" << extrema[FLEX_MAX] << "/" << extrema[FLEX_MAX]-extrema[FLEX_MIN] << ")";
     ts << " deg   ";
 
     // -180...180   //  -90...270   (atan2(-rotmat[M33],rotmat[M32])+PI_HALF)*RAD2DEG
-    ts << "Supination: " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG;
-    ts << " (" << extrema[2] << "/" << extrema[3] << "/" << extrema[3]-extrema[2] << ")";
+    ts << "Sup " << (atan2(rotmat[M32],rotmat[M33]))*RAD2DEG;
+    ts << " (" << extrema[SUP_MIN] << "/" << extrema[SUP_MAX] << "/" << extrema[SUP_MAX]-extrema[SUP_MIN] << ")";
+    ts << " (" << extrema[PRON_MIN] << "/" << extrema[PRON_MAX] << "/" << extrema[PRON_MAX]-extrema[PRON_MIN] << ")";
     ts << " deg   ";
 
     // -90...90
-    ts << "Yaw: " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG;
-    ts << " (" << extrema[4] << "/" << extrema[5] << "/" << extrema[5]-extrema[4] << ")";
+    ts << "Dev " << (acos(rotmat[M31])-PI_HALF)*RAD2DEG;
+    ts << " (" << extrema[LAT_DEV_MIN] << "/" << extrema[LAT_DEV_MAX] << "/" << extrema[LAT_DEV_MAX]-extrema[LAT_DEV_MIN] << ")";
+    ts << " (" << extrema[MED_DEV_MIN] << "/" << extrema[MED_DEV_MAX] << "/" << extrema[MED_DEV_MAX]-extrema[MED_DEV_MIN] << ")";
     ts << " deg";
 
     ts.flush();
@@ -387,9 +389,9 @@ void GLWidget::mousePressEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-void GLWidget::set_extrema(const double m[6]) {
+void GLWidget::set_extrema(const double m[]) {
 
-    for (int i=0; i<6; ++i) {
+    for (int i=0; i<SIZE; ++i) {
         extrema[i] = m[i];
     }
 }

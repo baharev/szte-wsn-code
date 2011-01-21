@@ -34,6 +34,8 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
+#include "extrema.hpp"
+
 // FIXME Not just reads the data, computes the too
 class datareader {
 
@@ -54,29 +56,27 @@ private:
     datareader(const datareader& );
     datareader& operator=(const datareader& );
 
+    void init_angle_arrays();
+    void fill_angle_arrays();
     void find_min_max();
 
+    void set_pronation();
+    void set_med_dev();
+
     double flexion_deg(int i) const;
-
     double supination_deg(int i) const;
-
-    double yaw_deg(int i) const;
+    double deviation_deg(int i) const;
 
     const double* matrix_at(int i) const;
 
     int size;
     double* rotation_matrices;
 
-    struct min_max {
-        double min;
-        double max;
-    };
+    double* flexion;
+    double* supination;
+    double* deviation;
 
-    min_max flexion;
-    min_max supination;
-    min_max yaw;
-
-    double extrema[6];
+    double extrema[SIZE];
 
     int counter;
 };

@@ -31,6 +31,7 @@
 * Author: Ali Baharev
 */
 
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <stdexcept>
@@ -40,13 +41,17 @@ using namespace std;
 
 datareader::datareader() {
 
-    rotation_matrices = 0;
+    rotation_matrices = flexion = supination = deviation = 0;
     size = counter = 0;
 }
 
 datareader::~datareader() {
 
     delete[] rotation_matrices;
+
+    delete[] flexion;
+    delete[] supination;
+    delete[] deviation;
 }
 
 void datareader::grab_content(const char *filename) {
@@ -71,6 +76,28 @@ void datareader::grab_content(const char *filename) {
     find_min_max();
 }
 
+void datareader::init_angle_arrays() {
+
+
+    if (flexion || supination || deviation) {
+        throw logic_error("already initialized");
+    }
+
+    flexion    = new double[size];
+    supination = new double[size];
+    deviation  = new double[size];
+}
+
+void datareader::fill_angle_arrays() {
+
+    for (int i=0; i<size; ++i) {
+
+        flexion[i]    = flexion_deg(i);
+        supination[i] = supination_deg(i);
+        deviation[i]  = deviation_deg(i);
+    }
+}
+
 const double* datareader::matrix_at(int i) const {
 
     if (i<0 || i>=size) {
@@ -89,6 +116,72 @@ const double* datareader::next_matrix() {
     return m;
 }
 
+void datareader::find_min_max() {
+
+    init_angle_arrays();
+    fill_angle_arrays();
+
+    extrema[FLEX_MIN] = *min_element(flexion, flexion+size);
+    extrema[FLEX_MAX] = *max_element(flexion, flexion+size);
+
+    extrema[SUP_MIN] = *min_element(supination, supination+size);
+    extrema[SUP_MAX] = *max_element(supination, supination+size);
+
+    extrema[LAT_DEV_MIN] = *min_element(deviation, deviation+size);
+    extrema[LAT_DEV_MAX] = *max_element(deviation, deviation+size);
+
+    set_pronation();
+    set_med_dev();
+}
+
+void datareader::set_pronation() {
+
+    if (extrema[SUP_MAX] < 0) {
+
+        extrema[PRON_MIN] = -extrema[SUP_MAX];
+        extrema[PRON_MAX] = -extrema[SUP_MIN];
+
+        extrema[SUP_MIN]  = extrema[SUP_MAX] = 0.0;
+    }
+    else if (extrema[SUP_MIN] < 0) {
+
+        extrema[PRON_MAX] = -extrema[SUP_MIN];
+
+        extrema[SUP_MIN] = extrema[PRON_MIN] = 0.0;
+    }
+    else {
+
+        extrema[PRON_MIN] = extrema[PRON_MAX] = 0.0;
+    }
+}
+
+void datareader::set_med_dev() {
+
+    if (extrema[LAT_DEV_MAX] < 0) {
+
+        extrema[MED_DEV_MIN] = -extrema[LAT_DEV_MAX];
+        extrema[MED_DEV_MAX] = -extrema[LAT_DEV_MIN];
+
+        extrema[LAT_DEV_MIN] = extrema[LAT_DEV_MAX] = 0.0;
+    }
+    else if (extrema[LAT_DEV_MIN] < 0) {
+
+        extrema[MED_DEV_MAX] = -extrema[LAT_DEV_MIN];
+
+        extrema[MED_DEV_MIN] = extrema[LAT_DEV_MIN] = 0.0;
+
+    }
+    else {
+
+        extrema[MED_DEV_MIN] = extrema[MED_DEV_MAX] = 0.0;
+    }
+}
+
+const double* datareader::get_extrema() const {
+
+    return extrema;
+}
+
 // FIXME Duplication, same as in glwidget.cpp
 namespace {
 
@@ -100,55 +193,6 @@ namespace {
 
     const double RAD2DEG = 57.2957795131;
     const double PI_HALF = 1.57079632679;
-}
-
-void datareader::find_min_max() {
-
-    flexion.min    = flexion.max    = flexion_deg(0);
-    supination.min = supination.max = supination_deg(0);
-    yaw.min        = yaw.max        = yaw_deg(0);
-
-    for (int i=1; i<size; ++i) {
-
-        const double flex = flexion_deg(i);
-        if (flex < flexion.min) {
-            flexion.min = flex;
-        }
-        else if (flex > flexion.max) {
-            flexion.max = flex;
-        }
-
-        const double sup = supination_deg(i);
-        if (sup < supination.min) {
-            supination.min = sup;
-        }
-        else if (sup > supination.max) {
-            supination.max = sup;
-        }
-
-        const double yawi = yaw_deg(i);
-        if (yawi < yaw.min) {
-            yaw.min = yawi;
-        }
-        else if (yawi > yaw.max) {
-            yaw.max =  yawi;
-        }
-    }
-
-    // TODO Intruduce enum instead of magic number
-    // TODO Compute all angles in advance and make them members?
-    // It would also eliminate the loop above.
-    extrema[0] = flexion.min;
-    extrema[1] = flexion.max;
-    extrema[2] = supination.min;
-    extrema[3] = supination.max;
-    extrema[4] = yaw.min;
-    extrema[5] = yaw.max;
-}
-
-const double* datareader::get_extrema() const {
-
-    return extrema;
 }
 
 // FIXME Duplication: also computed in glwidget.cpp
@@ -166,9 +210,9 @@ double datareader::supination_deg(int i) const {
     return atan2(m[R12], m[R13])*RAD2DEG;
 }
 
-double datareader::yaw_deg(int i) const {
+double datareader::deviation_deg(int i) const {
 
     const double* const m = matrix_at(i);
 
-    return (acos(m[R11])-PI_HALF)*RAD2DEG;
+    return -(acos(m[R11])-PI_HALF)*RAD2DEG;  // Sign: make lateral-medial correct for right arm
 }

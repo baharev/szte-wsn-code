@@ -268,7 +268,7 @@ void GLWidget::rotateForeArm() {
 void GLWidget::foreArm() {
 
     glBegin(GL_LINES);
-        glVertex3d(2.0, 0.0, 0.0);
+        glVertex3d(1.6, 0.0, 0.0);
         glVertex3d(0.0, 0.0, 0.0);
     glEnd();
 }
@@ -278,12 +278,16 @@ void GLWidget::hand() {
     glPolygonMode(GL_FRONT, GL_FILL);
     glPolygonMode(GL_BACK, GL_LINE);
 
-    static const double h = std::sqrt(3.0)/5.0;
+    glBegin(GL_POLYGON);
+       glVertex3d(1.6, -0.15, 0.0);
+       glVertex3d(2.0, -0.15, 0.0);
+       glVertex3d(2.0,  0.15, 0.0);
+       glVertex3d(1.6,  0.15, 0.0);
+    glEnd();
 
-    glBegin(GL_TRIANGLES);
-       glVertex3d(1.6, 0.0, 0.0);
-       glVertex3d(2.0, 0.0, 0.0);
-       glVertex3d(1.8,   h, 0.0);
+    glBegin(GL_LINES);
+        glVertex3d(1.7, 0.15, 0.0);
+        glVertex3d(1.7, 0.3, 0.0);
     glEnd();
 
 }

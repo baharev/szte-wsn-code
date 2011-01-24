@@ -34,6 +34,7 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
+#include <iosfwd>
 #include <string>
 
 // FIXME Not just reads the data, computes them too
@@ -59,6 +60,8 @@ public:
     const std::string sup(int i)  const;
     const std::string dev(int i)  const;
 
+    const std::string time(int i) const;
+
     ~datareader();
 
 private:
@@ -75,9 +78,16 @@ private:
     void save_ranges();
     const std::string range(int MIN, int MAX);
 
+    std::ostringstream& init() const;
+    std::ostringstream& init(int i) const;
+
     double flexion_deg(int i) const;
     double supination_deg(int i) const;
     double deviation_deg(int i) const;
+
+    const double SAMPLING_RATE;
+
+    std::ostringstream* const out;
 
     int size;
     double* rotation_matrices;
@@ -92,6 +102,7 @@ private:
     std::string pron_range;
     std::string lat_range;
     std::string med_range;
+
 };
 
 #endif // DATAREADER_HPP

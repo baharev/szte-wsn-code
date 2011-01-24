@@ -266,7 +266,7 @@ void GLWidget::sideView() {
     glPopMatrix();
 }
 
-void GLWidget::writeAngles() {
+void GLWidget::writeData() {
 
     glPushMatrix();
 
@@ -274,6 +274,8 @@ void GLWidget::writeAngles() {
     // Flex: -90...270; Sup: -180...180; Dev: -90...90
 
     renderText(-1.0, 3.65, 0.0, data->flex(position).c_str());
+
+    renderText( 2.0, 3.65, 0.0, data->time(position).c_str());
 
     renderText( 5.0, 3.65, 0.0, data->sup(position).c_str());
 
@@ -372,7 +374,7 @@ void GLWidget::paintGL() {
 
     sideView();
 
-    writeAngles();
+    writeData();
 
     planView();
 

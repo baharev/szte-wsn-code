@@ -82,7 +82,7 @@ private:
     void planHead();
     void frontHead();
 
-    void writeAngles();
+    void writeData();
 
     void upperArm();
     void elbow();

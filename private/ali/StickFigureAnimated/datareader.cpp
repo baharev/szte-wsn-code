@@ -55,7 +55,7 @@ enum {
     SIZE
 };
 
-datareader::datareader() {
+datareader::datareader() : SAMPLING_RATE(204.8), out(new ostringstream) {
 
     rotation_matrices = flexion = supination = deviation = 0;
     size = 0;
@@ -71,6 +71,8 @@ datareader::datareader() {
 
 datareader::~datareader() {
 
+    delete out;
+
     delete[] rotation_matrices;
 
     delete[] flexion;
@@ -78,6 +80,28 @@ datareader::~datareader() {
     delete[] deviation;
 
     delete[] extrema;
+}
+
+std::ostringstream& datareader::init(int i) const {
+
+    init();
+
+    if (i<0 || i>=size) {
+
+        *out << "index: " << i << ", valid range [0, " << size << ")" << flush;
+        throw out_of_range(out->str());
+    }
+
+    return *out;
+}
+
+std::ostringstream& datareader::init() const {
+
+    out->str("");
+
+    *out << fixed << setprecision(1);
+
+    return *out;
 }
 
 void datareader::grab_content(const char *filename) {
@@ -132,7 +156,7 @@ void datareader::fill_angle_arrays() {
 const double* datareader::matrix_at(int i) const {
 
     if (i<0 || i>=size) {
-        throw range_error("Index is out of range in datareader::matrix_at()");
+        throw out_of_range("Index is out of range in datareader::matrix_at()");
     }
 
     return rotation_matrices + (9*i);
@@ -210,13 +234,11 @@ void datareader::save_ranges() {
     med_range  += range( MED_MIN,  MED_MAX);
 }
 
-
-typedef ostringstream oss;
+typedef ostringstream& oss;
 
 const string datareader::range(int MIN, int MAX) {
 
-    oss os;
-    os << fixed << setprecision(1);
+    oss os = init();
 
     os << extrema[MIN] << " / " << extrema[MAX] << " / ";
     os << extrema[MAX]-extrema[MIN] << " deg" << flush;
@@ -260,13 +282,7 @@ double datareader::deviation_deg(int i) const {
 
 const std::string datareader::flex(int i) const {
 
-    if (i<0 || i>=size) {
-        throw range_error("Index is out of range in datareader::flex()");
-    }
-
-    oss os;
-
-    os << fixed << setprecision(1);
+    ostringstream& os = init(i);
 
     os << "Flex " << flexion[i] << " deg";
 
@@ -275,13 +291,7 @@ const std::string datareader::flex(int i) const {
 
 const std::string datareader::sup(int i) const {
 
-    if (i<0 || i>=size) {
-        throw range_error("Index is out of range in datareader::sup()");
-    }
-
-    oss os;
-
-    os << fixed << setprecision(1);
+    ostringstream& os = init(i);
 
     if (supination[i] >= 0) {
 
@@ -297,13 +307,7 @@ const std::string datareader::sup(int i) const {
 
 const std::string datareader::dev(int i) const {
 
-    if (i<0 || i>=size) {
-        throw range_error("Index is out of range in datareader::dev()");
-    }
-
-    oss os;
-
-    os << fixed << setprecision(1);
+    ostringstream& os = init(i);
 
     if (deviation[i] > 0) {
 
@@ -313,6 +317,17 @@ const std::string datareader::dev(int i) const {
 
         os << "Med Dev " << -deviation[i] << " deg";
     }
+
+    return os.str();
+}
+
+const std::string datareader::time(int i) const {
+
+    ostringstream& os = init(i);
+
+    double sec = i/SAMPLING_RATE;
+
+    os << "Time: " << sec << " s" << flush;
 
     return os.str();
 }

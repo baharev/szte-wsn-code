@@ -35,7 +35,7 @@
 #include "glwidget.hpp"
 #include "window.hpp"
 
-window::window() : ANIMATION_STEP_MS(1) {
+window::window() : ANIMATION_STEP_MS(5) {
 
     QGridLayout *mainLayout = new QGridLayout;
 

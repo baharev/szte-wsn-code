@@ -52,6 +52,14 @@ namespace {
             M31 = 2, M32 = 6, M33 = 10, M34 = 14,
             M41 = 3, M42 = 7, M43 = 11, M44 = 15
     };
+
+    enum {
+        SOLID_DISK,
+        SILHOUETTE,
+        LIST_LENGTH
+    };
+
+    const int LINE_WIDTH = 3;
 }
 
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
@@ -128,25 +136,49 @@ void errorCallback() {
     exit(0);
 }
 
-void GLWidget::initializeGL() {
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-
-    list = glGenLists(1);
-
-    GLUquadricObj* qobj = gluNewQuadric();
-
-    gluQuadricCallback(qobj, GLU_ERROR, errorCallback);
+void GLWidget::headSilhouette(GLUquadricObj* qobj) {
 
     gluQuadricDrawStyle(qobj, GLU_SILHOUETTE);
 
     gluQuadricNormals(qobj, GLU_NONE);
 
-    glNewList(list, GL_COMPILE);
+    glNewList(list+SILHOUETTE, GL_COMPILE);
 
         gluDisk(qobj, 0.0, 0.5, 32, 4);
 
     glEndList();
+}
+
+void GLWidget::headSolid(GLUquadricObj* qobj) {
+
+    gluQuadricDrawStyle(qobj, GLU_FILL);
+
+    glNewList(list+SOLID_DISK, GL_COMPILE);
+
+        glColor3f (0.0, 0.0, 0.0);
+
+        gluDisk(qobj, 0.0, 0.5, 32, 4);
+
+        glColor3f (1.0, 1.0, 1.0);
+
+    glEndList();
+}
+
+void GLWidget::initializeGL() {
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+
+    list = glGenLists(LIST_LENGTH);
+
+    GLUquadricObj* qobj = gluNewQuadric();
+
+    gluQuadricCallback(qobj, GLU_ERROR, errorCallback);
+
+    headSilhouette(qobj);
+
+    headSolid(qobj);
+
+    gluDeleteQuadric(qobj);
 }
 
 void GLWidget::reset() {
@@ -168,7 +200,45 @@ void GLWidget::setState() {
     glEnable(GL_POINT_SMOOTH);
     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
-    glLineWidth(2.0);
+    glEnable(GL_DEPTH_TEST);
+
+    glLineWidth(LINE_WIDTH);
+}
+
+void GLWidget::shoulder() {
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 2.0, 0.0);
+        glVertex3d(0.0, 2.0,-2.0);
+    glEnd();
+}
+
+void GLWidget::neck() {
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 2.0, -1.0);
+        glVertex3d(0.0, 2.5, -1.0);
+    glEnd();
+}
+
+void GLWidget::leftUpperArm() {
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 2.0, -2.0);
+        glVertex3d(0.0, 0.0, -2.0);
+    glEnd();
+}
+
+void GLWidget::body() {
+
+    glLineWidth(1.0);
+
+    glBegin(GL_LINES);
+        glVertex3d(0.0, 2.0, -1.0);
+        glVertex3d(0.0,-0.4, -1.0);
+    glEnd();
+
+    glLineWidth(LINE_WIDTH);
 }
 
 void GLWidget::upperArm() {
@@ -215,10 +285,23 @@ void GLWidget::hand() {
        glVertex3d(2.0, 0.0, 0.0);
        glVertex3d(1.8,   h, 0.0);
     glEnd();
+
 }
 
+void GLWidget::drawIrrelevantParts() {
 
-void GLWidget::drawArm() {
+    glLineWidth(1.0);
+
+    shoulder();
+
+    neck();
+
+    leftUpperArm();
+
+    glLineWidth(LINE_WIDTH);
+}
+
+void GLWidget::drawRightArm() {
 
     upperArm();
 
@@ -229,6 +312,13 @@ void GLWidget::drawArm() {
     foreArm();
 
     hand();
+}
+
+void GLWidget::drawLinearParts() {
+
+    drawIrrelevantParts();
+
+    drawRightArm();
 }
 
 void GLWidget::setCameraPosition() {
@@ -250,7 +340,7 @@ void GLWidget::sideHead() {
 
         glPointSize(1.0);
 
-        glCallList(list);
+        glCallList(list+SILHOUETTE);
 
 
     glPopMatrix();
@@ -262,7 +352,7 @@ void GLWidget::sideView() {
 
         sideHead();
 
-        drawArm();
+        drawLinearParts();
     glPopMatrix();
 }
 
@@ -300,7 +390,7 @@ void GLWidget::planHead() {
 
     glPushMatrix();
 
-        glTranslated(0.0, 1.0, 0.0);
+        glTranslated(0.0, 1.0, 2.5);
 
         glPointSize(8.0);
 
@@ -311,7 +401,11 @@ void GLWidget::planHead() {
 
         glPointSize(1.0);
 
-        glCallList(list);
+        glCallList(list+SILHOUETTE);
+
+        glTranslated(0.0, 0.0,-0.1);
+
+        glCallList(list+SOLID_DISK);
 
     glPopMatrix();
 }
@@ -326,7 +420,7 @@ void GLWidget::planView() {
 
         glRotated( 90.0, 1.0, 0.0, 0.0);
 
-        drawArm();
+        drawLinearParts();
     glPopMatrix();
 }
 
@@ -345,7 +439,7 @@ void GLWidget::frontHead() {
 
         glPointSize(1.0);
 
-        glCallList(list);
+        glCallList(list+SILHOUETTE);
 
     glPopMatrix();
 }
@@ -360,7 +454,9 @@ void GLWidget::frontView() {
 
         glRotated(-90.0, 0.0, 1.0, 0.0);
 
-        drawArm();
+        body();
+
+        drawLinearParts();
     glPopMatrix();
 }
 

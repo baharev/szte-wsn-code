@@ -78,18 +78,30 @@ private:
     void planView();
     void frontView();
 
+    void headSilhouette(GLUquadricObj* qobj);
+    void headSolid(GLUquadricObj* qobj);
+
     void sideHead();
     void planHead();
     void frontHead();
 
     void writeData();
 
+    void drawLinearParts();
+
+    void drawIrrelevantParts();
+    void shoulder();
+    void neck();
+    void leftUpperArm();
+
+    void body();
+
+    void drawRightArm();
     void upperArm();
     void elbow();
     void rotateForeArm();
     void foreArm();
     void hand();
-    void drawArm();
 
     datareader* data;
 

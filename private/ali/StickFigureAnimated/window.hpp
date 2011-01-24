@@ -38,7 +38,9 @@
 #include "datareader.hpp"
 
 class GLWidget;
+class QSlider;
 class QTimer;
+class QGridLayout;
 
 class window : public QWidget
 {
@@ -52,11 +54,17 @@ private slots:
 
     void rotateToNext();
     void toggleAnimationState();
+    void setPosition(int pos);
 
 private:
 
+    void addGLWidget(QGridLayout* mainLayout);
+    void addSlider(QGridLayout* mainLayout);
+    void setUpTimer();
+
     const int ANIMATION_STEP_MS;
     GLWidget* widget;
+    QSlider* slider;
     QTimer*   timer;
 };
 

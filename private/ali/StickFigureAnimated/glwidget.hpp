@@ -49,11 +49,15 @@ public:
 
     void set_data(const char* filename);
 
+    int number_of_samples() const;
+    int current_position() const;
+    void set_position(int pos);
+
     ~GLWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void rotate();
+    int rotate();
 
 signals:
 

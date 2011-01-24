@@ -37,25 +37,63 @@
 
 window::window() : ANIMATION_STEP_MS(5) {
 
-    QGridLayout *mainLayout = new QGridLayout;
+    QGridLayout* mainLayout = new QGridLayout;
 
-    widget = new GLWidget(0, 0);
+    addGLWidget(mainLayout);
 
-    mainLayout->addWidget(widget);
+    addSlider(mainLayout);
 
     setLayout(mainLayout);
 
-    widget->set_data("flipflop2");
+    setUpTimer();
+}
+
+void window::addGLWidget(QGridLayout* mainLayout) {
+
+    widget = new GLWidget(this, 0);
+
+    widget->set_data("MMtricky2");
+
+    mainLayout->addWidget(widget, 0, 0);
+}
+
+void window::addSlider(QGridLayout* mainLayout) {
+
+    slider = new QSlider(Qt::Horizontal, this);
+
+    slider->setRange(0, widget->number_of_samples()-1);
+    slider->setSingleStep(1);
+    slider->setPageStep(205); // FIXME Knows the sampling rate
+    slider->setTickInterval(205);
+    slider->setTickPosition(QSlider::TicksBelow);
+
+    connect(slider, SIGNAL(sliderMoved(int)), this, SLOT(setPosition(int)));
+
+    mainLayout->addWidget(slider, 1, 0);
+}
+
+void window::setPosition(int pos) {
+
+    timer->stop();
+
+    widget->set_position(pos);
+}
+
+void window::setUpTimer() {
 
     timer = new QTimer(this);
+
     connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
     connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+
     timer->start(ANIMATION_STEP_MS);
 }
 
 void window::rotateToNext() {
 
-    widget->rotate();
+    int pos = widget->rotate();
+
+    slider->setValue(pos);
 }
 
 void window::toggleAnimationState() {

@@ -31,7 +31,7 @@
 * Author: Ali Baharev
 */
 
-#include <cmath>
+#include <stdexcept>
 #include <QtGui>
 #include <QtOpenGL>
 #include <QDebug>
@@ -103,7 +103,7 @@ QSize GLWidget::sizeHint() const {
 }
 
 // TODO Threading?
-void GLWidget::rotate() {
+int GLWidget::rotate() {
 
     position %= size;
 
@@ -123,7 +123,7 @@ void GLWidget::rotate() {
 
     updateGL();
 
-    ++position;
+    return position++;
 }
 
 // TODO Can we pass a member function to GLU?
@@ -507,4 +507,25 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::mousePressEvent(QMouseEvent * /* event */)
 {
     emit clicked();
+}
+
+int GLWidget::number_of_samples() const {
+
+    return size;
+}
+
+int GLWidget::current_position() const {
+
+    return position;
+}
+
+void GLWidget::set_position(int pos) {
+
+    if (pos<0 || pos>=size) {
+        throw std::out_of_range("Index is out of range in GLWidget::set_position()");
+    }
+
+    position = pos;
+
+    rotate();
 }

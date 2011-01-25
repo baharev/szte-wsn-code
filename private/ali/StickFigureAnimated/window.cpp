@@ -81,6 +81,8 @@ void window::createButton() {
     int width = playButton->width();
 
     playButton->setFixedWidth(width);
+
+    playButton->setAutoDefault(true);
 }
 
 void window::createTimer() {
@@ -112,6 +114,8 @@ void window::setupConnections() {
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setFrame(int)));
 
     connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+
+    connect(playButton, SIGNAL(pressed()), this, SLOT(toggleAnimationState()));
 }
 
 void window::nextFrame() {
@@ -152,6 +156,11 @@ void window::toggleAnimationState() {
 void window::timerStart() {
 
     playButton->setText("Pause");
+
+    if (slider->sliderPosition() == slider->maximum()) {
+
+        slider->triggerAction(QAbstractSlider::SliderToMinimum);
+    }
 
     timer->start(ANIMATION_STEP_MS);
 }

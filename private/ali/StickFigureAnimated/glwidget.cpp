@@ -75,7 +75,7 @@ GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
     data = 0;
 }
 
-void GLWidget::set_data(const char *filename) {
+void GLWidget::setData(const char *filename) {
 
     delete data;
 
@@ -505,12 +505,12 @@ void GLWidget::mousePressEvent(QMouseEvent * /* event */)
     emit clicked();
 }
 
-int GLWidget::number_of_samples() const {
+int GLWidget::numberOfSamples() const {
 
     return size;
 }
 
-void GLWidget::set_position(int pos) {
+void GLWidget::setFrame(int pos) {
 
     if (pos<0 || pos>=size) {
         throw std::out_of_range("Index is out of range in GLWidget::set_position()");

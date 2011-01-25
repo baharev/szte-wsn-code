@@ -35,13 +35,11 @@
 #define WINDOW_HPP
 
 #include <QWidget>
-#include "datareader.hpp"
 
 class GLWidget;
 class QPushButton;
 class QSlider;
 class QTimer;
-class QGridLayout;
 
 class window : public QWidget
 {
@@ -59,15 +57,21 @@ private slots:
 
     void rotateToNext();
     void toggleAnimationState();
-    void setPosition(int pos);
+    void setFrame(int pos);
 
 private:
 
-    void addGLWidget(QGridLayout* mainLayout);
-    void addSlider(QGridLayout* mainLayout);
-    void setUpTimer();
+    Q_DISABLE_COPY(window)
+
+    void createGLWidget();
+    void createButton();
+    void createSlider();
+    void createTimer();
+    void setupLayout();
+    void setupConnections();
 
     const int ANIMATION_STEP_MS;
+
     GLWidget* widget;
     QPushButton* playButton;
     QSlider* slider;

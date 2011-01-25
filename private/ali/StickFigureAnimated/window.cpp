@@ -37,65 +37,89 @@
 
 window::window() : ANIMATION_STEP_MS(5) {
 
-    QGridLayout* mainLayout = new QGridLayout(this);
+    createGLWidget();
 
-    addGLWidget(mainLayout);
+    createSlider();
 
-    addSlider(mainLayout);
+    createButton();
 
-    setLayout(mainLayout);
+    createTimer();
 
-    setUpTimer();
+    setupLayout();
+
+    setupConnections();
 }
 
-void window::addGLWidget(QGridLayout* mainLayout) {
+void window::createGLWidget() {
 
     widget = new GLWidget(this, 0);
 
-    widget->set_data("MMtricky2");
-
-    mainLayout->addWidget(widget, 0, 0);
+    widget->setData("MMtricky2");
 }
 
-void window::addSlider(QGridLayout* mainLayout) {
+void window::createSlider() {
 
     slider = new QSlider(Qt::Horizontal, this);
 
-    slider->setRange(0, widget->number_of_samples()-1);
-    slider->setSingleStep(1);
-    slider->setPageStep(205); // FIXME Knows the sampling rate
-    slider->setTickInterval(205);
-    slider->setTickPosition(QSlider::TicksBelow);
+    slider->setRange(0, widget->numberOfSamples()-1);
 
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setPosition(int)));
+    slider->setSingleStep(1);
+
+    slider->setPageStep(205); // FIXME Knows the sampling rate
+
+    slider->setTickInterval(205);
+
+    slider->setTickPosition(QSlider::TicksBelow);
+}
+
+void window::createButton() {
 
     playButton = new QPushButton("Pause", this);
-
-    QHBoxLayout* layout = new QHBoxLayout(this);
-
-    layout->addWidget(playButton);
-
-    layout->addWidget(slider);
-
-    mainLayout->addLayout(layout, 1, 0);
-
-    //mainLayout->addWidget(slider, 1, 0);
 }
 
-void window::setPosition(int pos) {
-
-    widget->set_position(pos);
-}
-
-void window::setUpTimer() {
+void window::createTimer() {
 
     timer = new QTimer(this);
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
-    connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
-
     timer->start(ANIMATION_STEP_MS);
 }
+
+void window::setupLayout() {
+
+    QHBoxLayout* controls = new QHBoxLayout();
+
+    controls->addWidget(playButton);
+
+    controls->addWidget(slider);
+
+    QGridLayout* mainLayout = new QGridLayout(this);
+
+    mainLayout->addWidget(widget, 0, 0);
+
+    mainLayout->addLayout(controls, 1, 0);
+
+    setLayout(mainLayout);
+}
+
+void window::setupConnections() {
+
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setFrame(int)));
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
+
+    connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+}
+
+void window::setFrame(int pos) {
+
+    if (pos == slider->maximum()) {
+
+        timer->stop();
+    }
+
+    widget->setFrame(pos);
+}
+
 
 void window::rotateToNext() {
 

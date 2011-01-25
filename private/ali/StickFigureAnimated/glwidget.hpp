@@ -47,11 +47,11 @@ public:
 
     GLWidget(QWidget *parent = 0, QGLWidget *shareWidget = 0);
 
-    void set_data(const char* filename);
+    void setData(const char* filename);
 
-    int number_of_samples() const;
+    int numberOfSamples() const;
 
-    void set_position(int pos);
+    void setFrame(int pos);
 
     ~GLWidget();
 

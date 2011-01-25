@@ -81,8 +81,6 @@ void window::createButton() {
     int width = playButton->width();
 
     playButton->setFixedWidth(width);
-
-    playButton->setAutoDefault(true);
 }
 
 void window::createTimer() {

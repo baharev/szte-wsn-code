@@ -50,14 +50,13 @@ public:
     void set_data(const char* filename);
 
     int number_of_samples() const;
-    int current_position() const;
+
     void set_position(int pos);
 
     ~GLWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    int rotate();
 
 signals:
 
@@ -69,9 +68,11 @@ protected:
     void paintGL();
     void resizeGL(int width, int height);
 
-    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent* event);
 
 private:
+
+    void rotate();
 
     void reset();
 

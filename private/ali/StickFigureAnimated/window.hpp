@@ -50,6 +50,10 @@ public:
 
     window();
 
+protected:
+
+    void keyPressEvent(QKeyEvent * event);
+
 private slots:
 
     void rotateToNext();

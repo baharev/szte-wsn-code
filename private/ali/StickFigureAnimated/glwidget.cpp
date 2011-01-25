@@ -103,9 +103,7 @@ QSize GLWidget::sizeHint() const {
 }
 
 // TODO Threading?
-int GLWidget::rotate() {
-
-    position %= size;
+void GLWidget::rotate() {
 
     const double* mat = data->matrix_at(position);
 
@@ -122,8 +120,6 @@ int GLWidget::rotate() {
     rotmat[M13] = (GLfloat) mat[R23];
 
     updateGL();
-
-    return position++;
 }
 
 // TODO Can we pass a member function to GLU?
@@ -512,11 +508,6 @@ void GLWidget::mousePressEvent(QMouseEvent * /* event */)
 int GLWidget::number_of_samples() const {
 
     return size;
-}
-
-int GLWidget::current_position() const {
-
-    return position;
 }
 
 void GLWidget::set_position(int pos) {

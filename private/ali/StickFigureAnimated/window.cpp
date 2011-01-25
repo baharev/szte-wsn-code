@@ -67,14 +67,12 @@ void window::addSlider(QGridLayout* mainLayout) {
     slider->setTickInterval(205);
     slider->setTickPosition(QSlider::TicksBelow);
 
-    connect(slider, SIGNAL(sliderMoved(int)), this, SLOT(setPosition(int)));
+    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setPosition(int)));
 
     mainLayout->addWidget(slider, 1, 0);
 }
 
 void window::setPosition(int pos) {
-
-    timer->stop();
 
     widget->set_position(pos);
 }
@@ -91,9 +89,16 @@ void window::setUpTimer() {
 
 void window::rotateToNext() {
 
-    int pos = widget->rotate();
+    slider->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+}
 
-    slider->setValue(pos);
+
+void window::keyPressEvent(QKeyEvent * event) {
+
+    if (event->key() == Qt::Key_Space) {
+
+        toggleAnimationState();
+    }
 }
 
 void window::toggleAnimationState() {

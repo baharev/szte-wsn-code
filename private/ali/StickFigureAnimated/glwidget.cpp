@@ -94,12 +94,12 @@ GLWidget::~GLWidget() {
 
 QSize GLWidget::minimumSizeHint() const {
 
-    return QSize(50, 50);
+    return QSize(750, 750);
 }
 
 QSize GLWidget::sizeHint() const {
 
-    return QSize(200, 200);
+    return QSize(750, 750);
 }
 
 // TODO Threading?

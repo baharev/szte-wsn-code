@@ -37,7 +37,7 @@
 
 window::window() : ANIMATION_STEP_MS(5) {
 
-    QGridLayout* mainLayout = new QGridLayout;
+    QGridLayout* mainLayout = new QGridLayout(this);
 
     addGLWidget(mainLayout);
 
@@ -69,7 +69,17 @@ void window::addSlider(QGridLayout* mainLayout) {
 
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setPosition(int)));
 
-    mainLayout->addWidget(slider, 1, 0);
+    playButton = new QPushButton("Pause", this);
+
+    QHBoxLayout* layout = new QHBoxLayout(this);
+
+    layout->addWidget(playButton);
+
+    layout->addWidget(slider);
+
+    mainLayout->addLayout(layout, 1, 0);
+
+    //mainLayout->addWidget(slider, 1, 0);
 }
 
 void window::setPosition(int pos) {

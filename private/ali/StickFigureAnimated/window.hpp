@@ -38,6 +38,7 @@
 #include "datareader.hpp"
 
 class GLWidget;
+class QPushButton;
 class QSlider;
 class QTimer;
 class QGridLayout;
@@ -68,6 +69,7 @@ private:
 
     const int ANIMATION_STEP_MS;
     GLWidget* widget;
+    QPushButton* playButton;
     QSlider* slider;
     QTimer*   timer;
 };

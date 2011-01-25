@@ -55,7 +55,7 @@ protected:
 
 private slots:
 
-    void rotateToNext();
+    void nextFrame();
     void toggleAnimationState();
     void setFrame(int pos);
 
@@ -69,6 +69,9 @@ private:
     void createTimer();
     void setupLayout();
     void setupConnections();
+
+    void timerStart();
+    void timerStop();
 
     const int ANIMATION_STEP_MS;
 

@@ -48,6 +48,8 @@ window::window() : ANIMATION_STEP_MS(5) {
     setupLayout();
 
     setupConnections();
+
+    timerStart();
 }
 
 void window::createGLWidget() {
@@ -75,13 +77,15 @@ void window::createSlider() {
 void window::createButton() {
 
     playButton = new QPushButton("Pause", this);
+
+    int width = playButton->width();
+
+    playButton->setFixedWidth(width);
 }
 
 void window::createTimer() {
 
     timer = new QTimer(this);
-
-    timer->start(ANIMATION_STEP_MS);
 }
 
 void window::setupLayout() {
@@ -103,29 +107,27 @@ void window::setupLayout() {
 
 void window::setupConnections() {
 
+    connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
+
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setFrame(int)));
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(rotateToNext()));
-
     connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+}
+
+void window::nextFrame() {
+
+    slider->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 }
 
 void window::setFrame(int pos) {
 
     if (pos == slider->maximum()) {
 
-        timer->stop();
+        timerStop();
     }
 
     widget->setFrame(pos);
 }
-
-
-void window::rotateToNext() {
-
-    slider->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-}
-
 
 void window::keyPressEvent(QKeyEvent * event) {
 
@@ -139,10 +141,24 @@ void window::toggleAnimationState() {
 
     if (timer->isActive()) {
 
-        timer->stop();
+        timerStop();
     }
     else {
 
-        timer->start(ANIMATION_STEP_MS);
+        timerStart();
     }
+}
+
+void window::timerStart() {
+
+    playButton->setText("Pause");
+
+    timer->start(ANIMATION_STEP_MS);
+}
+
+void window::timerStop() {
+
+    playButton->setText("Play");
+
+    timer->stop();
 }

@@ -35,7 +35,7 @@
 #include "glwidget.hpp"
 #include "window.hpp"
 
-window::window() : ANIMATION_STEP_MS(5) {
+window::window() : ANIMATION_STEP_MS(20) {
 
     createGLWidget();
 
@@ -65,7 +65,7 @@ void window::createSlider() {
 
     slider->setRange(0, widget->numberOfSamples()-1);
 
-    slider->setSingleStep(1);
+    slider->setSingleStep(4);
 
     slider->setPageStep(205); // FIXME Knows the sampling rate
 

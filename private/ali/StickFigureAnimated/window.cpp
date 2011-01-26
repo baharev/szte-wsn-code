@@ -71,7 +71,7 @@ void window::createSlider() {
 
     slider->setTickInterval(205);
 
-    slider->setTickPosition(QSlider::TicksBelow);
+    slider->setTickPosition(QSlider::TicksBothSides);
 }
 
 void window::createButton() {

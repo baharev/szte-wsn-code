@@ -55,6 +55,7 @@ enum {
     SIZE
 };
 
+// FIXME Knows sampling rate
 datareader::datareader() : SAMPLING_RATE(204.8), out(new ostringstream) {
 
     rotation_matrices = flexion = supination = deviation = 0;

@@ -1,0 +1,1 @@
+valgrind --demangle=yes --suppressions=minimal.supp2 --gen-suppressions=all --log-file=memleaks_d --tool=memcheck --leak-check=full --leak-resolution=high --show-reachable=yes --track-origins=yes --num-callers=50 --track-fds=yes ./StickFigureAnimated  

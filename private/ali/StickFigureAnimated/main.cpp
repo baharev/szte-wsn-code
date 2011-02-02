@@ -32,13 +32,14 @@
 */
 
 #include <QApplication>
-#include "window.hpp"
+#include "MainWindow.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    window win;
-    win.resize(1440, 850);
-    win.show();
+    MainWindow mwin;
+    mwin.show();
+    mwin.raise();
+    mwin.activateWindow();
     return app.exec();
 }

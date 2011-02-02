@@ -52,6 +52,11 @@ window::window() : ANIMATION_STEP_MS(20) {
     timerStart();
 }
 
+void window::closeEvent(QCloseEvent *) {
+
+    emit closed();
+}
+
 void window::createGLWidget() {
 
     widget = new GLWidget(this, 0);
@@ -107,13 +112,13 @@ void window::setupLayout() {
 
 void window::setupConnections() {
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
+    connect(timer, SIGNAL(timeout()), SLOT(nextFrame()));
 
-    connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setFrame(int)));
+    connect(slider, SIGNAL(valueChanged(int)), SLOT(setFrame(int)));
 
-    connect(widget, SIGNAL(clicked()), this, SLOT(toggleAnimationState()));
+    connect(widget, SIGNAL(clicked()), SLOT(toggleAnimationState()));
 
-    connect(playButton, SIGNAL(pressed()), this, SLOT(toggleAnimationState()));
+    connect(playButton, SIGNAL(pressed()), SLOT(toggleAnimationState()));
 }
 
 void window::nextFrame() {

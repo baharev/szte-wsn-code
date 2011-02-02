@@ -1,0 +1,113 @@
+{
+   <nvidia>
+   Memcheck:Cond
+   obj:/usr/lib/nvidia-current/libGLcore.so.195.36.15
+}
+{
+   <nvidia>
+   Memcheck:Value4
+   obj:/usr/lib/nvidia-current/libGLcore.so.195.36.15
+}
+{
+   <libQtGui.so>
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/libQtGui.so.4.6.2
+}
+{
+   <CoreApplicationPrivate>
+   Memcheck:Leak
+   ...
+   fun:_ZN16QCoreApplicationC2ER23QCoreApplicationPrivate
+}
+{
+   <ApplicationPrivate_construct>
+   Memcheck:Leak
+   ...
+   fun:_ZN19QApplicationPrivate9constructEP9_XDisplaymm
+}
+
+{
+   <MutexPool>
+   Memcheck:Leak
+   ...
+   fun:_ZN10QMutexPool3getEPKv
+}
+{
+   <KDE_Styles>
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/kde4/plugins/styles/oxygen.so
+}
+{
+   <nvidia>
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/nvidia-current/libGL.so.195.36.15
+}
+{
+   <QApplicationPrivate_notify_helper>
+   Memcheck:Leak
+   ...
+   fun:_ZN19QApplicationPrivate13notify_helperEP7QObjectP6QEvent
+}
+{
+   <dlopen>
+   Memcheck:Leak
+   ...
+   fun:dlopen@@GLIBC_2.1
+}
+{
+   <QFontPrivate_engineForScript>
+   Memcheck:Leak
+   ...
+   fun:_ZNK12QFontPrivate15engineForScriptEi
+}
+{
+   <QVectorData>
+   Memcheck:Leak
+   ...
+   fun:_ZN11QVectorData8allocateEii
+}
+{
+   <g_malloc>
+   Memcheck:Leak
+   ...
+   fun:g_malloc
+}
+{
+   <QCoreApplication_postEvent>
+   Memcheck:Leak
+   ...
+   fun:_ZN16QCoreApplication9postEventEP7QObjectP6QEvent
+}
+{
+   <g_realloc>
+   Memcheck:Leak
+   ...
+   fun:g_realloc
+}
+{
+   <g_thread_init>
+   Memcheck:Leak
+   ...
+   fun:g_thread_init
+}
+{
+   <QCoreApplicationPrivate>
+   Memcheck:Leak
+   ...
+   fun:_ZN23QCoreApplicationPrivateC2ERiPPc
+}
+{
+   <libglib>
+   Memcheck:Leak
+   ...
+   obj:/lib/libglib-2.0.so.0.2400.1
+}
+{
+   <g_malloc0>
+   Memcheck:Leak
+   ...
+   fun:g_malloc0
+}

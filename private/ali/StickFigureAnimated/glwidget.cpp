@@ -90,6 +90,7 @@ void GLWidget::setData(const char *filename) {
 
 GLWidget::~GLWidget() {
 
+    delete data;
 }
 
 QSize GLWidget::minimumSizeHint() const {

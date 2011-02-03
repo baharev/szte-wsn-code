@@ -32,8 +32,8 @@ void MainWindow::run() {
 
     connect(win, SIGNAL(closed()), SLOT(glwidgetClosed()));
 
-    win->resize(1440, 850);
-    win->show();
+    //win->resize(1440, 850);
+    win->showMaximized();
     win->activateWindow();
 }
 

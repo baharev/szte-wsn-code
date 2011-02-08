@@ -31,7 +31,12 @@
 * Author: Ali Baharev
 */
 
-#include <QtGui>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QKeyEvent>
+#include <QPushButton>
+#include <QSlider>
+#include <QTimer>
 #include "glwidget.hpp"
 #include "window.hpp"
 

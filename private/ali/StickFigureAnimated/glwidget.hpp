@@ -34,7 +34,6 @@
 #ifndef GLWIDGET_HPP
 #define GLWIDGET_HPP
 
-#include <QtGui>
 #include <QGLWidget>
 
 class datareader;

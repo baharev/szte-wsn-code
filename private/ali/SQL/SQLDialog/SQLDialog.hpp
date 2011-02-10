@@ -56,16 +56,17 @@ public:
     SQLDialog();
 
     QSize minimumSizeHint() const;
+
     QSize sizeHint() const;
 
 private slots:
 
     void nameEdited(const QString& name);
 
-    void itemDoubleClicked(const QModelIndex & index);
+    void itemActivated(const QModelIndex & index);
 
-    void useClicked();
     void clearClicked();
+
     void newPerson();
 
 private:
@@ -81,24 +82,30 @@ private:
 
     void connectToDatabase();
 
-    void createModel();
+    void setupModel();
     QHBoxLayout* createInputLine();
-    void createView();
+    void setupView();
     QHBoxLayout* createControlButtons();
-    QPushButton* createButton(const char text[]);
+    QPushButton* createButton(const char text[]) const;
 
-    void setQuerySelectAll();
-    void setQuerySelectLike(const QString& name);
+    void executeQuery(const QString& query);
+    void setSelectQuery(const QString& whereClause);
+    void setSelectQueryLike(const QString& name);
 
-    const QString getName(int row);
-    const QDate getDate(int row);
-    int pixelWidth(const char text[]);
+    void insertNewPerson(const QString& name, const QString& birth);
 
+    const QString getName(int row) const;
+    const QDate getDate(int row) const;
+    int pixelWidth(const char text[]) const;
+
+    void displayError(const QString& msg);
+    void displayWarning(const QString& msg);
+
+    const QDate today;
     QSqlQueryModel *model;
     QTableView *view;
     QLineEdit* nameInput;
     QDateEdit* dateInput;
-    QPushButton* useBtn;
     QPushButton* clearBtn;
     QPushButton* newBtn;
 };

@@ -48,12 +48,20 @@
 #include <QTableView>
 #include "SQLDialog.hpp"
 
+namespace {
+
+const char SELECT[] = "SELECT id, name, birthday, date_added FROM person ";
+
+const char ORDER_BY[] = "ORDER BY name, birthday";
+
+}
+
 SQLDialog::SQLDialog() :
+        today(QDate::currentDate()),
         model(new QSqlQueryModel),
         view(new QTableView),
         nameInput(new QLineEdit),
-        dateInput(new QDateEdit(QDate::currentDate())),
-        useBtn(createButton("Use")),
+        dateInput(new QDateEdit(today)),
         clearBtn(createButton("Clear")),
         newBtn(createButton("New person"))
 {
@@ -65,9 +73,11 @@ SQLDialog::SQLDialog() :
 
     layout->addLayout( createControlButtons() );
 
-    createModel();
+    layout->addWidget(new QLabel("Double-click on a person to use:"));
 
-    createView();
+    setupModel();
+
+    setupView();
 
     layout->addWidget(view);
 
@@ -76,20 +86,32 @@ SQLDialog::SQLDialog() :
     setWindowModality(Qt::ApplicationModal);
 }
 
-void SQLDialog::setQuerySelectAll() {
+void SQLDialog::executeQuery(const QString& query) {
 
-    model->setQuery("SELECT id, name, birthday, date_added FROM person ORDER BY name, birthday");
+    model->setQuery(query);
+
+    QSqlError error(model->lastError());
+
+    if (error.isValid()) {
+
+        displayError(error.databaseText()+'\n'+error.driverText());
+    }
 }
 
-void SQLDialog::setQuerySelectLike(const QString& name) {
+void SQLDialog::setSelectQuery(const QString& whereClause) {
+
+    executeQuery(QString(SELECT)+whereClause+QString(ORDER_BY));
+}
+
+void SQLDialog::setSelectQueryLike(const QString& name) {
 
     if (name.length()==0) {
 
-        setQuerySelectAll();
+        setSelectQuery("");
     }
     else {
 
-        model->setQuery("SELECT id, name, birthday, date_added FROM person WHERE name LIKE '"+name.toUpper()+"%' ORDER BY name, birthday");
+        setSelectQuery("WHERE name LIKE '"+name.toUpper()+"%' ");
     }
 }
 
@@ -97,17 +119,17 @@ void SQLDialog::connectToDatabase() {
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 
-    db.setDatabaseName("../records.sqlite");
+    db.setDatabaseName("../records.sqlite"); // FIXME Hard-coded constant
 
     if (!db.open()) {
-        QMessageBox::critical(this, "Failed to open the DB",
-                              "Failed to open the database of the records!");
+
+        displayError("Failed to open the database of the records!");
     }
 }
 
-void SQLDialog::createModel() {
+void SQLDialog::setupModel() {
 
-    setQuerySelectAll();
+    setSelectQuery("");
 
     model->setHeaderData(NAME, Qt::Horizontal, "Name");
 
@@ -126,9 +148,11 @@ QHBoxLayout* SQLDialog::createInputLine() {
 
     line->addWidget(nameInput);
 
-    line->addWidget(new QLabel("Born: "));
+    line->addWidget(new QLabel("Born (YYYY-MM-DD): "));
 
-    dateInput->setDisplayFormat("MMM d yyyy");
+    dateInput->setDisplayFormat("yyyy-MM-dd");
+
+    dateInput->setMaximumDate(today);
 
     line->addWidget(dateInput);
 
@@ -139,22 +163,20 @@ QHBoxLayout* SQLDialog::createControlButtons() {
 
     QHBoxLayout* buttons = new QHBoxLayout;
 
-    connect(useBtn, SIGNAL(clicked()), SLOT(useClicked()));
-
     connect(clearBtn, SIGNAL(clicked()), SLOT(clearClicked()));
 
-    buttons->addWidget(useBtn);
-
-    buttons->addWidget(clearBtn);
+    connect(newBtn, SIGNAL(clicked()), SLOT(newPerson()));
 
     buttons->addWidget(newBtn);
+
+    buttons->addWidget(clearBtn);
 
     buttons->addStretch();
 
     return buttons;
 }
 
-QPushButton* SQLDialog::createButton(const char text[]) {
+QPushButton* SQLDialog::createButton(const char text[]) const {
 
     QPushButton* button = new QPushButton(text);
 
@@ -163,7 +185,7 @@ QPushButton* SQLDialog::createButton(const char text[]) {
     return button;
 }
 
-void SQLDialog::createView() {
+void SQLDialog::setupView() {
 
     view->setModel(model);
 
@@ -179,25 +201,17 @@ void SQLDialog::createView() {
 
     view->setColumnWidth(BIRTH, pixelsWide);
 
-    connect(view, SIGNAL(doubleClicked(QModelIndex)), SLOT(itemDoubleClicked(QModelIndex)) );
+    connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 
 void SQLDialog::nameEdited(const QString& name) {
 
-    setQuerySelectLike(name);
+    setSelectQueryLike(name);
 
-    const bool isAmbiguous = model->rowCount() != 1;
-
-    QDate date = (isAmbiguous) ? QDate::currentDate() : getDate(0);
-
-    bool enable = (isAmbiguous) ? false : true;
-
-    dateInput->setDate(date);
-
-    useBtn->setEnabled(enable);
+    dateInput->setDate(today);
 }
 
-void SQLDialog::itemDoubleClicked(const QModelIndex& item) {
+void SQLDialog::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
@@ -205,25 +219,54 @@ void SQLDialog::itemDoubleClicked(const QModelIndex& item) {
 
     QDate birth = getDate(row);
 
-    nameInput->setText(name);
-
-    dateInput->setDate(birth);
-
-    view->selectRow(item.row());
-}
-
-void SQLDialog::useClicked() {
-
     close();
 }
 
 void SQLDialog::clearClicked() {
 
     nameInput->clear();
+
+    nameInput->setFocus();
 }
 
 void SQLDialog::newPerson() {
 
+    const QString name = nameInput->text();
+
+    if (name.length()==0) {
+        displayWarning("Please enter a name!");
+        nameInput->setFocus();
+        return;
+    }
+
+    const QDate birth = dateInput->date();
+
+    if (birth==today) {
+        displayWarning("Please check the date of birth!");
+        dateInput->setFocus();
+        return;
+    }
+
+    const QString dateOfBirth = birth.toString(Qt::ISODate);
+
+    setSelectQuery("WHERE name = UPPER('"+ name+"') AND birthday=DATE('"+dateOfBirth+"') ");
+
+    if (model->rowCount()!=0) {
+        displayWarning("Please make sure this person is not already in the database!\n\n"
+                       "Did you forget to enter the date of birth?");
+        nameInput->setFocus();
+        return;
+    }
+
+    insertNewPerson(name, dateOfBirth);
+}
+
+
+void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
+
+    executeQuery("INSERT INTO person VALUES (NULL, UPPER('"+name+"'), DATE('"+birth+"'), DATETIME('now') );");
+
+    close();
 }
 
 QSize SQLDialog::minimumSizeHint() const {
@@ -236,7 +279,7 @@ QSize SQLDialog::sizeHint() const {
     return QSize(750, 700);
 }
 
-const QDate SQLDialog::getDate(int row) {
+const QDate SQLDialog::getDate(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -245,7 +288,7 @@ const QDate SQLDialog::getDate(int row) {
     return model->data(birthCol).toDate();
 }
 
-const QString SQLDialog::getName(int row) {
+const QString SQLDialog::getName(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -254,11 +297,22 @@ const QString SQLDialog::getName(int row) {
     return model->data(nameCol).toString();
 }
 
-int SQLDialog::pixelWidth(const char text[]) {
+int SQLDialog::pixelWidth(const char text[]) const {
 
     QFont defaultFont;
 
     QFontMetrics fm(defaultFont);
 
     return fm.width(text);
+}
+
+void SQLDialog::displayError(const QString& msg) {
+
+    QMessageBox::critical(this, "Fatal error", msg);
+    exit(EXIT_FAILURE);
+}
+
+void SQLDialog::displayWarning(const QString& msg) {
+
+    QMessageBox::warning(this, "Error", msg);
 }

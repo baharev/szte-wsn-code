@@ -15,7 +15,7 @@ name TEXT NOT NULL,
 
 birthday DATE NOT NULL,
 
-dateadded DATE NOT NULL,
+date_added DATE NOT NULL,
 
 UNIQUE (name, birthday)
 
@@ -23,7 +23,7 @@ UNIQUE (name, birthday)
 
 ================================================================================
 
-INSERT INTO person VALUES (NULL, UPPER('KovÁcs János'), '1970-01-30', DATETIME('now') );
+INSERT INTO person VALUES (NULL, UPPER('Jóska Pisti'), DATE('1977-12-31'), DATETIME('now') );
 
 SELECT * FROM person ORDER BY name, birthday;
 
@@ -40,7 +40,7 @@ person INTEGER,
 
 type INTEGER,
 
-dateadded DATE NOT NULL,
+date_added DATE NOT NULL,
 
 FOREIGN KEY (person) REFERENCES person(id),
 
@@ -63,6 +63,12 @@ UNIQUE (type)
 );
 
 INSERT INTO motion VALUES (null, UPPER('right_elbow_flex'));
+
+================================================================================
+
+SELECT person.name, person.birthday, motion.type, record.date_added 
+
+FROM record JOIN person ON (record.person=person.id) JOIN motion ON (record.type=motion.id);
 
 
 

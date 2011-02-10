@@ -32,12 +32,15 @@
 */
 
 #include <QDateEdit>
+#include <QDebug>
+#include <QFontMetrics>
 #include <QLabel>
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QString>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -45,58 +48,52 @@
 #include <QTableView>
 #include "SQLDialog.hpp"
 
-SQLDialog::SQLDialog() {
-
-    setupDBConnection();
-
-    setWindowModality(Qt::ApplicationModal);
-
-    QHBoxLayout* line = new QHBoxLayout;
-
-    line->addWidget(new QLabel("Name: "));
-
-    QLineEdit* nameInput = new QLineEdit;
-
-    connect(nameInput, SIGNAL(textChanged(QString)), SLOT(nameEdited(QString)));
-
-    line->addWidget(nameInput);
-
-    line->addWidget(new QLabel("Born: "));
-
-    QDateEdit* date = new QDateEdit(QDate::currentDate());
-
-    date->setDisplayFormat("MMM d yyyy");
-
-    line->addWidget(date);
-
-    model = new QSqlQueryModel;
-
-    model->setQuery(*query);
-
-    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
-
-    model->setHeaderData(1, Qt::Horizontal, tr("Born"));
-
-    QTableView *view = new QTableView;
-
-    view->setModel(model);
-
-    view->verticalHeader()->hide();
-
-    view->horizontalHeader()->setStretchLastSection(true);
-
-    view->resizeColumnsToContents();
+SQLDialog::SQLDialog() :
+        model(new QSqlQueryModel),
+        view(new QTableView),
+        nameInput(new QLineEdit),
+        dateInput(new QDateEdit(QDate::currentDate())),
+        useBtn(createButton("Use")),
+        clearBtn(createButton("Clear")),
+        newBtn(createButton("New person"))
+{
+    connectToDatabase();
 
     QVBoxLayout* layout = new QVBoxLayout;
 
-    layout->addLayout(line);
+    layout->addLayout( createInputLine() );
+
+    layout->addLayout( createControlButtons() );
+
+    createModel();
+
+    createView();
 
     layout->addWidget(view);
 
     setLayout(layout);
+
+    setWindowModality(Qt::ApplicationModal);
 }
 
-void SQLDialog::setupDBConnection() {
+void SQLDialog::setQuerySelectAll() {
+
+    model->setQuery("SELECT id, name, birthday, date_added FROM person ORDER BY name, birthday");
+}
+
+void SQLDialog::setQuerySelectLike(const QString& name) {
+
+    if (name.length()==0) {
+
+        setQuerySelectAll();
+    }
+    else {
+
+        model->setQuery("SELECT id, name, birthday, date_added FROM person WHERE name LIKE '"+name.toUpper()+"%' ORDER BY name, birthday");
+    }
+}
+
+void SQLDialog::connectToDatabase() {
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 
@@ -106,15 +103,127 @@ void SQLDialog::setupDBConnection() {
         QMessageBox::critical(this, "Failed to open the DB",
                               "Failed to open the database of the records!");
     }
+}
 
-    query = new QSqlQuery("SELECT name, birthday FROM person");
+void SQLDialog::createModel() {
+
+    setQuerySelectAll();
+
+    model->setHeaderData(NAME, Qt::Horizontal, "Name");
+
+    model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
+
+    model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
+}
+
+QHBoxLayout* SQLDialog::createInputLine() {
+
+    QHBoxLayout* line = new QHBoxLayout;
+
+    line->addWidget(new QLabel("Name: "));
+
+    connect(nameInput, SIGNAL(textChanged(QString)), SLOT(nameEdited(QString)));
+
+    line->addWidget(nameInput);
+
+    line->addWidget(new QLabel("Born: "));
+
+    dateInput->setDisplayFormat("MMM d yyyy");
+
+    line->addWidget(dateInput);
+
+    return line;
+}
+
+QHBoxLayout* SQLDialog::createControlButtons() {
+
+    QHBoxLayout* buttons = new QHBoxLayout;
+
+    connect(useBtn, SIGNAL(clicked()), SLOT(useClicked()));
+
+    connect(clearBtn, SIGNAL(clicked()), SLOT(clearClicked()));
+
+    buttons->addWidget(useBtn);
+
+    buttons->addWidget(clearBtn);
+
+    buttons->addWidget(newBtn);
+
+    buttons->addStretch();
+
+    return buttons;
+}
+
+QPushButton* SQLDialog::createButton(const char text[]) {
+
+    QPushButton* button = new QPushButton(text);
+
+    button->setFixedWidth(pixelWidth(text) + 20);
+
+    return button;
+}
+
+void SQLDialog::createView() {
+
+    view->setModel(model);
+
+    view->verticalHeader()->hide();
+
+    view->hideColumn(ID);
+
+    view->horizontalHeader()->setStretchLastSection(true);
+
+    view->resizeColumnsToContents();
+
+    int pixelsWide = pixelWidth("     2000-00-00");
+
+    view->setColumnWidth(BIRTH, pixelsWide);
+
+    connect(view, SIGNAL(doubleClicked(QModelIndex)), SLOT(itemDoubleClicked(QModelIndex)) );
 }
 
 void SQLDialog::nameEdited(const QString& name) {
 
-    QString query = "SELECT name, birthday FROM person WHERE name LIKE '"+name+"%' ORDER BY name, birthday";
+    setQuerySelectLike(name);
 
-    model->setQuery(query);
+    const bool isAmbiguous = model->rowCount() != 1;
+
+    QDate date = (isAmbiguous) ? QDate::currentDate() : getDate(0);
+
+    bool enable = (isAmbiguous) ? false : true;
+
+    dateInput->setDate(date);
+
+    useBtn->setEnabled(enable);
+}
+
+void SQLDialog::itemDoubleClicked(const QModelIndex& item) {
+
+    const int row = item.row();
+
+    QString name = getName(row);
+
+    QDate birth = getDate(row);
+
+    nameInput->setText(name);
+
+    dateInput->setDate(birth);
+
+    view->selectRow(item.row());
+}
+
+void SQLDialog::useClicked() {
+
+    close();
+}
+
+void SQLDialog::clearClicked() {
+
+    nameInput->clear();
+}
+
+void SQLDialog::newPerson() {
+
 }
 
 QSize SQLDialog::minimumSizeHint() const {
@@ -125,4 +234,31 @@ QSize SQLDialog::minimumSizeHint() const {
 QSize SQLDialog::sizeHint() const {
 
     return QSize(750, 700);
+}
+
+const QDate SQLDialog::getDate(int row) {
+
+    Q_ASSERT( 0<=row && row < model->rowCount() );
+
+    QModelIndex birthCol = model->index(row, BIRTH);
+
+    return model->data(birthCol).toDate();
+}
+
+const QString SQLDialog::getName(int row) {
+
+    Q_ASSERT( 0<=row && row < model->rowCount() );
+
+    QModelIndex nameCol = model->index(row, NAME);
+
+    return model->data(nameCol).toString();
+}
+
+int SQLDialog::pixelWidth(const char text[]) {
+
+    QFont defaultFont;
+
+    QFontMetrics fm(defaultFont);
+
+    return fm.width(text);
 }

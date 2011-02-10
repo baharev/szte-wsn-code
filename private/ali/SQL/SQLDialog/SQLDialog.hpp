@@ -34,8 +34,16 @@
 #ifndef SQLDIALOG_HPP
 #define SQLDIALOG_HPP
 
-class QSqlQuery;
+#include <QString>
+#include <QDate>
+
+class QDateEdit;
+class QHBoxLayout;
+class QLineEdit;
+class QModelIndex;
 class QSqlQueryModel;
+class QTableView;
+class QPushButton;
 
 #include <QWidget>
 
@@ -54,14 +62,45 @@ private slots:
 
     void nameEdited(const QString& name);
 
+    void itemDoubleClicked(const QModelIndex & index);
+
+    void useClicked();
+    void clearClicked();
+    void newPerson();
+
 private:
 
     Q_DISABLE_COPY(SQLDialog);
 
-    void setupDBConnection();
+    enum Columns {
+        ID,
+        NAME,
+        BIRTH,
+        ADDED
+    };
 
-    QSqlQuery* query;
+    void connectToDatabase();
+
+    void createModel();
+    QHBoxLayout* createInputLine();
+    void createView();
+    QHBoxLayout* createControlButtons();
+    QPushButton* createButton(const char text[]);
+
+    void setQuerySelectAll();
+    void setQuerySelectLike(const QString& name);
+
+    const QString getName(int row);
+    const QDate getDate(int row);
+    int pixelWidth(const char text[]);
+
     QSqlQueryModel *model;
+    QTableView *view;
+    QLineEdit* nameInput;
+    QDateEdit* dateInput;
+    QPushButton* useBtn;
+    QPushButton* clearBtn;
+    QPushButton* newBtn;
 };
 
 #endif // SQLDIALOG_HPP

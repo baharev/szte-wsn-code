@@ -78,10 +78,10 @@ private:
     Q_DISABLE_COPY(SQLDialog);
 
     enum Columns {
-        ID,
         NAME,
         BIRTH,
-        ADDED
+        ADDED,
+        ID
     };
 
     void connectToDatabase();

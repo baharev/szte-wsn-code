@@ -1,10 +1,6 @@
 SOURCES += main.cpp \
     MainWindow.cpp \
-    SQLDialog.cpp \
-    SQLUpdateTask.cpp \
-    SQLDialogUpdater.cpp
+    SQLDialog.cpp
 HEADERS += MainWindow.hpp \
-    SQLDialog.hpp \
-    SQLDialogUpdater.hpp \
-    SQLUpdateTask.hpp
+    SQLDialog.hpp
 QT += sql

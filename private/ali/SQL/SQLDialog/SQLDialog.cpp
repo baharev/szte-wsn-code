@@ -54,7 +54,7 @@ const char DATABASE[] = "QSQLITE";
 
 const char DB_NAME[] = "../records.sqlite"; // FIXME Hard-coded constant
 
-const char SELECT[] = "SELECT id, name, birthday, date_added FROM person ";
+const char SELECT[] = "SELECT name, birthday, date_added, id FROM person ";
 
 const char ORDER_BY[] = "ORDER BY name, birthday";
 
@@ -221,7 +221,7 @@ void SQLDialog::setupView() {
 
     view->verticalHeader()->hide();
 
-    view->hideColumn(ID);
+    //view->hideColumn(ID);
 
     view->horizontalHeader()->setStretchLastSection(true);
 
@@ -305,6 +305,8 @@ void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
     executeQuery("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
 
+    clearClicked();
+
     //close();
 }
 
@@ -331,6 +333,8 @@ void SQLDialog::deleteClicked() {
 void SQLDialog::deletePerson(const qint64 id) {
 
     executeQuery("DELETE FROM person WHERE id = "+QString::number(id));
+
+    clearClicked();
 }
 
 QSize SQLDialog::minimumSizeHint() const {

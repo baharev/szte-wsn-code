@@ -67,7 +67,8 @@ SQLDialog::SQLDialog() :
         nameInput(new QLineEdit),
         dateInput(new QDateEdit(today)),
         clearBtn(createButton("Clear")),
-        newBtn(createButton("New person"))
+        newBtn(createButton("New person")),
+        delBtn(createButton("Delete selected"))
 {
     connectToDatabase();
 
@@ -107,13 +108,13 @@ SQLDialog::~SQLDialog() {
 
 void SQLDialog::executeQuery(const QString& query) {
 
+    qDebug() << "executing: " << query;
+
     model->setQuery(query);
 
     QSqlError error(model->lastError());
 
     if (error.isValid()) {
-
-        qDebug() << "executing: " << query;
 
         displayError(error.databaseText()+'\n'+error.driverText());
     }
@@ -192,9 +193,13 @@ QHBoxLayout* SQLDialog::createControlButtons() {
 
     connect(newBtn, SIGNAL(clicked()), SLOT(newPerson()));
 
+    connect(delBtn, SIGNAL(clicked()), SLOT(deleteClicked()));
+
     buttons->addWidget(newBtn);
 
     buttons->addWidget(clearBtn);
+
+    buttons->addWidget(delBtn);
 
     buttons->addStretch();
 
@@ -228,6 +233,8 @@ void SQLDialog::setupView() {
 
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 
@@ -254,6 +261,12 @@ void SQLDialog::clearClicked() {
     nameInput->clear();
 
     nameInput->setFocus();
+
+    dateInput->setDate(today);
+
+    view->clearSelection();
+
+    setSelectQueryLikeName();
 }
 
 void SQLDialog::newPerson() {
@@ -292,7 +305,32 @@ void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
     executeQuery("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
 
-    close();
+    //close();
+}
+
+void SQLDialog::deleteClicked() {
+
+    QModelIndexList selected = view->selectionModel()->selectedIndexes();
+
+    if (selected.empty()) {
+
+        displayWarning("Please select a row to delete!");
+
+        return;
+    }
+
+    if (displayQuestion("Are you sure you want to delete the selected row and "
+                        "ALL THE RECORDS belonging to it?"))
+    {
+        qint64 id = getPersonID(selected.first().row());
+
+        deletePerson(id);
+    }
+}
+
+void SQLDialog::deletePerson(const qint64 id) {
+
+    executeQuery("DELETE FROM person WHERE id = "+QString::number(id));
 }
 
 QSize SQLDialog::minimumSizeHint() const {
@@ -323,6 +361,24 @@ const QString SQLDialog::getName(int row) const {
     return model->data(nameCol).toString();
 }
 
+qint64 SQLDialog::getPersonID(int row) {
+
+    Q_ASSERT( 0<=row && row < model->rowCount() );
+
+    QModelIndex idCol = model->index(row, ID);
+
+    bool success = false;
+
+    qint64 personID = model->data(idCol).toLongLong(&success);
+
+    if (!success) {
+
+        displayError("Failed to convert person ID");
+    }
+
+    return personID;
+}
+
 int SQLDialog::pixelWidth(const char text[]) const {
 
     QFont defaultFont;
@@ -346,4 +402,11 @@ void SQLDialog::displayError(const QString& msg) {
 void SQLDialog::displayWarning(const QString& msg) {
 
     QMessageBox::warning(this, "Error", msg);
+}
+
+bool SQLDialog::displayQuestion(const QString& question) {
+
+    int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
+
+    return (ret == QMessageBox::Yes)? true : false ;
 }

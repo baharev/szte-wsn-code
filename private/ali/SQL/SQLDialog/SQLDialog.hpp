@@ -71,6 +71,8 @@ private slots:
 
     void newPerson();
 
+    void deleteClicked();
+
 private:
 
     Q_DISABLE_COPY(SQLDialog);
@@ -95,14 +97,17 @@ private:
     void setSelectQueryLikeName();
 
     void insertNewPerson(const QString& name, const QString& birth);
+    void deletePerson(const qint64 id);
 
     const QString getName(int row) const;
     const QDate getDate(int row) const;
+    qint64 getPersonID(int row);
     int pixelWidth(const char text[]) const;
     const QString name() const;
 
     void displayError(const QString& msg);
     void displayWarning(const QString& msg);
+    bool displayQuestion(const QString& question);
 
     void closeEvent(QCloseEvent *);
 
@@ -113,6 +118,7 @@ private:
     QDateEdit* dateInput;
     QPushButton* clearBtn;
     QPushButton* newBtn;
+    QPushButton* delBtn;
 };
 
 #endif // SQLDIALOG_HPP

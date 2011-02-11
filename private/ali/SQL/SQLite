@@ -17,7 +17,9 @@ birthday DATE NOT NULL,
 
 date_added DATE NOT NULL,
 
-UNIQUE (name, birthday)
+UNIQUE (name, birthday),
+
+CHECK (birthday < DATE('now'))
 
 );
 
@@ -42,7 +44,7 @@ type INTEGER,
 
 date_added DATE NOT NULL,
 
-FOREIGN KEY (person) REFERENCES person(id),
+FOREIGN KEY (person) REFERENCES person(id) ON DELETE CASCADE,
 
 FOREIGN KEY (type) REFERENCES motion(id)
 

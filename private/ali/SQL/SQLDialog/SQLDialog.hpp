@@ -92,13 +92,14 @@ private:
 
     void executeQuery(const QString& query);
     void setSelectQuery(const QString& whereClause);
-    void setSelectQueryLike(const QString& name);
+    void setSelectQueryLikeName();
 
     void insertNewPerson(const QString& name, const QString& birth);
 
     const QString getName(int row) const;
     const QDate getDate(int row) const;
     int pixelWidth(const char text[]) const;
+    const QString name() const;
 
     void displayError(const QString& msg);
     void displayWarning(const QString& msg);
@@ -106,8 +107,8 @@ private:
     void closeEvent(QCloseEvent *);
 
     const QDate today;
-    QSqlQueryModel *model;
-    QTableView *view;
+    QSqlQueryModel* model;
+    QTableView* view;
     QLineEdit* nameInput;
     QDateEdit* dateInput;
     QPushButton* clearBtn;

@@ -113,6 +113,8 @@ void SQLDialog::executeQuery(const QString& query) {
 
     if (error.isValid()) {
 
+        qDebug() << "executing: " << query;
+
         displayError(error.databaseText()+'\n'+error.driverText());
     }
 }
@@ -122,7 +124,9 @@ void SQLDialog::setSelectQuery(const QString& whereClause) {
     executeQuery(QString(SELECT)+whereClause+QString(ORDER_BY));
 }
 
-void SQLDialog::setSelectQueryLike(const QString& name) {
+void SQLDialog::setSelectQueryLikeName() {
+
+    const QString name = this->name();
 
     if (name.length()==0) {
 
@@ -130,7 +134,7 @@ void SQLDialog::setSelectQueryLike(const QString& name) {
     }
     else {
 
-        setSelectQuery("WHERE name LIKE '"+name.toUpper()+"%' ");
+        setSelectQuery("WHERE name LIKE '"+name+"%' ");
     }
 }
 
@@ -144,6 +148,8 @@ void SQLDialog::connectToDatabase() {
 
         displayError("Failed to open the database of the records!");
     }
+
+    executeQuery("PRAGMA foreign_keys = ON");
 }
 
 void SQLDialog::setupModel() {
@@ -225,9 +231,9 @@ void SQLDialog::setupView() {
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 
-void SQLDialog::nameEdited(const QString& name) {
+void SQLDialog::nameEdited(const QString& ) {
 
-    setSelectQueryLike(name);
+    setSelectQueryLikeName();
 
     dateInput->setDate(today);
 }
@@ -252,7 +258,7 @@ void SQLDialog::clearClicked() {
 
 void SQLDialog::newPerson() {
 
-    const QString name = nameInput->text();
+    const QString name = this->name();
 
     if (name.length()==0) {
         displayWarning("Please enter a name!");
@@ -270,11 +276,10 @@ void SQLDialog::newPerson() {
 
     const QString dateOfBirth = birth.toString(Qt::ISODate);
 
-    setSelectQuery("WHERE name = UPPER('"+ name+"') AND birthday=DATE('"+dateOfBirth+"') ");
+    setSelectQuery("WHERE name = '"+name+"' AND birthday=DATE('"+dateOfBirth+"') ");
 
     if (model->rowCount()!=0) {
-        displayWarning("Please make sure this person is not already in the database!\n\n"
-                       "Did you forget to enter the date of birth?");
+        displayWarning("Please make sure this person is not already in the database!");
         nameInput->setFocus();
         return;
     }
@@ -285,7 +290,7 @@ void SQLDialog::newPerson() {
 
 void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
-    executeQuery("INSERT INTO person VALUES (NULL, UPPER('"+name+"'), DATE('"+birth+"'), DATETIME('now') );");
+    executeQuery("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
 
     close();
 }
@@ -325,6 +330,11 @@ int SQLDialog::pixelWidth(const char text[]) const {
     QFontMetrics fm(defaultFont);
 
     return fm.width(text);
+}
+
+const QString SQLDialog::name() const {
+
+    return nameInput->text().toUpper().trimmed();
 }
 
 void SQLDialog::displayError(const QString& msg) {

@@ -50,6 +50,10 @@
 
 namespace {
 
+const char DATABASE[] = "QSQLITE";
+
+const char DB_NAME[] = "../records.sqlite"; // FIXME Hard-coded constant
+
 const char SELECT[] = "SELECT id, name, birthday, date_added FROM person ";
 
 const char ORDER_BY[] = "ORDER BY name, birthday";
@@ -86,6 +90,21 @@ SQLDialog::SQLDialog() :
     setWindowModality(Qt::ApplicationModal);
 }
 
+void SQLDialog::closeEvent(QCloseEvent* event) {
+
+    //QSqlDatabase::removeDatabase(QSqlDatabase::database().connectionName());
+
+    QSqlDatabase::database().close();
+
+    QWidget::closeEvent(event);
+
+    //emit closed();
+}
+
+SQLDialog::~SQLDialog() {
+
+}
+
 void SQLDialog::executeQuery(const QString& query) {
 
     model->setQuery(query);
@@ -117,9 +136,9 @@ void SQLDialog::setSelectQueryLike(const QString& name) {
 
 void SQLDialog::connectToDatabase() {
 
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase db = QSqlDatabase::addDatabase(DATABASE);
 
-    db.setDatabaseName("../records.sqlite"); // FIXME Hard-coded constant
+    db.setDatabaseName(DB_NAME);
 
     if (!db.open()) {
 
@@ -200,6 +219,8 @@ void SQLDialog::setupView() {
     int pixelsWide = pixelWidth("     2000-00-00");
 
     view->setColumnWidth(BIRTH, pixelsWide);
+
+    view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }

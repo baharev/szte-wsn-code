@@ -29,11 +29,9 @@ void MainWindow::SQLDialogClosed() {
 void MainWindow::run() {
 
     SQLDialog* dial = new SQLDialog;
-/*
-    ::window* win = new ::window();
 
-    connect(win, SIGNAL(closed()), SLOT(glwidgetClosed()));
-*/
+    //connect(dial, SIGNAL(closed()), SLOT(SQLDialogClosed()));
+
     //dial->resize(1440, 850);
     //dial->showMaximized();
     dial->show();

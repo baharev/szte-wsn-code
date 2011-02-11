@@ -55,6 +55,8 @@ public:
 
     SQLDialog();
 
+    ~SQLDialog();
+
     QSize minimumSizeHint() const;
 
     QSize sizeHint() const;
@@ -100,6 +102,8 @@ private:
 
     void displayError(const QString& msg);
     void displayWarning(const QString& msg);
+
+    void closeEvent(QCloseEvent *);
 
     const QDate today;
     QSqlQueryModel *model;

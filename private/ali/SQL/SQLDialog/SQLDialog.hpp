@@ -114,13 +114,13 @@ private:
     void closeEvent(QCloseEvent *);
 
     const QDate today;
-    QSqlQueryModel* model;
-    QTableView* view;
-    QLineEdit* nameInput;
-    QDateEdit* dateInput;
-    QPushButton* clearBtn;
-    QPushButton* newBtn;
-    QPushButton* delBtn;
+    QSqlQueryModel* const model;
+    QTableView* const view;
+    QLineEdit* const nameInput;
+    QDateEdit* const dateInput;
+    QPushButton* const clearBtn;
+    QPushButton* const newBtn;
+    QPushButton* const delBtn;
 };
 
 #endif // SQLDIALOG_HPP

@@ -91,64 +91,9 @@ SQLDialog::SQLDialog() :
     setWindowModality(Qt::ApplicationModal);
 }
 
-void SQLDialog::closeEvent(QCloseEvent* event) {
-
-    //QSqlDatabase::removeDatabase(QSqlDatabase::database().connectionName());
-
-    QSqlDatabase::database().close();
-
-    QWidget::closeEvent(event);
-
-    //emit closed();
-}
-
 SQLDialog::~SQLDialog() {
 
-}
-
-void SQLDialog::setSelectQuery(const QString& whereClause) {
-
-    const QString query = QString(SELECT)+whereClause+QString(ORDER_BY);
-
-    qDebug() << "executing: " << query;
-
-    model->setQuery(query);
-
-    checkForError(model->lastError());
-
-}
-
-void SQLDialog::checkForError(const QSqlError& error) {
-
-    if (error.isValid()) {
-
-        displayError(error.databaseText()+'\n'+error.driverText());
-    }
-}
-
-void SQLDialog::setSelectQueryLikeName() {
-
-    const QString name = this->name();
-
-    if (name.length()==0) {
-
-        setSelectQuery("");
-    }
-    else {
-
-        setSelectQuery("WHERE name LIKE '"+name+"%' ");
-    }
-}
-
-void SQLDialog::executeRawSQL(const QString& rawSQL) {
-
-    qDebug() << "Raw SQL: " << rawSQL;
-
-    QSqlQuery sql(rawSQL);
-
-    checkForError(sql.lastError());
-
-    setSelectQueryLikeName();
+    // FIXME Resources are leaked -- not clear how to reclaim them
 }
 
 void SQLDialog::connectToDatabase() {
@@ -162,18 +107,17 @@ void SQLDialog::connectToDatabase() {
         displayError("Failed to open the database of the records!");
     }
 
-    executeRawSQL("PRAGMA foreign_keys = ON");
+    QSqlQuery sql("PRAGMA foreign_keys = ON");
+
+    checkForError(sql.lastError());
 }
 
-void SQLDialog::setupModel() {
+void SQLDialog::checkForError(const QSqlError& error) {
 
-    setSelectQuery("");
+    if (error.isValid()) {
 
-    model->setHeaderData(NAME, Qt::Horizontal, "Name");
-
-    model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
-
-    model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
+        displayError(error.databaseText()+'\n'+error.driverText());
+    }
 }
 
 QHBoxLayout* SQLDialog::createInputLine() {
@@ -227,6 +171,17 @@ QPushButton* SQLDialog::createButton(const char text[]) const {
     return button;
 }
 
+void SQLDialog::setupModel() {
+
+    setSelectQuery("");
+
+    model->setHeaderData(NAME, Qt::Horizontal, "Name");
+
+    model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
+
+    model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
+}
+
 void SQLDialog::setupView() {
 
     view->setModel(model);
@@ -248,6 +203,42 @@ void SQLDialog::setupView() {
     view->setSelectionMode(QAbstractItemView::SingleSelection);
 
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
+}
+
+void SQLDialog::setSelectQuery(const QString& whereClause) {
+
+    const QString query = QString(SELECT)+whereClause+QString(ORDER_BY);
+
+    qDebug() << "executing: " << query;
+
+    model->setQuery(query);
+
+    checkForError(model->lastError());
+}
+
+void SQLDialog::setSelectQueryLikeName() {
+
+    const QString name = this->name();
+
+    if (name.length()==0) {
+
+        setSelectQuery("");
+    }
+    else {
+
+        setSelectQuery("WHERE name LIKE '"+name+"%' ");
+    }
+}
+
+void SQLDialog::executeRawSQL(const QString& rawSQL) {
+
+    qDebug() << "Raw SQL: " << rawSQL;
+
+    QSqlQuery sql(rawSQL);
+
+    checkForError(sql.lastError());
+
+    setSelectQueryLikeName();
 }
 
 void SQLDialog::nameEdited(const QString& ) {
@@ -311,7 +302,6 @@ void SQLDialog::newPerson() {
 
     insertNewPerson(name, dateOfBirth);
 }
-
 
 void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
@@ -421,4 +411,15 @@ bool SQLDialog::displayQuestion(const QString& question) {
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 
     return (ret == QMessageBox::Yes)? true : false ;
+}
+
+void SQLDialog::closeEvent(QCloseEvent* event) {
+
+    //QSqlDatabase::removeDatabase(QSqlDatabase::database().connectionName());
+
+    QSqlDatabase::database().close();
+
+    QWidget::closeEvent(event);
+
+    //emit closed();
 }

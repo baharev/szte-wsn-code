@@ -37,6 +37,7 @@
 #include <QString>
 #include <QDate>
 
+class Person;
 class QDateEdit;
 class QHBoxLayout;
 class QLineEdit;
@@ -61,6 +62,10 @@ public:
     QSize minimumSizeHint() const;
 
     QSize sizeHint() const;
+
+signals:
+
+    void personSelected(const Person& person);
 
 private slots:
 
@@ -89,7 +94,7 @@ private:
     void setSelectQuery(const QString& whereClause);
     void setSelectQueryLikeName();
     void checkForError(const QSqlError& error);
-    void executeRawSQL(const QString& rawSQL);
+    qint64 executeRawSQL(const QString& rawSQL);
 
     void insertNewPerson(const QString& name, const QString& birth);
     void deletePerson(const qint64 id);
@@ -99,12 +104,11 @@ private:
     qint64 getPersonID(int row);
     int pixelWidth(const char text[]) const;
     const QString name() const;
+    qint64 toInt64(const QVariant& var);
 
     void displayError(const QString& msg);
     void displayWarning(const QString& msg);
     bool displayQuestion(const QString& question);
-
-    void closeEvent(QCloseEvent *);
 
     const QDate today;
     QSqlQueryModel* model;

@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+class SQLDialog;
+class Person;
+
 class MainWindow : public QMainWindow {
 
         Q_OBJECT
@@ -16,7 +19,11 @@ private slots:
 
         void run();
 
-        void SQLDialogClosed();
+        void onPersonSelected(const Person& person);
+
+private:
+
+        SQLDialog* const dial;
 };
 
 #endif // MAINWINDOW_HPP

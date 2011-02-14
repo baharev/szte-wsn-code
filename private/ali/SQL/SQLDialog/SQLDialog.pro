@@ -5,5 +5,6 @@ SOURCES += main.cpp \
 HEADERS += MainWindow.hpp \
     SQLDialog.hpp \
     CustomSqlQueryModel.hpp \
-    TableColumns.hpp
+    TableColumns.hpp \
+    Person.hpp
 QT += sql

@@ -42,12 +42,14 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
+#include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QTableView>
 #include "SQLDialog.hpp"
 #include "CustomSqlQueryModel.hpp"
+#include "Person.hpp"
 
 namespace {
 
@@ -239,15 +241,23 @@ void SQLDialog::setSelectQueryLikeName() {
     }
 }
 
-void SQLDialog::executeRawSQL(const QString& rawSQL) {
+qint64 SQLDialog::executeRawSQL(const QString& rawSQL) {
 
     qDebug() << "Raw SQL: " << rawSQL;
 
     QSqlQuery sql(rawSQL);
 
+    //qDebug() << sql.driver()->hasFeature(QSqlDriver::LastInsertId);
+
     checkForError(sql.lastError());
 
+    QVariant newID = sql.lastInsertId();
+
+    qint64 id = newID.isValid() ? toInt64(newID) : -1;
+
     setSelectQueryLikeName();
+
+    return id;
 }
 
 void SQLDialog::nameEdited(const QString& ) {
@@ -261,9 +271,13 @@ void SQLDialog::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
+    qint64 id = getPersonID(row);
+
     QString name = getName(row);
 
     QDate birth = getDate(row);
+
+    emit personSelected(Person(id, name, birth));
 
     close();
 }
@@ -314,7 +328,11 @@ void SQLDialog::newPerson() {
 
 void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
-    executeRawSQL("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
+    qint64 id = executeRawSQL("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
+
+    Q_ASSERT (id > 0);
+
+    emit personSelected(Person(id, name, dateInput->date()));
 
     //close();
 }
@@ -378,16 +396,23 @@ qint64 SQLDialog::getPersonID(int row) {
 
     QModelIndex idCol = model->index(row, ID);
 
+    QVariant personID = model->data(idCol);
+
+    return toInt64(personID);
+}
+
+qint64 SQLDialog::toInt64(const QVariant& var) {
+
     bool success = false;
 
-    qint64 personID = model->data(idCol).toLongLong(&success);
+    qint64 int64Value =var.toLongLong(&success);
 
     if (!success) {
 
-        displayError("Failed to convert person ID");
+        displayError("Failed to convert the ID to int64");
     }
 
-    return personID;
+    return int64Value;
 }
 
 int SQLDialog::pixelWidth(const char text[]) const {
@@ -420,15 +445,4 @@ bool SQLDialog::displayQuestion(const QString& question) {
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 
     return (ret == QMessageBox::Yes)? true : false ;
-}
-
-void SQLDialog::closeEvent(QCloseEvent* event) {
-
-    //QSqlDatabase::removeDatabase(QSqlDatabase::database().connectionName());
-
-    QSqlDatabase::database().close();
-
-    QWidget::closeEvent(event);
-
-    //emit closed();
 }

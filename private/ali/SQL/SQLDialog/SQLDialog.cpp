@@ -213,6 +213,8 @@ void SQLDialog::setupView() {
 
     view->setSelectionMode(QAbstractItemView::SingleSelection);
 
+    view->setAlternatingRowColors(true);
+
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 

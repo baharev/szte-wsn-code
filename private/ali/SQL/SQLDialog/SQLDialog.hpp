@@ -42,6 +42,7 @@ class QHBoxLayout;
 class QLineEdit;
 class QModelIndex;
 class QSqlQueryModel;
+class QSqlError;
 class QTableView;
 class QPushButton;
 
@@ -78,10 +79,10 @@ private:
     Q_DISABLE_COPY(SQLDialog);
 
     enum Columns {
+        ID,
         NAME,
         BIRTH,
-        ADDED,
-        ID
+        ADDED
     };
 
     void connectToDatabase();
@@ -92,9 +93,10 @@ private:
     QHBoxLayout* createControlButtons();
     QPushButton* createButton(const char text[]) const;
 
-    void executeQuery(const QString& query);
     void setSelectQuery(const QString& whereClause);
     void setSelectQueryLikeName();
+    void checkForError(const QSqlError& error);
+    void executeRawSQL(const QString& rawSQL);
 
     void insertNewPerson(const QString& name, const QString& birth);
     void deletePerson(const qint64 id);

@@ -54,7 +54,7 @@ const char DATABASE[] = "QSQLITE";
 
 const char DB_NAME[] = "../records.sqlite"; // FIXME Hard-coded constant
 
-const char SELECT[] = "SELECT name, birthday, date_added, id FROM person ";
+const char SELECT[] = "SELECT id, name, birthday, date_added FROM person ";
 
 const char ORDER_BY[] = "ORDER BY name, birthday";
 
@@ -106,23 +106,24 @@ SQLDialog::~SQLDialog() {
 
 }
 
-void SQLDialog::executeQuery(const QString& query) {
+void SQLDialog::setSelectQuery(const QString& whereClause) {
+
+    const QString query = QString(SELECT)+whereClause+QString(ORDER_BY);
 
     qDebug() << "executing: " << query;
 
     model->setQuery(query);
 
-    QSqlError error(model->lastError());
+    checkForError(model->lastError());
+
+}
+
+void SQLDialog::checkForError(const QSqlError& error) {
 
     if (error.isValid()) {
 
         displayError(error.databaseText()+'\n'+error.driverText());
     }
-}
-
-void SQLDialog::setSelectQuery(const QString& whereClause) {
-
-    executeQuery(QString(SELECT)+whereClause+QString(ORDER_BY));
 }
 
 void SQLDialog::setSelectQueryLikeName() {
@@ -139,6 +140,17 @@ void SQLDialog::setSelectQueryLikeName() {
     }
 }
 
+void SQLDialog::executeRawSQL(const QString& rawSQL) {
+
+    qDebug() << "Raw SQL: " << rawSQL;
+
+    QSqlQuery sql(rawSQL);
+
+    checkForError(sql.lastError());
+
+    setSelectQueryLikeName();
+}
+
 void SQLDialog::connectToDatabase() {
 
     QSqlDatabase db = QSqlDatabase::addDatabase(DATABASE);
@@ -150,7 +162,7 @@ void SQLDialog::connectToDatabase() {
         displayError("Failed to open the database of the records!");
     }
 
-    executeQuery("PRAGMA foreign_keys = ON");
+    executeRawSQL("PRAGMA foreign_keys = ON");
 }
 
 void SQLDialog::setupModel() {
@@ -221,7 +233,7 @@ void SQLDialog::setupView() {
 
     view->verticalHeader()->hide();
 
-    //view->hideColumn(ID);
+    view->hideColumn(ID);
 
     view->horizontalHeader()->setStretchLastSection(true);
 
@@ -303,9 +315,7 @@ void SQLDialog::newPerson() {
 
 void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
 
-    executeQuery("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
-
-    clearClicked();
+    executeRawSQL("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
 
     //close();
 }
@@ -332,9 +342,7 @@ void SQLDialog::deleteClicked() {
 
 void SQLDialog::deletePerson(const qint64 id) {
 
-    executeQuery("DELETE FROM person WHERE id = "+QString::number(id));
-
-    clearClicked();
+    executeRawSQL("DELETE FROM person WHERE id = "+QString::number(id));
 }
 
 QSize SQLDialog::minimumSizeHint() const {

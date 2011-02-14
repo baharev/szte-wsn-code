@@ -42,7 +42,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
-#include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
@@ -248,8 +247,6 @@ qint64 SQLDialog::executeRawSQL(const QString& rawSQL) {
     qDebug() << "Raw SQL: " << rawSQL;
 
     QSqlQuery sql(rawSQL);
-
-    //qDebug() << sql.driver()->hasFeature(QSqlDriver::LastInsertId);
 
     checkForError(sql.lastError());
 

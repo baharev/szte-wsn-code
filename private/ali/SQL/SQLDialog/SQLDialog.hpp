@@ -78,13 +78,6 @@ private:
 
     Q_DISABLE_COPY(SQLDialog);
 
-    enum Columns {
-        ID,
-        NAME,
-        BIRTH,
-        ADDED
-    };
-
     void connectToDatabase();
 
     void setupModel();
@@ -114,7 +107,7 @@ private:
     void closeEvent(QCloseEvent *);
 
     const QDate today;
-    QSqlQueryModel* const model;
+    QSqlQueryModel* model;
     QTableView* const view;
     QLineEdit* const nameInput;
     QDateEdit* const dateInput;

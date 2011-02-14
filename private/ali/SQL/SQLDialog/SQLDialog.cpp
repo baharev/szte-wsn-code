@@ -47,6 +47,7 @@
 #include <QSqlQueryModel>
 #include <QTableView>
 #include "SQLDialog.hpp"
+#include "CustomSqlQueryModel.hpp"
 
 namespace {
 
@@ -62,7 +63,7 @@ const char ORDER_BY[] = "ORDER BY name, birthday";
 
 SQLDialog::SQLDialog() :
         today(QDate::currentDate()),
-        model(new QSqlQueryModel),
+        model(0),
         view(new QTableView),
         nameInput(new QLineEdit),
         dateInput(new QDateEdit(today)),
@@ -173,13 +174,21 @@ QPushButton* SQLDialog::createButton(const char text[]) const {
 
 void SQLDialog::setupModel() {
 
-    setSelectQuery("");
+    CustomSqlQueryModel* customModel = new CustomSqlQueryModel;
+
+    customModel->setAlignment(BIRTH, Qt::AlignRight | Qt::AlignVCenter);
+
+    customModel->setAlignment(ADDED, Qt::AlignHCenter | Qt::AlignVCenter);
+
+    model = customModel;
 
     model->setHeaderData(NAME, Qt::Horizontal, "Name");
 
     model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
 
     model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
+
+    setSelectQuery("");
 }
 
 void SQLDialog::setupView() {

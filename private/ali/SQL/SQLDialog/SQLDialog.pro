@@ -1,10 +1,10 @@
 SOURCES += main.cpp \
     MainWindow.cpp \
     SQLDialog.cpp \
-    CustomSqlQueryModel.cpp
+    RecordSelector.cpp
 HEADERS += MainWindow.hpp \
     SQLDialog.hpp \
     CustomSqlQueryModel.hpp \
-    TableColumns.hpp \
-    Person.hpp
+    Person.hpp \
+    RecordSelector.hpp
 QT += sql

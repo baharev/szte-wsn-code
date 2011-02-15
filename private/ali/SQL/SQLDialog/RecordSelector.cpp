@@ -31,7 +31,6 @@
 * Author: Ali Baharev
 */
 
-#include <QDateEdit>
 #include <QDebug>
 #include <QFontMetrics>
 #include <QLabel>
@@ -46,49 +45,44 @@
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 #include <QTableView>
-#include "SQLDialog.hpp"
+#include "RecordSelector.hpp"
 #include "CustomSqlQueryModel.hpp"
 #include "Person.hpp"
 
 namespace {
 
-const char DATABASE[] = "QSQLITE";
+const char SELECT[] = "SELECT record.id, person.id, person.name, person.birthday, motion.type, record.date_added "
 
-const char DB_NAME[] = "../records.sqlite"; // FIXME Hard-coded constant
+                      "FROM record JOIN person ON (record.person=person.id) JOIN motion ON (record.type=motion.id) ";
 
-const char SELECT[] = "SELECT id, name, birthday, date_added FROM person ";
-
-const char ORDER_BY[] = "ORDER BY name, birthday";
+const char ORDER_BY[] = "ORDER BY person.name, person.birthday, record.date_added DESC";
 
 enum Columns {
-    ID,
+    REC_ID,
+    PERSON_ID,
     NAME,
     BIRTH,
+    TYPE,
     ADDED,
     NUMBER_OF_COLUMNS
 };
 
 }
 
-SQLDialog::SQLDialog() :
-        today(QDate::currentDate()),
+RecordSelector::RecordSelector() :
         model(0),
         view(new QTableView),
         nameInput(new QLineEdit),
-        dateInput(new QDateEdit(today)),
         clearBtn(createButton("Clear")),
-        newBtn(createButton("New person")),
         delBtn(createButton("Delete selected"))
 {
-    connectToDatabase();
-
     QVBoxLayout* layout = new QVBoxLayout;
 
     layout->addLayout( createInputLine() );
 
     layout->addLayout( createControlButtons() );
 
-    layout->addWidget(new QLabel("Double-click on a person to use:"));
+    layout->addWidget(new QLabel("Double-click on a record to use:"));
 
     setupModel();
 
@@ -101,28 +95,12 @@ SQLDialog::SQLDialog() :
     setWindowModality(Qt::ApplicationModal);
 }
 
-SQLDialog::~SQLDialog() {
+RecordSelector::~RecordSelector() {
 
     // FIXME Resources are leaked -- not clear how to reclaim them
 }
 
-void SQLDialog::connectToDatabase() {
-
-    QSqlDatabase db = QSqlDatabase::addDatabase(DATABASE);
-
-    db.setDatabaseName(DB_NAME);
-
-    if (!db.open()) {
-
-        displayError("Failed to open the database of the records!");
-    }
-
-    QSqlQuery sql("PRAGMA foreign_keys = ON");
-
-    checkForError(sql.lastError());
-}
-
-void SQLDialog::checkForError(const QSqlError& error) {
+void RecordSelector::checkForError(const QSqlError& error) {
 
     if (error.isValid()) {
 
@@ -130,7 +108,7 @@ void SQLDialog::checkForError(const QSqlError& error) {
     }
 }
 
-QHBoxLayout* SQLDialog::createInputLine() {
+QHBoxLayout* RecordSelector::createInputLine() {
 
     QHBoxLayout* line = new QHBoxLayout;
 
@@ -140,28 +118,16 @@ QHBoxLayout* SQLDialog::createInputLine() {
 
     line->addWidget(nameInput);
 
-    line->addWidget(new QLabel("Born (YYYY-MM-DD): "));
-
-    dateInput->setDisplayFormat("yyyy-MM-dd");
-
-    dateInput->setMaximumDate(today);
-
-    line->addWidget(dateInput);
-
     return line;
 }
 
-QHBoxLayout* SQLDialog::createControlButtons() {
+QHBoxLayout* RecordSelector::createControlButtons() {
 
     QHBoxLayout* buttons = new QHBoxLayout;
 
     connect(clearBtn, SIGNAL(clicked()), SLOT(clearClicked()));
 
-    connect(newBtn, SIGNAL(clicked()), SLOT(newPerson()));
-
     connect(delBtn, SIGNAL(clicked()), SLOT(deleteClicked()));
-
-    buttons->addWidget(newBtn);
 
     buttons->addWidget(clearBtn);
 
@@ -172,7 +138,7 @@ QHBoxLayout* SQLDialog::createControlButtons() {
     return buttons;
 }
 
-QPushButton* SQLDialog::createButton(const char text[]) const {
+QPushButton* RecordSelector::createButton(const char text[]) const {
 
     QPushButton* button = new QPushButton(text);
 
@@ -181,7 +147,7 @@ QPushButton* SQLDialog::createButton(const char text[]) const {
     return button;
 }
 
-void SQLDialog::setupModel() {
+void RecordSelector::setupModel() {
 
     CustomSqlQueryModel<Columns, NUMBER_OF_COLUMNS>* customModel = new CustomSqlQueryModel<Columns, NUMBER_OF_COLUMNS>;
 
@@ -191,22 +157,28 @@ void SQLDialog::setupModel() {
 
     model = customModel;
 
+    model->setHeaderData(REC_ID, Qt::Horizontal, "Rec ID");
+
+    model->setHeaderData(PERSON_ID, Qt::Horizontal, "Person ID");
+
     model->setHeaderData(NAME, Qt::Horizontal, "Name");
 
     model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
 
-    model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
+    model->setHeaderData(TYPE, Qt::Horizontal, "Type of motion");
+
+    model->setHeaderData(ADDED, Qt::Horizontal, "Recorded on");
 
     setSelectQuery("");
 }
 
-void SQLDialog::setupView() {
+void RecordSelector::setupView() {
 
     view->setModel(model);
 
     view->verticalHeader()->hide();
 
-    view->hideColumn(ID);
+    //view->hideColumn(REC_ID);
 
     view->horizontalHeader()->setStretchLastSection(true);
 
@@ -225,7 +197,7 @@ void SQLDialog::setupView() {
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 
-void SQLDialog::setSelectQuery(const QString& whereClause) {
+void RecordSelector::setSelectQuery(const QString& whereClause) {
 
     const QString query = QString(SELECT)+whereClause+QString(ORDER_BY);
 
@@ -236,7 +208,7 @@ void SQLDialog::setSelectQuery(const QString& whereClause) {
     checkForError(model->lastError());
 }
 
-void SQLDialog::setSelectQueryLikeName() {
+void RecordSelector::setSelectQueryLikeName() {
 
     const QString name = this->name();
 
@@ -250,11 +222,13 @@ void SQLDialog::setSelectQueryLikeName() {
     }
 }
 
-qint64 SQLDialog::executeRawSQL(const QString& rawSQL) {
+qint64 RecordSelector::executeRawSQL(const QString& rawSQL) {
 
     qDebug() << "Raw SQL: " << rawSQL;
 
     QSqlQuery sql(rawSQL);
+
+    //qDebug() << sql.driver()->hasFeature(QSqlDriver::LastInsertId);
 
     checkForError(sql.lastError());
 
@@ -267,14 +241,12 @@ qint64 SQLDialog::executeRawSQL(const QString& rawSQL) {
     return id;
 }
 
-void SQLDialog::nameEdited(const QString& ) {
+void RecordSelector::nameEdited(const QString& ) {
 
     setSelectQueryLikeName();
-
-    dateInput->setDate(today);
 }
 
-void SQLDialog::itemActivated(const QModelIndex& item) {
+void RecordSelector::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
@@ -284,67 +256,23 @@ void SQLDialog::itemActivated(const QModelIndex& item) {
 
     QDate birth = getDate(row);
 
-    emit personSelected(Person(id, name, birth));
+    //emit recordSelected(Person(id, name, birth));
 
     close();
 }
 
-void SQLDialog::clearClicked() {
+void RecordSelector::clearClicked() {
 
     nameInput->clear();
 
     nameInput->setFocus();
-
-    dateInput->setDate(today);
 
     view->clearSelection();
 
     setSelectQueryLikeName();
 }
 
-void SQLDialog::newPerson() {
-
-    const QString name = this->name();
-
-    if (name.length()==0) {
-        displayWarning("Please enter a name!");
-        nameInput->setFocus();
-        return;
-    }
-
-    const QDate birth = dateInput->date();
-
-    if (birth==today) {
-        displayWarning("Please check the date of birth!");
-        dateInput->setFocus();
-        return;
-    }
-
-    const QString dateOfBirth = birth.toString(Qt::ISODate);
-
-    setSelectQuery("WHERE name = '"+name+"' AND birthday=DATE('"+dateOfBirth+"') ");
-
-    if (model->rowCount()!=0) {
-        displayWarning("Please make sure this person is not already in the database!");
-        nameInput->setFocus();
-        return;
-    }
-
-    insertNewPerson(name, dateOfBirth);
-}
-
-void SQLDialog::insertNewPerson(const QString& name, const QString& birth) {
-
-    qint64 id = executeRawSQL("INSERT INTO person VALUES (NULL, '"+name+"', DATE('"+birth+"'), DATETIME('now') );");
-
-    Q_ASSERT (id > 0);
-
-    emit personSelected(Person(id, name, dateInput->date()));
-
-    //close();
-}
-
-void SQLDialog::deleteClicked() {
+void RecordSelector::deleteClicked() {
 
     QModelIndexList selected = view->selectionModel()->selectedIndexes();
 
@@ -355,31 +283,30 @@ void SQLDialog::deleteClicked() {
         return;
     }
 
-    if (displayQuestion("Are you sure you want to delete the selected row and "
-                        "ALL THE RECORDS belonging to it?"))
+    if (displayQuestion("Are you sure you want to delete the selected record?"))
     {
-        qint64 id = getPersonID(selected.first().row());
+        qint64 id = getRecordID(selected.first().row());
 
-        deletePerson(id);
+        deleteRecord(id);
     }
 }
 
-void SQLDialog::deletePerson(const qint64 id) {
+void RecordSelector::deleteRecord(const qint64 id) {
 
-    executeRawSQL("DELETE FROM person WHERE id = "+QString::number(id));
+    executeRawSQL("DELETE FROM record WHERE id = "+QString::number(id));
 }
 
-QSize SQLDialog::minimumSizeHint() const {
+QSize RecordSelector::minimumSizeHint() const {
 
     return QSize(300, 300);
 }
 
-QSize SQLDialog::sizeHint() const {
+QSize RecordSelector::sizeHint() const {
 
     return QSize(750, 700);
 }
 
-const QDate SQLDialog::getDate(int row) const {
+const QDate RecordSelector::getDate(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -388,7 +315,7 @@ const QDate SQLDialog::getDate(int row) const {
     return model->data(birthCol).toDate();
 }
 
-const QString SQLDialog::getName(int row) const {
+const QString RecordSelector::getName(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -397,18 +324,29 @@ const QString SQLDialog::getName(int row) const {
     return model->data(nameCol).toString();
 }
 
-qint64 SQLDialog::getPersonID(int row) {
+qint64 RecordSelector::getRecordID(int row) {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
-    QModelIndex idCol = model->index(row, ID);
+    QModelIndex idCol = model->index(row, REC_ID);
 
     QVariant personID = model->data(idCol);
 
     return toInt64(personID);
 }
 
-qint64 SQLDialog::toInt64(const QVariant& var) {
+qint64 RecordSelector::getPersonID(int row) {
+
+    Q_ASSERT( 0<=row && row < model->rowCount() );
+
+    QModelIndex idCol = model->index(row, PERSON_ID);
+
+    QVariant personID = model->data(idCol);
+
+    return toInt64(personID);
+}
+
+qint64 RecordSelector::toInt64(const QVariant& var) {
 
     bool success = false;
 
@@ -422,7 +360,7 @@ qint64 SQLDialog::toInt64(const QVariant& var) {
     return int64Value;
 }
 
-int SQLDialog::pixelWidth(const char text[]) const {
+int RecordSelector::pixelWidth(const char text[]) const {
 
     QFont defaultFont;
 
@@ -431,23 +369,23 @@ int SQLDialog::pixelWidth(const char text[]) const {
     return fm.width(text);
 }
 
-const QString SQLDialog::name() const {
+const QString RecordSelector::name() const {
 
     return nameInput->text().toUpper().trimmed();
 }
 
-void SQLDialog::displayError(const QString& msg) {
+void RecordSelector::displayError(const QString& msg) {
 
     QMessageBox::critical(this, "Fatal error", msg);
     exit(EXIT_FAILURE);
 }
 
-void SQLDialog::displayWarning(const QString& msg) {
+void RecordSelector::displayWarning(const QString& msg) {
 
     QMessageBox::warning(this, "Error", msg);
 }
 
-bool SQLDialog::displayQuestion(const QString& question) {
+bool RecordSelector::displayQuestion(const QString& question) {
 
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 

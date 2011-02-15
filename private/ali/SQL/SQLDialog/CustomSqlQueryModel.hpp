@@ -36,22 +36,33 @@
 
 #include <QFlags>
 #include <QSqlQueryModel>
-#include "TableColumns.hpp"
 
+template <typename EnumColumns, int N>
 class CustomSqlQueryModel : public QSqlQueryModel {
 
 public:
 
-    CustomSqlQueryModel();
+    CustomSqlQueryModel() {
 
-    void setAlignment(Columns col, Qt::Alignment flag);
+        for (int i=0; i<N; ++i)
+            alignment[i]  = (Qt::AlignLeft | Qt::AlignVCenter);
+    }
+
+    void setAlignment(EnumColumns col, Qt::Alignment flag) {
+
+        alignment[col] = flag;
+    }
 
 private:
 
-    QVariant data(const QModelIndex& index, int role) const;
+    QVariant data(const QModelIndex& index, int role) const {
 
-    QFlags<Qt::Alignment> alignment[NUMBER_OF_COLUMNS];
+        return (role == Qt::TextAlignmentRole) ?
+                static_cast<int>(alignment[index.column()]) :
+                QSqlQueryModel::data(index, role);
+    }
 
+    QFlags<Qt::Alignment> alignment[N];
 };
 
 #endif // CUSTOMTABLEVIEW_HPP

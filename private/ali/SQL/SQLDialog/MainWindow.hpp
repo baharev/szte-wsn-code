@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 class SQLDialog;
+class RecordSelector;
 class Person;
 
 class MainWindow : public QMainWindow {
@@ -17,13 +18,16 @@ public:
 
 private slots:
 
-        void run();
+        void selectPerson();
+
+        void selectRecord();
 
         void onPersonSelected(const Person& person);
 
 private:
 
         SQLDialog* const dial;
+        RecordSelector* const recSelect;
 };
 
 #endif // MAINWINDOW_HPP

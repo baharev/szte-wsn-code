@@ -153,6 +153,8 @@ void RecordSelector::setupModel() {
 
     customModel->setAlignment(BIRTH, Qt::AlignRight | Qt::AlignVCenter);
 
+    customModel->setAlignment(TYPE, Qt::AlignRight | Qt::AlignVCenter);
+
     customModel->setAlignment(ADDED, Qt::AlignHCenter | Qt::AlignVCenter);
 
     model = customModel;
@@ -187,9 +189,13 @@ void RecordSelector::setupView() {
 
     view->resizeColumnsToContents();
 
-    int pixelsWide = pixelWidth("     2000-00-00");
+    int birthWidth = pixelWidth("     2000-00-00");
 
-    view->setColumnWidth(BIRTH, pixelsWide);
+    view->setColumnWidth(BIRTH, birthWidth);
+
+    int typeWidth = pixelWidth("     RIGHT_ELBOW_FLEX");
+
+    view->setColumnWidth(TYPE, typeWidth);
 
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
 

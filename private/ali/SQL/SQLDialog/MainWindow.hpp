@@ -24,6 +24,8 @@ private slots:
 
         void onPersonSelected(const Person& person);
 
+        void onRecordSelected(qint64 recID, const Person& person);
+
 private:
 
         SQLDialog* const dial;

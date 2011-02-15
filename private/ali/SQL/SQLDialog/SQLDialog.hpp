@@ -107,6 +107,7 @@ private:
 
     const QString getName(int row) const;
     const QDate getDate(int row) const;
+    const Person getPerson(const int row);
     qint64 getPersonID(int row);
     int pixelWidth(const char text[]) const;
     const QString name() const;

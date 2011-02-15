@@ -279,13 +279,7 @@ void SQLDialog::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
-    qint64 id = getPersonID(row);
-
-    QString name = getName(row);
-
-    QDate birth = getDate(row);
-
-    emit personSelected(Person(id, name, birth));
+    emit personSelected(getPerson(row));
 
     close();
 }
@@ -403,6 +397,17 @@ const QString SQLDialog::getName(int row) const {
     return model->data(nameCol).toString();
 }
 
+const Person SQLDialog::getPerson(const int row) {
+
+    qint64 id = getPersonID(row);
+
+    QString name = getName(row);
+
+    QDate birth = getDate(row);
+
+    return Person(id, name, birth);
+}
+
 qint64 SQLDialog::getPersonID(int row) {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
@@ -424,6 +429,8 @@ qint64 SQLDialog::toInt64(const QVariant& var) {
 
         displayError("Failed to convert the ID to int64");
     }
+
+    Q_ASSERT(int64Value > 0);
 
     return int64Value;
 }

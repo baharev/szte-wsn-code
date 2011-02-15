@@ -101,6 +101,8 @@ private:
 
     const QString getName(int row) const;
     const QDate getDate(int row) const;
+    const Person getPerson(const int row);
+    qint64 getID(int row, int col);
     qint64 getPersonID(int row);
     qint64 getRecordID(int row);
     int pixelWidth(const char text[]) const;

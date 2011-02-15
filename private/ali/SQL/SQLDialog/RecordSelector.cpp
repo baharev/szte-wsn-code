@@ -179,7 +179,9 @@ void RecordSelector::setupView() {
 
     view->verticalHeader()->hide();
 
-    //view->hideColumn(REC_ID);
+    view->hideColumn(REC_ID);
+
+    view->hideColumn(PERSON_ID);
 
     view->horizontalHeader()->setStretchLastSection(true);
 
@@ -229,8 +231,6 @@ qint64 RecordSelector::executeRawSQL(const QString& rawSQL) {
 
     QSqlQuery sql(rawSQL);
 
-    //qDebug() << sql.driver()->hasFeature(QSqlDriver::LastInsertId);
-
     checkForError(sql.lastError());
 
     QVariant newID = sql.lastInsertId();
@@ -251,13 +251,7 @@ void RecordSelector::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
-    qint64 id = getPersonID(row);
-
-    QString name = getName(row);
-
-    QDate birth = getDate(row);
-
-    //emit recordSelected(Person(id, name, birth));
+    emit recordSelected(getRecordID(row), getPerson(row));
 
     close();
 }
@@ -330,26 +324,37 @@ const QString RecordSelector::getName(int row) const {
     return model->data(nameCol).toString();
 }
 
-qint64 RecordSelector::getRecordID(int row) {
+const Person RecordSelector::getPerson(const int row) {
+
+    qint64 id = getPersonID(row);
+
+    QString name = getName(row);
+
+    QDate birth = getDate(row);
+
+    return Person(id, name, birth);
+}
+
+qint64 RecordSelector::getID(int row, int col) {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
+    Q_ASSERT( 0<=col && col < model->columnCount());
 
-    QModelIndex idCol = model->index(row, REC_ID);
+    QModelIndex idCell = model->index(row, col);
 
-    QVariant personID = model->data(idCol);
+    QVariant id = model->data(idCell);
 
-    return toInt64(personID);
+    return toInt64(id);
+}
+
+qint64 RecordSelector::getRecordID(int row) {
+
+    return getID(row, static_cast<int>(REC_ID));
 }
 
 qint64 RecordSelector::getPersonID(int row) {
 
-    Q_ASSERT( 0<=row && row < model->rowCount() );
-
-    QModelIndex idCol = model->index(row, PERSON_ID);
-
-    QVariant personID = model->data(idCol);
-
-    return toInt64(personID);
+    return getID(row, static_cast<int>(PERSON_ID));
 }
 
 qint64 RecordSelector::toInt64(const QVariant& var) {
@@ -362,6 +367,8 @@ qint64 RecordSelector::toInt64(const QVariant& var) {
 
         displayError("Failed to convert the ID to int64");
     }
+
+    Q_ASSERT(int64Value > 0);
 
     return int64Value;
 }

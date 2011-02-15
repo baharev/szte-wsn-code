@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(centralWidget);
 
     connect(dial, SIGNAL(personSelected(Person)), SLOT(onPersonSelected(Person)));
+
+    connect(recSelect, SIGNAL(recordSelected(qint64,Person)), SLOT(onRecordSelected(qint64,Person)));
 }
 
 MainWindow::~MainWindow() {
@@ -44,7 +46,12 @@ MainWindow::~MainWindow() {
 
 void MainWindow::onPersonSelected(const Person& person) {
 
-    qDebug() << "MainWindow received: " << person.id() << ", " << person.name() << ", " << person.birth().toString(Qt::ISODate);
+    qDebug() << "Person selected: " << person.id() << ", " << person.name() << ", " << person.birth().toString(Qt::ISODate);
+}
+
+void MainWindow::onRecordSelected(qint64 recID, const Person& person) {
+
+    qDebug() << "Record selected: " << recID << "; (" << person.id() << ", " << person.name() << ", " << person.birth().toString(Qt::ISODate) << ")";
 }
 
 void MainWindow::selectPerson() {

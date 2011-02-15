@@ -36,7 +36,7 @@ SELECT * FROM person WHERE name LIKE 'kOvá%' ORDER BY name, birthday;
 
 CREATE TABLE record (
 
-id INTEGER PRIMARY KEY,
+id INTEGER PRIMARY KEY AUTOINCREMENT,
 
 person INTEGER,
 

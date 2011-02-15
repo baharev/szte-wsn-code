@@ -1,5 +1,6 @@
 
 #include <QDebug>
+#include <QFile>
 #include <QLayout>
 #include <QPushButton>
 #include "MainWindow.hpp"
@@ -60,6 +61,10 @@ void MainWindow::onPersonSelected(const Person& p) {
 void MainWindow::onRecordSelected(qint64 recID, const Person& p) {
 
     qDebug() << "Record selected: " << recID << "; (" << p.id() << ", " << p.name() << ", " << p.birth().toString(Qt::ISODate) << ")";
+
+    QFile record("../rec/"+QString::number(recordID)+".csv");
+
+    qDebug() << "File exists: " << record.exists();
 
     recordID = recID;
     person = p;

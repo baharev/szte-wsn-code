@@ -36,6 +36,7 @@
 
 #include <QString>
 #include <QDate>
+#include "MotionTypes.hpp"
 
 class Person;
 class QHBoxLayout;
@@ -48,15 +49,17 @@ class QPushButton;
 
 #include <QWidget>
 
-class RecordSelector : public QWidget {
+class RecordHandler : public QWidget {
 
     Q_OBJECT
 
 public:
 
-    RecordSelector();
+    RecordHandler();
 
-    ~RecordSelector();
+    qint64 insertRecord(qint64 personID, MotionType type);
+
+    ~RecordHandler();
 
     QSize minimumSizeHint() const;
 
@@ -82,7 +85,7 @@ private slots:
 
 private:
 
-    Q_DISABLE_COPY(RecordSelector);
+    Q_DISABLE_COPY(RecordHandler);
 
     void setupModel();
     QHBoxLayout* createInputLine();

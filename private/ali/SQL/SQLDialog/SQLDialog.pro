@@ -6,5 +6,6 @@ HEADERS += MainWindow.hpp \
     SQLDialog.hpp \
     CustomSqlQueryModel.hpp \
     Person.hpp \
-    RecordSelector.hpp
+    RecordSelector.hpp \
+    MotionTypes.hpp
 QT += sql

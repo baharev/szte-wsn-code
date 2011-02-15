@@ -5,29 +5,35 @@
 #include "MainWindow.hpp"
 #include "SQLDialog.hpp"
 #include "RecordSelector.hpp"
-#include "Person.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
-        QMainWindow(parent), dial(new SQLDialog), recSelect(new RecordSelector) {
+        QMainWindow(parent),
+        dial(new SQLDialog),
+        recSelect(new RecordHandler),
+        type(RIGHT_ELBOW_FLEX),
+        recordID(-1)
+{
 
 
     QHBoxLayout* box = new QHBoxLayout;
 
-    QPushButton* selectBtn = new QPushButton;
-
-    selectBtn->setText("Select Person");
+    QPushButton* selectBtn = new QPushButton("Select Person");
 
     connect(selectBtn, SIGNAL(clicked()), SLOT(selectPerson()));
 
     box->addWidget(selectBtn);
 
-    QPushButton* record = new QPushButton;
-
-    record->setText("Record");
+    QPushButton* record = new QPushButton("Record");
 
     connect(record, SIGNAL(clicked()), SLOT(selectRecord()));
 
     box->addWidget(record);
+
+    QPushButton* addRec = new QPushButton("Add record");
+
+    connect(addRec, SIGNAL(clicked()), SLOT(addRecord()));
+
+    box->addWidget(addRec);
 
     QWidget* centralWidget = new QWidget;
 
@@ -44,14 +50,21 @@ MainWindow::~MainWindow() {
 
 }
 
-void MainWindow::onPersonSelected(const Person& person) {
+void MainWindow::onPersonSelected(const Person& p) {
 
-    qDebug() << "Person selected: " << person.id() << ", " << person.name() << ", " << person.birth().toString(Qt::ISODate);
+    qDebug() << "Person selected: " << p.id() << ", " << p.name() << ", " << p.birth().toString(Qt::ISODate);
+
+    person = p;
 }
 
-void MainWindow::onRecordSelected(qint64 recID, const Person& person) {
+void MainWindow::onRecordSelected(qint64 recID, const Person& p) {
 
-    qDebug() << "Record selected: " << recID << "; (" << person.id() << ", " << person.name() << ", " << person.birth().toString(Qt::ISODate) << ")";
+    qDebug() << "Record selected: " << recID << "; (" << p.id() << ", " << p.name() << ", " << p.birth().toString(Qt::ISODate) << ")";
+
+    recordID = recID;
+    person = p;
+
+    Q_ASSERT(recordID > 0);
 }
 
 void MainWindow::selectPerson() {
@@ -68,4 +81,13 @@ void MainWindow::selectRecord() {
     //recSelect->showMaximized();
     recSelect->show();
     recSelect->activateWindow();
+}
+
+void MainWindow::addRecord() {
+
+    type = (type == RIGHT_ELBOW_FLEX)? LEFT_ELBOW_FLEX:RIGHT_ELBOW_FLEX;
+
+    recordID = recSelect->insertRecord(person.id(), type);
+
+    qDebug() << "New record inserted with id: " << recordID;
 }

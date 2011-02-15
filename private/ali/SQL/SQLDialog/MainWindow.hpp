@@ -2,9 +2,11 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include "Person.hpp"
+#include "MotionTypes.hpp"
 
 class SQLDialog;
-class RecordSelector;
+class RecordHandler;
 class Person;
 
 class MainWindow : public QMainWindow {
@@ -22,6 +24,8 @@ private slots:
 
         void selectRecord();
 
+        void addRecord();
+
         void onPersonSelected(const Person& person);
 
         void onRecordSelected(qint64 recID, const Person& person);
@@ -29,7 +33,13 @@ private slots:
 private:
 
         SQLDialog* const dial;
-        RecordSelector* const recSelect;
+        RecordHandler* const recSelect;
+
+        MotionType type;
+
+        qint64 recordID;
+
+        Person person;
 };
 
 #endif // MAINWINDOW_HPP

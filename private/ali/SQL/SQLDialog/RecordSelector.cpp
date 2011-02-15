@@ -69,7 +69,7 @@ enum Columns {
 
 }
 
-RecordSelector::RecordSelector() :
+RecordHandler::RecordHandler() :
         model(0),
         view(new QTableView),
         nameInput(new QLineEdit),
@@ -95,12 +95,12 @@ RecordSelector::RecordSelector() :
     setWindowModality(Qt::ApplicationModal);
 }
 
-RecordSelector::~RecordSelector() {
+RecordHandler::~RecordHandler() {
 
     // FIXME Resources are leaked -- not clear how to reclaim them
 }
 
-void RecordSelector::checkForError(const QSqlError& error) {
+void RecordHandler::checkForError(const QSqlError& error) {
 
     if (error.isValid()) {
 
@@ -108,7 +108,7 @@ void RecordSelector::checkForError(const QSqlError& error) {
     }
 }
 
-QHBoxLayout* RecordSelector::createInputLine() {
+QHBoxLayout* RecordHandler::createInputLine() {
 
     QHBoxLayout* line = new QHBoxLayout;
 
@@ -121,7 +121,7 @@ QHBoxLayout* RecordSelector::createInputLine() {
     return line;
 }
 
-QHBoxLayout* RecordSelector::createControlButtons() {
+QHBoxLayout* RecordHandler::createControlButtons() {
 
     QHBoxLayout* buttons = new QHBoxLayout;
 
@@ -138,7 +138,7 @@ QHBoxLayout* RecordSelector::createControlButtons() {
     return buttons;
 }
 
-QPushButton* RecordSelector::createButton(const char text[]) const {
+QPushButton* RecordHandler::createButton(const char text[]) const {
 
     QPushButton* button = new QPushButton(text);
 
@@ -147,7 +147,7 @@ QPushButton* RecordSelector::createButton(const char text[]) const {
     return button;
 }
 
-void RecordSelector::setupModel() {
+void RecordHandler::setupModel() {
 
     CustomSqlQueryModel<Columns, NUMBER_OF_COLUMNS>* customModel = new CustomSqlQueryModel<Columns, NUMBER_OF_COLUMNS>;
 
@@ -175,7 +175,7 @@ void RecordSelector::setupModel() {
 
 }
 
-void RecordSelector::setupView() {
+void RecordHandler::setupView() {
 
     view->setModel(model);
 
@@ -206,7 +206,7 @@ void RecordSelector::setupView() {
     connect(view, SIGNAL(activated(QModelIndex)), SLOT(itemActivated(QModelIndex)) );
 }
 
-void RecordSelector::setSelectQuery(const QString& whereClause) {
+void RecordHandler::setSelectQuery(const QString& whereClause) {
 
     const QString query = QString(SELECT)+whereClause+QString(ORDER_BY);
 
@@ -217,7 +217,7 @@ void RecordSelector::setSelectQuery(const QString& whereClause) {
     checkForError(model->lastError());
 }
 
-void RecordSelector::setSelectQueryLikeName() {
+void RecordHandler::setSelectQueryLikeName() {
 
     const QString name = this->name();
 
@@ -231,7 +231,7 @@ void RecordSelector::setSelectQueryLikeName() {
     }
 }
 
-qint64 RecordSelector::executeRawSQL(const QString& rawSQL) {
+qint64 RecordHandler::executeRawSQL(const QString& rawSQL) {
 
     qDebug() << "Raw SQL: " << rawSQL;
 
@@ -248,12 +248,23 @@ qint64 RecordSelector::executeRawSQL(const QString& rawSQL) {
     return id;
 }
 
-void RecordSelector::nameEdited(const QString& ) {
+qint64 RecordHandler::insertRecord(qint64 personID, MotionType type) {
+
+    QString stmt = "INSERT INTO record VALUES (NULL, "+QString::number(personID)+", "+QString::number(type)+", DATETIME('now'));";
+
+    qint64 recID = executeRawSQL(stmt);
+
+    Q_ASSERT(recID > 0);
+
+    return recID;
+}
+
+void RecordHandler::nameEdited(const QString& ) {
 
     setSelectQueryLikeName();
 }
 
-void RecordSelector::itemActivated(const QModelIndex& item) {
+void RecordHandler::itemActivated(const QModelIndex& item) {
 
     const int row = item.row();
 
@@ -262,14 +273,14 @@ void RecordSelector::itemActivated(const QModelIndex& item) {
     close();
 }
 
-void RecordSelector::clearClicked() {
+void RecordHandler::clearClicked() {
 
     clearInput();
 
     setSelectQueryLikeName();
 }
 
-void RecordSelector::clearInput() {
+void RecordHandler::clearInput() {
 
     nameInput->clear();
 
@@ -278,7 +289,7 @@ void RecordSelector::clearInput() {
     view->clearSelection();
 }
 
-void RecordSelector::deleteClicked() {
+void RecordHandler::deleteClicked() {
 
     QModelIndexList selected = view->selectionModel()->selectedIndexes();
 
@@ -297,22 +308,22 @@ void RecordSelector::deleteClicked() {
     }
 }
 
-void RecordSelector::deleteRecord(const qint64 id) {
+void RecordHandler::deleteRecord(const qint64 id) {
 
     executeRawSQL("DELETE FROM record WHERE id = "+QString::number(id));
 }
 
-QSize RecordSelector::minimumSizeHint() const {
+QSize RecordHandler::minimumSizeHint() const {
 
     return QSize(300, 300);
 }
 
-QSize RecordSelector::sizeHint() const {
+QSize RecordHandler::sizeHint() const {
 
     return QSize(750, 700);
 }
 
-const QDate RecordSelector::getDate(int row) const {
+const QDate RecordHandler::getDate(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -321,7 +332,7 @@ const QDate RecordSelector::getDate(int row) const {
     return model->data(birthCol).toDate();
 }
 
-const QString RecordSelector::getName(int row) const {
+const QString RecordHandler::getName(int row) const {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
 
@@ -330,7 +341,7 @@ const QString RecordSelector::getName(int row) const {
     return model->data(nameCol).toString();
 }
 
-const Person RecordSelector::getPerson(const int row) {
+const Person RecordHandler::getPerson(const int row) {
 
     qint64 id = getPersonID(row);
 
@@ -341,7 +352,7 @@ const Person RecordSelector::getPerson(const int row) {
     return Person(id, name, birth);
 }
 
-qint64 RecordSelector::getID(int row, int col) {
+qint64 RecordHandler::getID(int row, int col) {
 
     Q_ASSERT( 0<=row && row < model->rowCount() );
     Q_ASSERT( 0<=col && col < model->columnCount());
@@ -353,17 +364,17 @@ qint64 RecordSelector::getID(int row, int col) {
     return toInt64(id);
 }
 
-qint64 RecordSelector::getRecordID(int row) {
+qint64 RecordHandler::getRecordID(int row) {
 
     return getID(row, static_cast<int>(REC_ID));
 }
 
-qint64 RecordSelector::getPersonID(int row) {
+qint64 RecordHandler::getPersonID(int row) {
 
     return getID(row, static_cast<int>(PERSON_ID));
 }
 
-qint64 RecordSelector::toInt64(const QVariant& var) {
+qint64 RecordHandler::toInt64(const QVariant& var) {
 
     bool success = false;
 
@@ -379,7 +390,7 @@ qint64 RecordSelector::toInt64(const QVariant& var) {
     return int64Value;
 }
 
-int RecordSelector::pixelWidth(const char text[]) const {
+int RecordHandler::pixelWidth(const char text[]) const {
 
     QFont defaultFont;
 
@@ -388,37 +399,37 @@ int RecordSelector::pixelWidth(const char text[]) const {
     return fm.width(text);
 }
 
-const QString RecordSelector::name() const {
+const QString RecordHandler::name() const {
 
     return nameInput->text().toUpper().trimmed();
 }
 
-void RecordSelector::displayError(const QString& msg) {
+void RecordHandler::displayError(const QString& msg) {
 
     QMessageBox::critical(this, "Fatal error", msg);
     exit(EXIT_FAILURE);
 }
 
-void RecordSelector::displayWarning(const QString& msg) {
+void RecordHandler::displayWarning(const QString& msg) {
 
     QMessageBox::warning(this, "Error", msg);
 }
 
-bool RecordSelector::displayQuestion(const QString& question) {
+bool RecordHandler::displayQuestion(const QString& question) {
 
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 
     return (ret == QMessageBox::Yes)? true : false ;
 }
 
-void RecordSelector::showEvent(QShowEvent* event) {
+void RecordHandler::showEvent(QShowEvent* event) {
 
     setSelectQueryLikeName();
 
     QWidget::showEvent(event);
 }
 
-void RecordSelector::closeEvent(QCloseEvent* event) {
+void RecordHandler::closeEvent(QCloseEvent* event) {
 
     clearInput();
 

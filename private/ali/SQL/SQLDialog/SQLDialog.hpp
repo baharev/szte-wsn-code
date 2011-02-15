@@ -79,6 +79,10 @@ private slots:
 
     void deleteClicked();
 
+    void showEvent(QShowEvent* event);
+
+    void closeEvent(QCloseEvent* event);
+
 private:
 
     Q_DISABLE_COPY(SQLDialog);
@@ -90,6 +94,8 @@ private:
     void setupView();
     QHBoxLayout* createControlButtons();
     QPushButton* createButton(const char text[]) const;
+
+    void clearInput();
 
     void setSelectQuery(const QString& whereClause);
     void setSelectQueryLikeName();

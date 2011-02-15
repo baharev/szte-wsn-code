@@ -191,13 +191,14 @@ void SQLDialog::setupModel() {
 
     model = customModel;
 
+    setSelectQuery("");
+
     model->setHeaderData(NAME, Qt::Horizontal, "Name");
 
     model->setHeaderData(BIRTH, Qt::Horizontal, "Date of birth");
 
     model->setHeaderData(ADDED, Qt::Horizontal, "Added on");
 
-    setSelectQuery("");
 }
 
 void SQLDialog::setupView() {
@@ -291,6 +292,13 @@ void SQLDialog::itemActivated(const QModelIndex& item) {
 
 void SQLDialog::clearClicked() {
 
+    clearInput();
+
+    setSelectQueryLikeName();
+}
+
+void SQLDialog::clearInput() {
+
     nameInput->clear();
 
     nameInput->setFocus();
@@ -298,8 +306,6 @@ void SQLDialog::clearClicked() {
     dateInput->setDate(today);
 
     view->clearSelection();
-
-    setSelectQueryLikeName();
 }
 
 void SQLDialog::newPerson() {
@@ -452,4 +458,18 @@ bool SQLDialog::displayQuestion(const QString& question) {
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 
     return (ret == QMessageBox::Yes)? true : false ;
+}
+
+void SQLDialog::showEvent(QShowEvent* event) {
+
+    setSelectQueryLikeName();
+
+    QWidget::showEvent(event);
+}
+
+void SQLDialog::closeEvent(QCloseEvent* event) {
+
+    clearInput();
+
+    QWidget::closeEvent(event);
 }

@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     selectBtn->setText("Select Person");
 
-    //selectBtn->setFixedSize(80, 30);
-
     connect(selectBtn, SIGNAL(clicked()), SLOT(selectPerson()));
 
     box->addWidget(selectBtn);
@@ -26,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QPushButton* record = new QPushButton;
 
     record->setText("Record");
-
-    //record->setFixedSize(80, 30);
 
     connect(record, SIGNAL(clicked()), SLOT(selectRecord()));
 
@@ -61,8 +57,8 @@ void MainWindow::selectPerson() {
 
 void MainWindow::selectRecord() {
 
-    //dial->resize(1440, 850);
-    //dial->showMaximized();
+    recSelect->resize(950, 850);
+    //recSelect->showMaximized();
     recSelect->show();
     recSelect->activateWindow();
 }

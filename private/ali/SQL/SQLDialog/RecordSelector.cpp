@@ -157,7 +157,9 @@ void RecordSelector::setupModel() {
 
     model = customModel;
 
-    model->setHeaderData(REC_ID, Qt::Horizontal, "Rec ID");
+    setSelectQuery("");
+
+    model->setHeaderData(REC_ID, Qt::Horizontal, "Rec ID", Qt::DisplayRole);
 
     model->setHeaderData(PERSON_ID, Qt::Horizontal, "Person ID");
 
@@ -169,7 +171,6 @@ void RecordSelector::setupModel() {
 
     model->setHeaderData(ADDED, Qt::Horizontal, "Recorded on");
 
-    setSelectQuery("");
 }
 
 void RecordSelector::setupView() {
@@ -263,13 +264,18 @@ void RecordSelector::itemActivated(const QModelIndex& item) {
 
 void RecordSelector::clearClicked() {
 
+    clearInput();
+
+    setSelectQueryLikeName();
+}
+
+void RecordSelector::clearInput() {
+
     nameInput->clear();
 
     nameInput->setFocus();
 
     view->clearSelection();
-
-    setSelectQueryLikeName();
 }
 
 void RecordSelector::deleteClicked() {
@@ -390,4 +396,18 @@ bool RecordSelector::displayQuestion(const QString& question) {
     int ret = QMessageBox::question(this, "Warning", question, QMessageBox::Yes, QMessageBox::Cancel);
 
     return (ret == QMessageBox::Yes)? true : false ;
+}
+
+void RecordSelector::showEvent(QShowEvent* event) {
+
+    setSelectQueryLikeName();
+
+    QWidget::showEvent(event);
+}
+
+void RecordSelector::closeEvent(QCloseEvent* event) {
+
+    clearInput();
+
+    QWidget::closeEvent(event);
 }

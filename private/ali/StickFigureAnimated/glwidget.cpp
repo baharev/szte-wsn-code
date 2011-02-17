@@ -31,6 +31,7 @@
 * Author: Ali Baharev
 */
 
+#include <iostream>
 #include <stdexcept>
 #include <QtGui>
 #include <QtOpenGL>
@@ -38,33 +39,62 @@
 #include "glwidget.hpp"
 #include "datareader.hpp"
 
+using std::cout;
+using std::endl;
+
 namespace {
 
-    enum {
-            R11, R12, R13,
-            R21, R22, R23,
-            R31, R32, R33
-    };
+enum {
+        R11, R12, R13,
+        R21, R22, R23,
+        R31, R32, R33
+};
 
-    enum {
-            M11 = 0, M12 = 4, M13 =  8, M14 = 12,
-            M21 = 1, M22 = 5, M23 =  9, M24 = 13,
-            M31 = 2, M32 = 6, M33 = 10, M34 = 14,
-            M41 = 3, M42 = 7, M43 = 11, M44 = 15
-    };
+enum {
+        M11 = 0, M12 = 4, M13 =  8, M14 = 12,
+        M21 = 1, M22 = 5, M23 =  9, M24 = 13,
+        M31 = 2, M32 = 6, M33 = 10, M34 = 14,
+        M41 = 3, M42 = 7, M43 = 11, M44 = 15
+};
 
-    enum {
-        SOLID_DISK,
-        SILHOUETTE,
-        LIST_LENGTH
-    };
+enum {
+    SOLID_DISK,
+    SILHOUETTE,
+    LIST_LENGTH
+};
 
-    const int LINE_WIDTH = 3;
+const int LINE_WIDTH = 3;
+
+void printVersions() {
+
+    cout << "Compiled against Qt version:   " << QT_VERSION_STR << endl;
+    cout << "Qt version number at run-time: " << qVersion() << endl;
+
+    const GLubyte* str = glGetString(GL_VENDOR);
+    cout << "GL Vendor: " << str << endl;
+
+    str = glGetString(GL_RENDERER);
+    cout << "GL Renderer: " << str << endl;
+
+    str = glGetString(GL_VERSION);
+    cout << "GL Version: " << str << endl;
+
+    //str = glGetString(GL_EXTENSIONS);
+    //cout << "GL Extensions: " << str << endl;
+
+    str = gluGetString(GLU_VERSION);
+    cout << "GLU Version: " << str << endl;
+
+    //str = gluGetString(GLU_EXTENSIONS);
+    //cout << "GLU Extensions: " << str << endl;
+}
+
 }
 
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
     : QGLWidget(parent, shareWidget)
 {
+
     for (int i=0;i<16; ++i)
         rotmat[i] = (GLfloat) 0.0;
 
@@ -166,6 +196,8 @@ void GLWidget::headSolid(GLUquadricObj* qobj) {
 }
 
 void GLWidget::initializeGL() {
+
+    printVersions();
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
 

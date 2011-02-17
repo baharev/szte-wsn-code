@@ -123,14 +123,18 @@ void GLWidget::rotate() {
     updateGL();
 }
 
-// TODO Can we pass a member function to GLU?
-void errorCallback() {
+void APIENTRY printError() {
 
-    const GLubyte* estring = gluErrorString(glGetError());
+    GLenum code = glGetError();
 
-    printf("OpenGL Error: %s\n", estring);
+    if (code != GL_NO_ERROR) {
 
-    exit(0);
+        const GLubyte* estring = gluErrorString(code);
+
+        printf("OpenGL Error: %s\n", estring);
+
+        exit(0);
+    }
 }
 
 void GLWidget::headSilhouette(GLUquadricObj* qobj) {
@@ -169,7 +173,7 @@ void GLWidget::initializeGL() {
 
     GLUquadricObj* qobj = gluNewQuadric();
 
-    gluQuadricCallback(qobj, GLU_ERROR, errorCallback);
+    gluQuadricCallback(qobj, GLU_ERROR, printError);
 
     headSilhouette(qobj);
 
@@ -476,6 +480,8 @@ void GLWidget::paintGL() {
     planView();
 
     frontView();
+
+    printError();
 }
 
 void GLWidget::resizeGL(int width, int height) {

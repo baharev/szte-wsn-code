@@ -167,6 +167,13 @@ void APIENTRY printError() {
     }
 }
 
+void checkError(int line) {
+
+    cout << line << endl;
+
+    printError();
+}
+
 void GLWidget::headSilhouette(GLUquadricObj* qobj) {
 
     gluQuadricDrawStyle(qobj, GLU_SILHOUETTE);
@@ -199,19 +206,35 @@ void GLWidget::initializeGL() {
 
     printVersions();
 
+    checkError(__LINE__);
+
     glClearColor(0.0, 0.0, 0.0, 0.0);
+
+    checkError(__LINE__);
 
     list = glGenLists(LIST_LENGTH);
 
+    checkError(__LINE__);
+
     GLUquadricObj* qobj = gluNewQuadric();
+
+    checkError(__LINE__);
 
     gluQuadricCallback(qobj, GLU_ERROR, printError);
 
+    checkError(__LINE__);
+
     headSilhouette(qobj);
+
+    checkError(__LINE__);
 
     headSolid(qobj);
 
+    checkError(__LINE__);
+
     gluDeleteQuadric(qobj);
+
+    checkError(__LINE__);
 }
 
 void GLWidget::reset() {
@@ -499,24 +522,40 @@ void GLWidget::frontView() {
 
 void GLWidget::paintGL() {
 
+    checkError(__LINE__);
+
     reset();
+
+    checkError(__LINE__);
 
     setCameraPosition();
 
+    checkError(__LINE__);
+
     setState();
+
+    checkError(__LINE__);
 
     sideView();
 
+    checkError(__LINE__);
+
     writeData();
+
+    checkError(__LINE__);
 
     planView();
 
+    checkError(__LINE__);
+
     frontView();
 
-    printError();
+    checkError(__LINE__);
 }
 
 void GLWidget::resizeGL(int width, int height) {
+
+    checkError(__LINE__);
 
     const double left  = -2.5;
     const double right =  7.5;
@@ -530,13 +569,23 @@ void GLWidget::resizeGL(int width, int height) {
 
     glViewport((width-w*unit)/2, (height-h*unit)/2, w*unit, h*unit);
 
+    checkError(__LINE__);
+
     glMatrixMode(GL_PROJECTION);
+
+    checkError(__LINE__);
 
     glLoadIdentity();
 
+    checkError(__LINE__);
+
     glOrtho(left, right, bottom, up, 2.0, 8.0);
 
+    checkError(__LINE__);
+
     glMatrixMode(GL_MODELVIEW);
+
+    checkError(__LINE__);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent * /* event */)

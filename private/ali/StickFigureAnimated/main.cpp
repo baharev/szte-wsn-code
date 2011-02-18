@@ -31,15 +31,27 @@
 * Author: Ali Baharev
 */
 
+#include <iostream>
 #include <QApplication>
+#include <QtOpenGL>
 #include "MainWindow.hpp"
+
+using namespace std;
 
 int main(int argc, char *argv[])
 {
+    cout << __FILE__ << ":" << __LINE__ << endl;
+
+    QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
+
     QApplication app(argc, argv);
+    qApp->addLibraryPath(".");
+    cout << __FILE__ << ":" << __LINE__ << endl;
     MainWindow mwin;
+    cout << __FILE__ << ":" << __LINE__ << endl;
     mwin.show();
     mwin.raise();
     mwin.activateWindow();
+    cout << __FILE__ << ":" << __LINE__ << endl;
     return app.exec();
 }

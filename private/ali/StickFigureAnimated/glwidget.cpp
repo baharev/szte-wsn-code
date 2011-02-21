@@ -94,6 +94,7 @@ void printVersions() {
 GLWidget::GLWidget(QWidget *parent, QGLWidget *shareWidget)
     : QGLWidget(parent, shareWidget)
 {
+    setAutoFillBackground(false);
 
     for (int i=0;i<16; ++i)
         rotmat[i] = (GLfloat) 0.0;
@@ -420,9 +421,21 @@ void GLWidget::writeData() {
 
     glPushMatrix();
 
+    setAutoBufferSwap(false);
+
+    QPainter p(this);
+
+    p.setPen(QPen(Qt::white));
+
+    p.drawText(QPointF(20, 20), data->flex(position).c_str());
+
+    p.end();
+
+    setAutoBufferSwap(true);
+
     //(x, y, z): " << rotmat[M11] << ", " << rotmat[M21] << ", " << rotmat[M31];
     // Flex: -90...270; Sup: -180...180; Dev: -90...90
-
+/*
     renderText(-1.0, 3.65, 0.0, data->flex(position).c_str());
 
     renderText( 2.0, 3.65, 0.0, data->time(position).c_str());
@@ -442,7 +455,7 @@ void GLWidget::writeData() {
     renderText(3.0, -4.5, 0.0, data->med_info());
 
     renderText(3.0, -5.0, 0.0, data->lat_info());
-
+*/
     glPopMatrix();
 }
 

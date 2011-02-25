@@ -19,13 +19,13 @@ date_added DATE NOT NULL,
 
 UNIQUE (name, birthday),
 
-CHECK (birthday < DATE('now'))
+CHECK (birthday < DATE('now', 'localtime'))
 
 );
 
 ================================================================================
 
-INSERT INTO person VALUES (NULL, UPPER('Jóska Pisti'), DATE('1977-12-31'), DATETIME('now') );
+INSERT INTO person VALUES (NULL, UPPER('Jóska Pisti'), DATE('1977-12-31'), DATETIME('now', 'localtime') );
 
 SELECT * FROM person ORDER BY name, birthday;
 
@@ -50,7 +50,7 @@ FOREIGN KEY (type) REFERENCES motion(id)
 
 );
 
-INSERT INTO record VALUES (NULL, 9, 1, DATETIME('now'));
+INSERT INTO record VALUES (NULL, 9, 1, DATETIME('now', 'localtime'));
 
 ================================================================================
 

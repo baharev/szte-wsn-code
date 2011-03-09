@@ -1,4 +1,10 @@
 
+sqlite3 records.sqlite <create_db.sql 
+
+sqlite3 -separator ";" records.sqlite <export.sql
+
+================================================================================
+
 PRAGMA foreign_keys = ON;
 
 PRAGMA foreign_keys;

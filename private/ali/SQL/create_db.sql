@@ -1,0 +1,54 @@
+
+PRAGMA foreign_keys = ON;
+
+BEGIN TRANSACTION;
+
+CREATE TABLE person (
+
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+name TEXT NOT NULL,
+
+birthday DATE NOT NULL,
+
+date_added DATE NOT NULL,
+
+UNIQUE (name, birthday),
+
+CHECK (birthday < DATE('now', 'localtime'))
+
+);
+
+CREATE TABLE record (
+
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+person INTEGER,
+
+type INTEGER,
+
+date_added DATE NOT NULL,
+
+angles TEXT,
+
+FOREIGN KEY (person) REFERENCES person(id) ON DELETE CASCADE,
+
+FOREIGN KEY (type) REFERENCES motion(id)
+
+);
+
+CREATE TABLE motion (
+
+id INTEGER PRIMARY KEY,
+
+type TEXT NOT NULL,
+
+UNIQUE (type)
+
+);
+
+INSERT INTO motion VALUES (1, UPPER('RIGHT_ELBOW_FLEX'));
+
+INSERT INTO motion VALUES (2, UPPER('LEFT_ELBOW_FLEX'));
+
+COMMIT;

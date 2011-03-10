@@ -1,6 +1,14 @@
 
-SELECT person.id, person.name, person.birthday, motion.type, record.date_added, record.angles 
+SELECT id, name, birthday, GROUP_CONCAT(type || ';' || date || ';' || angles, ';')
+
+FROM
+
+(SELECT person.id as id, person.name as name, person.birthday as birthday, 
+
+        motion.type as type, record.date_added as date, record.angles as angles 
 
 FROM record JOIN person ON (record.person=person.id) JOIN motion ON (record.type=motion.id)
 
-ORDER BY person.name, person.birthday, motion.type, record.date_added;
+ORDER BY person.name, person.birthday, motion.type, record.date_added) inline_view
+
+GROUP BY id;

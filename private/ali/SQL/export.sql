@@ -9,6 +9,10 @@ FROM
 
 FROM record JOIN person ON (record.person=person.id) JOIN motion ON (record.type=motion.id)
 
-ORDER BY person.name, person.birthday, motion.type, record.date_added) inline_view
+ORDER BY person.name, person.birthday, motion.type, record.date_added
 
-GROUP BY id;
+) inline_view
+
+GROUP BY id
+
+ORDER BY name, birthday;

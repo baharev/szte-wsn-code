@@ -81,7 +81,7 @@ int main() {
 
 	fstream out;
 
-	out.open("mock_plot.asy", ios_base::out);
+	out.open("mock_plot2.asy", ios_base::out);
 	out << setprecision(3) << fixed;
 
 	out << "import graph;\n";
@@ -92,9 +92,9 @@ int main() {
 	write_array(out, 0, "red",   N);
 	write_array(out, 1, "blue",  N);
 	write_array(out, 2, "green", N);
-	write_array(out, 0, "yellow",N);
-	write_array(out, 1, "cyan",  N);
-	write_array(out, 2, "orange",N);
+	write_array(out, 3, "yellow",N);
+	write_array(out, 4, "cyan",  N);
+	write_array(out, 5, "orange",N);
 
 	return 0;
 }

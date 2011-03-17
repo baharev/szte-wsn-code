@@ -51,7 +51,7 @@ const string suffix() {
 	return os.str();
 }
 
-void write_array(fstream& out, double offset, int n) {
+void write_array(fstream& out, double offset, const char* color, int n) {
 
 	const string s = suffix();
 
@@ -61,33 +61,40 @@ void write_array(fstream& out, double offset, int n) {
 
 	for ( ; i<n; ++i) {
 
-		out << "(\t" << i << ",\t" << sin(i+offset) << "),\n";
+		out << "(\t" << i << ",\t" << sin(i/10.0+offset) << "),\n";
 	}
 
-	out << "(\t" << i << ",\t" << sin(i+offset) << ") };\n";
+	out << "(\t" << i << ",\t" << sin(i/10.0+offset) << ") };\n";
 
 	out << "guide g" << s << " = graph(z" << s << ");\n";
 
-	out << "pen p"<< s << " = gray(0.0);\n";
-	out << "p" << s << " = p" << s << " + 1.5;\n";
+	out << "pen p"<< s << " = " << color << ";\n";
+	out << "p" << s << " = p" << s << " + 5;\n";
 	out << "draw(g" << s << ", p" << s << ");\n\n";
 
 
 }
 
+//gs -dSAFER -g794608x800 -dBATCH -dNOPAUSE -sDEVICE=png16 -sOutputFile=plot.png mock_plot.eps
+
 int main() {
 
 	fstream out;
 
-	out.open("graph", ios_base::out);
+	out.open("mock_plot.asy", ios_base::out);
 	out << setprecision(3) << fixed;
 
 	out << "import graph;\n";
-	out << "size(0, 250);\n";
+	out << "size(0, 800);\n";
 
-	write_array(out, 0, 20);
-	write_array(out, 1, 20);
-	write_array(out, 2, 20);
+	const int N = 20000;
+
+	write_array(out, 0, "red",   N);
+	write_array(out, 1, "blue",  N);
+	write_array(out, 2, "green", N);
+	write_array(out, 0, "yellow",N);
+	write_array(out, 1, "cyan",  N);
+	write_array(out, 2, "orange",N);
 
 	return 0;
 }

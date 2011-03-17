@@ -31,9 +31,63 @@
 *      Author: Ali Baharev
 */
 
-#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
+
+using namespace std;
+
+const string suffix() {
+
+	static int suffix = 1;
+
+	ostringstream os;
+
+	os << '_' << suffix << flush;
+
+	++suffix;
+
+	return os.str();
+}
+
+void write_array(fstream& out, double offset, int n) {
+
+	const string s = suffix();
+
+	out << "pair z" << s << "[] = {\n" ;
+
+	int i=1;
+
+	for ( ; i<n; ++i) {
+
+		out << "(\t" << i << ",\t" << sin(i+offset) << "),\n";
+	}
+
+	out << "(\t" << i << ",\t" << sin(i+offset) << ") };\n";
+
+	out << "guide g" << s << " = graph(z" << s << ");\n";
+
+	out << "pen p"<< s << " = gray(0.0);\n";
+	out << "p" << s << " = p" << s << " + 1.5;\n";
+	out << "draw(g" << s << ", p" << s << ");\n\n";
+
+
+}
 
 int main() {
+
+	fstream out;
+
+	out.open("graph", ios_base::out);
+	out << setprecision(3) << fixed;
+
+	out << "import graph;\n";
+	out << "size(0, 250);\n";
+
+	write_array(out, 0, 20);
+	write_array(out, 1, 20);
+	write_array(out, 2, 20);
 
 	return 0;
 }

@@ -7,6 +7,7 @@
 #include <avr/sfr_defs.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
+#include <avr/wdt.h>
 void init() {
 	//spi+flash
 	DDRB|=1<<PB1|1<<PB2|1<<PB4|1<<PB0;	
@@ -53,6 +54,11 @@ void ledset(char val){
 int main(void){
 
   init();
-
+  ledset(0xff);
+  _delay_ms(100);
+  ledset(9);
+  _delay_ms(100);
+  wdt_enable(1);
+  while(1);
   return 0;
 }

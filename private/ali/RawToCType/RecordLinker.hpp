@@ -36,11 +36,9 @@
 
 #include <iosfwd>
 #include <memory>
+#include <string>
 
 namespace sdc {
-
-class RecordID;
-class RecordInfo;
 
 class RecordLinker {
 
@@ -48,11 +46,16 @@ public:
 
 	RecordLinker(const char* filename);
 
-	void write_first_record(const RecordInfo& rec_info, unsigned int boot_utc);
-
 	void write_participant(int mote, int record);
 
-	void write_pair(const RecordID& rid, double skew_1, double offset);
+	void write_reference_boot_time(unsigned int global_start_utc);
+
+	void write_record(int mote,
+			          int reboot,
+			          const std::string& length,
+			          unsigned int boot_utc,
+			          double skew_1,
+			          double offset);
 
 	~RecordLinker();
 
@@ -61,7 +64,29 @@ private:
 	RecordLinker(const RecordLinker& );
 	RecordLinker& operator=(const RecordLinker& );
 
+	void write_header();
+	void write_data();
+	void write_line(const std::string& line);
+	const std::string mote_time2global_time(unsigned int mote_time) const;
+
+
+	const std::string record_file_name() const;
+
 	const std::auto_ptr<std::ofstream> out;
+
+	unsigned int global_start;
+
+	int mote;
+
+	int reboot;
+
+	std::string length;
+
+	unsigned int boot_utc;
+
+	double skew_1;
+
+	double offset;
 };
 
 }

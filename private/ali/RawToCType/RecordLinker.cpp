@@ -105,8 +105,8 @@ void RecordLinker::write_header() {
 	*out << length << '\n';
 	*out << "# Unix time of boot (zero if unknown)\n";
 	*out << boot_utc << '\n';
-	*out << "# Skew-1 and offset\n";
-	*out << skew_1 << '/' << offset << '\n';
+	*out << "# Skew-1 and offset (second)\n";
+	*out << skew_1/1024 << '/' << offset/1024 << '\n';
 	*out << "# Unix time, mote time (32kHz ticks), counter, ";
 	*out << "accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, volt, temp\n";
 }
@@ -150,19 +150,21 @@ void RecordLinker::write_line(const std::string& line) {
 
 const string RecordLinker::mote_time2global_time(unsigned int mote_time) const {
 
-	double time_in_sec = mote_time/(TICKS_PER_SEC/1024.0);
+	double time = (mote_time/((double)TICKS_PER_SEC))*1024; // Binary ms
 
-	const double skew_corr = skew_1*time_in_sec;
+	const double skew_corr = skew_1*time;
 
-	time_in_sec += skew_corr;
+	time += skew_corr;
 
-	time_in_sec += offset;
+	time += offset;
 
-	time_in_sec += global_start;
+	time /= 1024; // second
+
+	time += global_start;
 
 	ostringstream oss;
 
-	oss << fixed << setprecision(3) << time_in_sec << flush;
+	oss << fixed << setprecision(3) << time << flush;
 
 	return oss.str();
 }

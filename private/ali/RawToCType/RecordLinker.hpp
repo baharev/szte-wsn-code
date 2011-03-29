@@ -55,7 +55,7 @@ public:
 
 	void set_reference_boot_time(unsigned int global_start_utc);
 
-	void write_new_line();
+	void write_record_header();
 
 	void write_record(int mote,
 			          int reboot,

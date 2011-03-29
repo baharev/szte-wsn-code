@@ -104,7 +104,7 @@ void RecordLinker::write_record(int Mote,
 	skew_1   = Skew_1;
 	offset   = Offset;
 
-	*out << "#mote,reboot_ID,unix_time,mote_time,counter,";
+	*out << "\n#mote,reboot_ID,unix_time,mote_time,counter,";
 	*out << "accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,volt,temp\n";
 
 	write_data();

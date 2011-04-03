@@ -171,7 +171,7 @@ implementation
 
 	command error_t Sampling.start(){
 
-		// It can only fail if the previous sampling is not shut down.
+		// It can fail only if the previous sampling is not shut down.
 		error_t error = call ShimmerAdc.sample(160);
 		
 		if (!error)

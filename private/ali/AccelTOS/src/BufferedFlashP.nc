@@ -56,6 +56,9 @@ implementation
 	{
 		BUFFER_SIZE = 2,
 		MAX_DATA_LENGTH = 502 // FIXME It should not know this implementation detail
+		// ((block size) - (header length) - (sizeof time sync msg) ) / (sample size) 
+		// (512 - 6 - 18)/22 = 22
+		// 22*22 + 18 = 502
 	};
 	
 	typedef struct buffer_t {
@@ -167,7 +170,7 @@ implementation
 			call BufferedFlash.flush(); // Just posts a task and increments current
 
 			if(pending == BUFFER_SIZE) {
-				dumpEbusy(__LINE__); // FIXME We get here is flush is not called in a timely manner
+				dumpEbusy(__LINE__); // FIXME We get here if flush is not called in a timely manner
 				return EBUSY;
 			}
 		}

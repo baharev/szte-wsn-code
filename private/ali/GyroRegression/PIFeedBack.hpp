@@ -43,6 +43,11 @@
 
 typedef double NT;
 
+namespace dbg {
+
+	void orthogonality(const double m[9]);
+}
+
 namespace gyro {
 
 template<typename T>
@@ -88,8 +93,8 @@ private:
 			s = M*s;
 		}
 
-		R = M;
-		//R = Matrix<T>::identity();
+		//R = M;
+		R = Matrix<T>::identity();
 		C = Matrix<T>::identity() + Matrix<T> (x);
 		d = Vector<T>(x+9);
 	}
@@ -137,13 +142,14 @@ private:
 		const Vector<NT> w_P_corr = K_P*total_corr;
 
 		// TODO Bound w_I_corr
+
 		w_I_corr = w_I_corr + K_I*time_step(i)*total_corr;
 
 		const Vector<NT> w = angular_rate(i);
 
 		// 0.03 even in the ideal case; max 1.0; w min 0.01
 		out << total_corr << '\t' << total_corr.length() << '\t';
-		out << w << '\t' << w.length() << '\n';
+		out << w_I_corr.length() << '\t' << w << '\t' << w.length() << '\n';
 
 		return (C*w+d) + w_P_corr + w_I_corr;
 	}
@@ -184,6 +190,12 @@ private:
 		T Cz = correction(Rz_new);
 
 		R = Matrix<T> (Cx*Rx_new, Cy*Ry_new, Cz*Rz_new);
+
+		double m[9];
+
+		R.copy_to(m);
+
+		dbg::orthogonality(m);
 	}
 
 	void sum_Ri_ai(const int i) {
@@ -228,8 +240,8 @@ public:
 
 		out(os),
 
-		K_P(NT(0.0)), // TODO Pass control parameters
-		K_I(NT(0.0)),
+		K_P(NT(-20.0)), // TODO Pass control parameters
+		K_I(NT(-20.0)),
 		w_I_corr(Vector<NT>(0.0, 0.0, 0.0)),
 		MR(0),
 		d(Vector<T>(0,0,0)),

@@ -37,6 +37,7 @@
 #include <cmath>
 #include <ostream>
 #include <assert.h>
+#include "EulerAngles.hpp"
 #include "InputData.hpp"
 #include "CompileTimeConstants.hpp"
 #include "MatrixVector.hpp"
@@ -135,6 +136,22 @@ private:
 		return cross_product(R[Z], a_ref);
 	}
 
+	void dump_tilt_angles(const int i) const {
+
+		const double g[] = { 0, 0, g_ref };
+		double  b[3];
+		double  beta[3];
+		double m[9];
+
+		R.copy_to(m);
+
+		inverse_rot_vector(m, g, b);
+
+		rotmat_to_asin_angles_deg(m, beta);
+
+		out << (i+1) << '\t' << beta[X] << '\t' << beta[Y] << '\t' << beta[Z] << '\t';
+	}
+
 	const Vector<NT> corrected_angular_rate(int i) {
 
 		const Vector<NT> total_corr = total_correction(i);
@@ -143,15 +160,21 @@ private:
 
 		// TODO Bound w_I_corr
 
-		w_I_corr = w_I_corr + K_I*time_step(i)*total_corr;
+		const Vector<NT> I_corr = w_I_corr + K_I*time_step(i)*total_corr;
 
-		const Vector<NT> w = angular_rate(i);
+		if (I_corr.length() < 0.1) {
+
+			w_I_corr = I_corr;
+		}
+
+		const Vector<NT> w = C*angular_rate(i)+d;
 
 		// 0.03 even in the ideal case; max 1.0; w min 0.01
-		out << total_corr << '\t' << total_corr.length() << '\t';
-		out << w_I_corr.length() << '\t' << w << '\t' << w.length() << '\n';
+		dump_tilt_angles(i);
+		out << total_corr.length() << '\t' << w_P_corr.length() << '\t';
+		out << w_I_corr.length() << '\t' << w.length() << '\t' << w_P_corr.length()/w.length()*100.0 << '\n';
 
-		return (C*w+d) + w_P_corr + w_I_corr;
+		return w + w_P_corr + w_I_corr;
 	}
 
 	// FIXME Change w_avg in the solver's code to w(i),  i = 0...N-1
@@ -240,8 +263,8 @@ public:
 
 		out(os),
 
-		K_P(NT(-20.0)), // TODO Pass control parameters
-		K_I(NT(-20.0)),
+		K_P(NT(-2.0)), // TODO Pass control parameters
+		K_I(NT(-10.0)),
 		w_I_corr(Vector<NT>(0.0, 0.0, 0.0)),
 		MR(0),
 		d(Vector<T>(0,0,0)),

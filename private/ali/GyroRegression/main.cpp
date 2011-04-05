@@ -31,6 +31,7 @@
 * Author: Ali Baharev
 */
 
+#include <fstream>
 #include <iostream>
 #include "CompileTimeConstants.hpp"
 #include "Optimizer.hpp"
@@ -39,6 +40,7 @@
 #include "DataIO.hpp"
 #include "RotationMatrix.hpp"
 #include "InputData.hpp"
+#include "PIFeedBack.hpp"
 
 using namespace std;
 
@@ -57,6 +59,15 @@ void run_solver(const Input& data, const char* outfile) {
 	for (int i=0; i<12; ++i) {
 		cout << x[i] << endl;
 	}
+
+	fstream out("error.txt", ios_base::out);
+
+	PIFeedBack<double> pif(data, out, false);
+
+	pif.set_M_Matrix(rot.matrices());
+
+	pif.f(x);
+
 /*
 	PathOptimizer path(rot.matrices(), data);
 

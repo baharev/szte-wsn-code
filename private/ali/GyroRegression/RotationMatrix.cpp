@@ -118,11 +118,15 @@ RotationMatrix::RotationMatrix(	const Input& data,
 
 	orthogonality_accept();
 
+	ofstream out("tilt_angles.txt");
+
+	dump_angles(data, out);
+
+	/*
 	ofstream out("path_dump");
 
 	dump_path(data, out);
 
-	/*
 	ofstream out("sep01mat");
 	dump_angles(data, out);
 
@@ -262,12 +266,12 @@ void RotationMatrix::dump_angles(const Input& data,
 
 		set_a_alpha(data, i, a, alpha);
 
-		log << a[X] << '\t' << a[Y] << '\t' << a[Z] << '\t';
-		log << b[X] << '\t' << b[Y] << '\t' << b[Z] << '\t';
-		log << alpha[X] << '\t' << alpha[Y] << '\t' << alpha[Z] << '\t';
-		log <<  beta[X] << '\t' <<  beta[Y] << '\t' <<  beta[Z] << '\t';
-		log << euler[X] << '\t' << euler[Y] << '\t' << euler[Z] << '\t';
-		log << endl;
+		//log << a[X] << '\t' << a[Y] << '\t' << a[Z] << '\t';
+		//log << b[X] << '\t' << b[Y] << '\t' << b[Z] << '\t';
+		//log << alpha[X] << '\t' << alpha[Y] << '\t' << alpha[Z] << '\t';
+		log << (i+1) << '\t' <<  -beta[X] << '\t' <<  -beta[Y] << '\t' <<  -beta[Z] << '\n';
+		//log << euler[X] << '\t' << euler[Y] << '\t' << euler[Z] << '\t';
+		//log << endl;
 	}
 
 	log << endl;

@@ -75,6 +75,7 @@ private:
 	const NT K_P;
 	const NT K_I;
 	Vector<NT> w_I_corr;
+	bool saturated;
 
 	T* MR;
 
@@ -94,10 +95,11 @@ private:
 			s = M*s;
 		}
 
-		//R = M;
+		//R = Matrix<T>(-1.0*M[X], M[Y], -1.0*M[Z]);
 		R = Matrix<T>::identity();
 		C = Matrix<T>::identity() + Matrix<T> (x);
 		d = Vector<T>(x+9);
+		d = Vector<T>(0.1, -0.05, 0.05);
 	}
 
 	const Vector<NT> angular_rate(int i) const {
@@ -162,7 +164,15 @@ private:
 
 		const Vector<NT> I_corr = w_I_corr + K_I*time_step(i)*total_corr;
 
-		if (I_corr.length() < 0.1) {
+		if (!saturated) {
+
+			saturated = (I_corr.length() >= 0.3);
+
+			w_I_corr = I_corr;
+		}
+		else if (I_corr.length() < w_I_corr.length()) {
+
+			saturated = false;
 
 			w_I_corr = I_corr;
 		}
@@ -264,8 +274,10 @@ public:
 		out(os),
 
 		K_P(NT(-2.0)), // TODO Pass control parameters
-		K_I(NT(-10.0)),
+		K_I(NT(-2.0)),
 		w_I_corr(Vector<NT>(0.0, 0.0, 0.0)),
+		saturated(false),
+
 		MR(0),
 		d(Vector<T>(0,0,0)),
 		s(Vector<T>(0,0,0))

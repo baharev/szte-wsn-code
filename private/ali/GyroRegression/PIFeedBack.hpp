@@ -76,6 +76,9 @@ private:
 	const NT K_I;
 	Vector<NT> w_I_corr;
 	bool saturated;
+	double HPF_out;
+	bool rejected;
+	bool converged;
 
 	T* MR;
 
@@ -88,6 +91,14 @@ private:
 	void set_sum_R0_C_d(const T* const x) {
 
 		w_I_corr = Vector<NT>(0.0, 0.0, 0.0);
+
+		saturated = false;
+
+		HPF_out = 0.0;
+
+		rejected = false;
+
+		converged = false;
 
 		s = Vector<T>(acc_x[0], acc_y[0], acc_z[0]);
 
@@ -123,6 +134,31 @@ private:
 		return Vector<NT>(acc_x[i], acc_y[i], acc_z[i]);
 	}
 
+	bool high_pass_filter(const int i) {
+
+		if (i==0) {
+
+			return true;
+		}
+
+		const double ALPHA(0.3);
+		const double ACCEPT(0.3);
+
+		HPF_out = ALPHA*(HPF_out + acceleration(i).length() - acceleration(i-1).length());
+
+		return (fabs(HPF_out) < ACCEPT);
+	}
+
+	bool length_acceptance(const int i) {
+
+		const double MIN_LENGTH( 9.0);
+		const double MAX_LENGTH(11.0);
+
+		const NT length = acceleration(i).length();
+
+		return (MIN_LENGTH < length && length < MAX_LENGTH);
+	}
+
 	const Vector<NT> total_correction(int i) const {
 
 		Vector<NT> a_ref(acceleration(i));
@@ -154,9 +190,45 @@ private:
 		out << (i+1) << '\t' << beta[X] << '\t' << beta[Y] << '\t' << beta[Z] << '\t';
 	}
 
+	void limit_correction(Vector<NT>& total_corr) {
+
+		const double MAX_CORRECTION = 0.2;
+
+		const double len = total_corr.length();
+
+		if (!converged && len <= MAX_CORRECTION) {
+
+			converged = true;
+		}
+		else if (converged && len > MAX_CORRECTION) {
+
+			total_corr = (MAX_CORRECTION/len)*total_corr;
+		}
+
+		assert(converged || total_corr.length() < MAX_CORRECTION + 0.001);
+
+		if (converged && rejected) {
+
+			rejected = false;
+
+			total_corr = Vector<NT>(0.0, 0.0, 0.0);
+		}
+	}
+
 	const Vector<NT> corrected_angular_rate(int i) {
 
-		const Vector<NT> total_corr = total_correction(i);
+		Vector<NT> total_corr(0.0, 0.0, 0.0);
+
+		if (high_pass_filter(i) && length_acceptance(i)) {
+
+			total_corr = total_correction(i);
+
+			limit_correction(total_corr);
+		}
+		else {
+
+			rejected = true;
+		}
 
 		const Vector<NT> w_P_corr = K_P*total_corr;
 
@@ -277,6 +349,9 @@ public:
 		K_I(NT(-2.0)),
 		w_I_corr(Vector<NT>(0.0, 0.0, 0.0)),
 		saturated(false),
+		HPF_out(0.0),
+		rejected(false),
+		converged(false),
 
 		MR(0),
 		d(Vector<T>(0,0,0)),

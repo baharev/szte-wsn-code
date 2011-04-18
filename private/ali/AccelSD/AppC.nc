@@ -40,10 +40,26 @@ implementation {
   	components AppP;
 	components MainC;
 	components LedsC;
-	components SDC;
 	
+	components SDC;
+        
+	components MagnetometerC;
+        components new TimerMilliC() as MagTimer;
+	
+	components ActiveMessageC;
+	components DiagMsgC;
+
 	AppP.Boot -> MainC;	
 	AppP.Leds -> LedsC;
-	AppP.StdControl -> SDC;
+	
+	AppP.SDStdControl -> SDC.StdControl;
 	AppP.SD -> SDC;
+	
+	AppP.MagInit      -> MagnetometerC.Init;
+	AppP.Magnetometer -> MagnetometerC.Magnetometer;
+	
+	AppP.MagTimer -> MagTimer;
+	
+	AppP.AMControl -> ActiveMessageC;
+	AppP.DiagMsg -> DiagMsgC;
 }

@@ -34,18 +34,28 @@
 module AppP {
 
   uses {
+    
     interface Boot;
     interface Leds;
-    interface StdControl;
+    
+    interface StdControl as SDStdControl;
     interface SD;
+    
+    interface Init as MagInit;
+    interface Magnetometer;
+    interface Timer<TMilli> as MagTimer;
+    
+    interface SplitControl as AMControl;
+    interface DiagMsg;
   }
 }
 
 implementation {
 
   uint8_t buffer[512];
+  int16_t mag[3];
 
-  task void test() {
+  task void SDtest() {
 
     error_t error;
     
@@ -53,37 +63,89 @@ implementation {
 
     call Leds.led1On();
 
-    error = call StdControl.start();
+    error = call SDStdControl.start();
 
     if( error != SUCCESS ) {
       call Leds.led0On();
-      post test();
+      post SDtest();
       return;
     }
 
     error = call SD.readBlock(0, buffer);
 
     if (error) {
-      //call Leds.led0On();
-      post test();
+      call Leds.led0On();
+      post SDtest();
       return;
     }
 
     call Leds.led0Off();
     call Leds.led1Off();
   }
-
-  event void Boot.booted() {
-
-    post test();
-  }
-
-
+  
   async event void SD.available() {
 
-    post test();
+    //call Leds.led2On();
   }
 
   async event void SD.unavailable() { }
+
+  event void Boot.booted() {
+
+    //post SDtest();
+    
+    call AMControl.start();
+  }
+  
+  event void AMControl.startDone(error_t error) {
+    
+    if (error) {
+      call Leds.led0On();
+      return;
+    }
+
+    call MagInit.init();
+    
+    call Magnetometer.runContinuousConversion();
+    
+    call MagTimer.startPeriodic(1000);   
+  }
+  
+  event void AMControl.stopDone(error_t error) { }
+  
+  event void MagTimer.fired() {
+    
+    call Magnetometer.enableBus();
+    
+    call Magnetometer.readData();
+  }
+  
+    
+  void sendData() {
+
+    if( call DiagMsg.record() ) {
+      
+      call DiagMsg.int16s(mag, 3);
+      call DiagMsg.send();
+    }
+  }
+
+  event void Magnetometer.readDone(uint8_t* data, error_t error) {
+    
+    if (error) {
+      call Leds.led0On();
+      return;
+    }
+
+    call Magnetometer.convertRegistersToData(data, mag);
+    
+    call Magnetometer.disableBus();
+    
+    sendData();
+    
+    call Leds.led1Toggle();    
+  }
+	
+  event void Magnetometer.writeDone(error_t success) { }
 
 }

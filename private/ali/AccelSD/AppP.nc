@@ -60,14 +60,6 @@ implementation {
       post test();
       return;
     }
-    
-    size = call SD.readCardSize();
-    
-    if (size==0) {
-      call Leds.led0On();
-      post test();
-      return;
-    }
 
     error = call SD.readBlock(0, buffer);
 

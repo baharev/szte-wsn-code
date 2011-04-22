@@ -120,8 +120,7 @@ implementation {
     call AccelInit.init();
     call Mma_Accel.setSensitivity(RANGE_1_5G);
     call Mma_Accel.wake(TRUE);    
-    
-    magnetometer_sensing();  
+ 
   }
   
   void reset() {
@@ -259,7 +258,10 @@ implementation {
     magnetometer_sensing();
   }
 
-  event void Magnetometer.writeDone(error_t success) { }
+  event void Magnetometer.writeDone(error_t success) {
+          
+    magnetometer_sensing();
+  }
     
   event void AMControl.stopDone(error_t error) { }  
 

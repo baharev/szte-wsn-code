@@ -68,15 +68,22 @@ implementation {
   };
 
   enum {
-    CHANNEL_COUNT      = 4,
-    ACCEL_SAMPLE_COUNT = 20,
-    MAG_SAMPLE_COUNT   = 4,
-    MAG_SAMPLING_RATE  = 110,
-    ACCEL_SAMPLING_RATE= 5,
-    SLEEP_TIME         = 300
+    CHANNEL_COUNT      =   4,
+    
+    ACCEL_SAMPLE_COUNT = 100,
+    ACCEL_SAMPLING_RATE=   5,
+    
+    MAG_SAMPLE_COUNT   =  20,
+    MAG_SAMPLING_RATE  =  22,
+    
+    SLEEP_TIME         =  60,
+    
+    START_SENSING      =   1,
+    SET_SAMPLING_MODE  =   2
   };
 
   uint8_t n_sample = 0;
+  uint8_t WHAT_IS_NEXT = 0;
   
   typedef struct {
     uint32_t timestamp;
@@ -114,13 +121,14 @@ implementation {
       return;
     }
     
-    call MagInit.init();    
-    call Magnetometer.runContinuousConversion();
-    
     call AccelInit.init();
     call Mma_Accel.setSensitivity(RANGE_1_5G);
-    call Mma_Accel.wake(TRUE);    
- 
+    call Mma_Accel.wake(TRUE);
+
+    call MagInit.init();
+    
+    WHAT_IS_NEXT=SET_SAMPLING_MODE;
+    call Magnetometer.setOutputRate(6); // FIXME Magnetometer.h should have an include guard
   }
   
   void reset() {
@@ -168,10 +176,6 @@ implementation {
       
       n_sample = 0;
       
-      //sample.mag[0] = -10;
-      //sample.mag[1] = 2;
-      //sample.mag[2] = 3000;      
-      
       //call Magnetometer.disableBus();
       
       call ShimmerAdc.sample();
@@ -198,7 +202,7 @@ implementation {
       sample.acc[i] += data[i];
     }
     
-    sample.temp = data[3];
+    sample.temp += data[3];
     
     if (++n_sample==ACCEL_SAMPLE_COUNT) {
       
@@ -259,8 +263,21 @@ implementation {
   }
 
   event void Magnetometer.writeDone(error_t success) {
-          
-    magnetometer_sensing();
+    
+    if      (WHAT_IS_NEXT==START_SENSING) {
+
+      magnetometer_sensing();
+    }
+    else if (WHAT_IS_NEXT==SET_SAMPLING_MODE) {
+      
+      WHAT_IS_NEXT = START_SENSING;
+      
+      call Magnetometer.runContinuousConversion();   
+    }
+    else {
+
+      call Leds.led0On();
+    }
   }
     
   event void AMControl.stopDone(error_t error) { }  

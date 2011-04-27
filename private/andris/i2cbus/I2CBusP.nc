@@ -40,38 +40,53 @@ module I2CBusP {
 }
 implementation {
   int8_t cnt=-1;
+  bool startError;
   
   command error_t SplitControl.start() {
-    if(cnt==8)
+    error_t error;
+    if(cnt==33)
       return EALREADY;
-    else if(cnt!=-1)
+    else if(cnt!=-1 )
       return EBUSY;
     cnt=0;
-    error=SUCCESS;
+    startError=FALSE;
     call Power.makeOutput();
     call Power.set();
 
-    call TemphumSplit.start();
-    call LightSplit.start();
-    call PressureSplit.start();
-    return SUCCESS;
+    error=call TemphumSplit.start();
+    if(error==SUCCESS){
+      cnt|=1;
+      error=call LightSplit.start();
+    }
+    if(error==SUCCESS){
+      cnt|=4;
+      error=call PressureSplit.start();
+    }
+    if(error==SUCCESS){
+      cnt|=16;
+      return SUCCESS;
+    }
+    else {
+      startError=TRUE;//we should go to cnt=-1 state
+      call Power.clr();
+      return error;
+    }
   }
+  
+  task void stopDone(){
+    cnt=-1;
+    signal SplitControl.stopDone(SUCCESS);
+  }  
 
   command error_t SplitControl.stop() {
     if(cnt==-1)
       return EALREADY;
-    else if(cnt!=8)
+    else if(cnt!=64)
       return EBUSY;
-    cnt=7;
+    cnt=0;
     call Power.clr();
     post stopDone();
     return SUCCESS;
-  }
-  
-  
-  task void stopDone(){
-    cnt=-1
-    signal SplitControl.stopDone(SUCCESS);
   }
   
   event void TemphumSplit.startDone(error_t error) {
@@ -79,9 +94,15 @@ implementation {
       call TemphumSplit.start();
       return;
     }
-    cnt |= 1;
-    if(cnt == 7){
-      cnt=8;
+    if(startError){
+      cnt&=~1;
+      if(cnt==0)
+	cnt=-1;
+      return;
+    }
+    cnt |= 2;
+    if(cnt == 63){
+      cnt=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }
@@ -91,9 +112,15 @@ implementation {
       call TemphumSplit.start();
       return;
     }
-    cnt |= 2;
-    if(cnt == 7){
-      cnt=8;
+    if(startError){
+      cnt&=~4;
+      if(cnt==0)
+	cnt=-1;
+      return;
+    }
+    cnt |= 8;
+    if(cnt == 63){
+      cnt=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }
@@ -103,9 +130,15 @@ implementation {
       call TemphumSplit.start();
       return;
     }
-    cnt |= 4;
-    if(cnt == 7){
-      cnt=8;
+    if(startError){
+      cnt&=~16;
+      if(cnt==0)
+	cnt=-1;
+      return;
+    }
+    cnt |= 32;
+    if(cnt == 63){
+      cnt=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }

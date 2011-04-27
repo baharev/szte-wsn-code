@@ -39,14 +39,26 @@ module I2CBusP {
   uses interface GeneralIO as Power;
 }
 implementation {
-  int8_t cnt=-1;
+/*
+cnt bits:
+1:Temphum started
+2:Temphum startDone
+4:Light started
+8:Light startDone
+16:Pressure started
+32:Pressure startDone
+64:bus is on:all lower bits should be 1
+128:bus is off: all lower bits should be 0
+
+*/
+  uint8_t cnt=128;
   bool startError;
   
   command error_t SplitControl.start() {
     error_t error;
-    if(cnt==33)
+    if(cnt&64)
       return EALREADY;
-    else if(cnt!=-1 )
+    else if(!(cnt&128) )
       return EBUSY;
     cnt=0;
     startError=FALSE;
@@ -67,21 +79,21 @@ implementation {
       return SUCCESS;
     }
     else {
-      startError=TRUE;//we should go to cnt=-1 state
+      startError=TRUE;//we should go to OFF state
       call Power.clr();
       return error;
     }
   }
   
   task void stopDone(){
-    cnt=-1;
+    cnt=128;
     signal SplitControl.stopDone(SUCCESS);
   }  
 
   command error_t SplitControl.stop() {
-    if(cnt==-1)
+    if(cnt&128)
       return EALREADY;
-    else if(cnt!=64)
+    else if(!(cnt&64))
       return EBUSY;
     cnt=0;
     call Power.clr();
@@ -97,12 +109,12 @@ implementation {
     if(startError){
       cnt&=~1;
       if(cnt==0)
-	cnt=-1;
+	cnt=128;
       return;
     }
     cnt |= 2;
     if(cnt == 63){
-      cnt=64;
+      cnt|=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }
@@ -115,12 +127,12 @@ implementation {
     if(startError){
       cnt&=~4;
       if(cnt==0)
-	cnt=-1;
+	cnt=128;
       return;
     }
     cnt |= 8;
     if(cnt == 63){
-      cnt=64;
+      cnt|=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }
@@ -133,12 +145,12 @@ implementation {
     if(startError){
       cnt&=~16;
       if(cnt==0)
-	cnt=-1;
+	cnt=128;
       return;
     }
     cnt |= 32;
     if(cnt == 63){
-      cnt=64;
+      cnt|=64;
       signal SplitControl.startDone(SUCCESS);
     }
   }

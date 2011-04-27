@@ -40,7 +40,6 @@ module I2CBusP {
 }
 implementation {
   int8_t cnt=-1;
-  error_t error;
   
   command error_t SplitControl.start() {
     if(cnt==8)

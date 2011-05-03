@@ -34,9 +34,9 @@
 #include <cmath>
 #include <ostream>
 #include "MatrixVector.hpp"
+#include "GradType.hpp"
 
 namespace gyro {
-
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Vector<T>& x) {
@@ -48,6 +48,12 @@ template <typename T>
 const T Vector<T>::length() const {
 
 	return sqrt(pow(v[X],2)+pow(v[Y],2)+pow(v[Z],2));
+}
+
+template <>
+const double Vector<double>::length() const {
+
+	return std::sqrt(std::pow(v[X],2)+std::pow(v[Y],2)+std::pow(v[Z],2));
 }
 
 template <typename T>
@@ -125,12 +131,6 @@ const Vector<T> operator*(const Vector<T>& x, double y) {
 }
 
 template <typename T>
-const Vector<T> operator*(double x, const Vector<T>& y) {
-
-        return y*x;
-}
-
-template <typename T>
 Vector<T>& Vector<T>::operator/=(double x) {
 
 	for (int i=0; i<3; ++i) {
@@ -156,9 +156,8 @@ const Vector<T> cross_product(const Vector<T>& x, const Vector<T>& y) {
 	return Vector<T>(a[Y]*b[Z]-a[Z]*b[Y], a[Z]*b[X]-a[X]*b[Z], a[X]*b[Y]-a[Y]*b[X]);
 }
 
-
-template <typename T>
-void Vector<T>::enforce_range_minus_pi_plus_pi() {
+template <>
+void Vector<double>::enforce_range_minus_pi_plus_pi() {
 
 	const double PI(3.14159265358979323846);
 	const double PI_TIMES_2(6.28318530717958647693);
@@ -174,7 +173,6 @@ void Vector<T>::enforce_range_minus_pi_plus_pi() {
 		}
 	}
 }
-
 
 template <typename T>
 Matrix<T>::Matrix(const T array[9]) {
@@ -302,5 +300,33 @@ const Vector<T> Matrix<T>::operator[] (coordinate i) const {
 
 template class Vector<double>;
 template class Matrix<double>;
+
+template const vector3 operator+(const vector3& x, const vector3& y);
+template const vector3 operator-(const vector3& x, const vector3& y);
+template const vector3 operator*(const vector3& x, double y);
+template const vector3 operator/(const vector3& x, double y);
+template const matrix3 operator+(const matrix3& A, const matrix3& B);
+
+template const double  operator*(const vector3& x, const vector3& y);
+template const vector3 operator*(const double& c, const vector3& x);
+template const vector3 cross_product(const vector3& x, const vector3& y);
+
+template const vector3 operator*(const matrix3& M, const vector3& v);
+
+template class Vector<GradType<12> >;
+template class Matrix<GradType<12> >;
+
+template const Vector<GradType<12> > operator+(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
+template const Vector<GradType<12> > operator-(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
+template const Vector<GradType<12> > operator*(const Vector<GradType<12> >& x, double y);
+template const Vector<GradType<12> > operator/(const Vector<GradType<12> >& x, double y);
+template const Matrix<GradType<12> > operator+(const Matrix<GradType<12> >& A, const Matrix<GradType<12> >& B);
+
+template const GradType<12>  operator*(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
+template const Vector<GradType<12> > operator*(const GradType<12> & c, const Vector<GradType<12> >& x);
+template const Vector<GradType<12> > cross_product(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
+
+template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const Vector<GradType<12> >& v);
+template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const vector3& v);
 
 }

@@ -40,7 +40,18 @@ namespace gyro {
 
 enum coordinate { X, Y, Z };
 
+template <typename> class Vector;
 template <typename> class Matrix;
+
+template <typename T> const Vector<T> operator+(const Vector<T>& x, const Vector<T>& y);
+template <typename T> const Vector<T> operator-(const Vector<T>& x, const Vector<T>& y);
+template <typename T> const Vector<T> operator*(const Vector<T>& x, double y);
+template <typename T> const Vector<T> operator/(const Vector<T>& x, double y);
+template <typename T> const Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B);
+
+template <typename T> const T operator*(const Vector<T>& x, const Vector<T>& y);
+template <typename T> const Vector<T> operator*(const T& c, const Vector<T>& x);
+template <typename T> const Vector<T> cross_product(const Vector<T>& x, const Vector<T>& y);
 
 template <typename T>
 class Vector {
@@ -65,18 +76,15 @@ public:
 
 	const T& operator[] (coordinate i) const { return v[i]; }
 
-	void enforce_range_minus_pi_plus_pi();
+	void enforce_range_minus_pi_plus_pi(); // only for T = double
 
 	std::ostream& print(std::ostream& os) const  { return os<<v[X]<<'\t'<<v[Y]<<'\t'<<v[Z]; }
 
-	template <typename C>
-	friend const C operator*(const Vector<C>& x, const Vector<C>& y);
+	friend const T operator* <>(const Vector& x, const Vector& y);
 
-	template <typename C>
-	friend const Vector<C> operator*(const C& c, const Vector<C>& x);
+	friend const Vector operator* <>(const T& c, const Vector& x);
 
-	template <typename C>
-	friend const Vector<C> cross_product(const Vector<C>& x, const Vector<C>& y);
+	friend const Vector cross_product <>(const Vector& x, const Vector& y);
 
 	template <typename>	friend class Matrix;
 

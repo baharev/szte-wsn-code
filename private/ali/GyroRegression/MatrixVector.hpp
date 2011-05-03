@@ -58,9 +58,14 @@ class Vector {
 
 public:
 
+	Vector() { v[X] = v[Y] = v[Z] = T(0.0); }
+
 	Vector(const T& x, const T& y, const T& z) { v[X] = x; v[Y] = y; v[Z] = z; }
 
 	explicit Vector(const T x[3]) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
+
+	template <typename U>
+	explicit Vector(const Vector<U> x) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
 
 	void copy_to(T array[3]) const;
 
@@ -104,6 +109,10 @@ public:
 	Matrix();
 
 	explicit Matrix(const T array[9]);
+
+	Matrix(const T& x1, const T& x2, const T& x3,
+		   const T& x4, const T& x5, const T& x6,
+		   const T& x7, const T& x8, const T& x9);
 
 	Matrix(const Vector<T>& row_x, const Vector<T>& row_y, const Vector<T>& row_z);
 

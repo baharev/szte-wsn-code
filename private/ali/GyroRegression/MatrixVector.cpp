@@ -205,6 +205,16 @@ Matrix<T>::Matrix() {
 }
 
 template <typename T>
+Matrix<T>::Matrix(	const T& x1, const T& x2, const T& x3,
+					const T& x4, const T& x5, const T& x6,
+					const T& x7, const T& x8, const T& x9)
+{
+	m[X][X] = x1; m[X][Y] = x2; m[X][Z] = x3;
+	m[Y][X] = x4; m[Y][Y] = x5; m[Y][Z] = x6;
+	m[Z][X] = x7; m[Z][Y] = x8; m[Z][Z] = x9;
+}
+
+template <typename T>
 Matrix<T>::Matrix(const Vector<T>& row_x, const Vector<T>& row_y, const Vector<T>& row_z) {
 
 	row_x.copy_to(m[X]);
@@ -328,5 +338,21 @@ template const Vector<GradType<12> > cross_product(const Vector<GradType<12> >& 
 
 template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const Vector<GradType<12> >& v);
 template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const vector3& v);
+
+template class Vector<GradType<9> >;
+template class Matrix<GradType<9> >;
+
+template const Vector<GradType<9> > operator+(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
+template const Vector<GradType<9> > operator-(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
+template const Vector<GradType<9> > operator*(const Vector<GradType<9> >& x, double y);
+template const Vector<GradType<9> > operator/(const Vector<GradType<9> >& x, double y);
+template const Matrix<GradType<9> > operator+(const Matrix<GradType<9> >& A, const Matrix<GradType<9> >& B);
+
+template const GradType<9>  operator*(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
+template const Vector<GradType<9> > operator*(const GradType<9> & c, const Vector<GradType<9> >& x);
+template const Vector<GradType<9> > cross_product(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
+
+template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const Vector<GradType<9> >& v);
+template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const vector3& v);
 
 }

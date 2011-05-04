@@ -67,7 +67,7 @@ void print_results(const std::vector<StaticSample>& samples, const double x[9]) 
 
 	EllipsoidObjective<double> obj(samples);
 
-	cout << endl << "Max error: " << obj.max_abs_error(x) << endl;
+	cout << endl << "Max error: " << obj.max_error(x) << endl;
 }
 
 void realMain(int argc, char* argv[]) {

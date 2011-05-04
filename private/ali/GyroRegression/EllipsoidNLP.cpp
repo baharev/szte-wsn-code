@@ -40,6 +40,8 @@ bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
 {
 	assert(n==N_VARS);
 
+#ifdef ACCEL_CALIB
+
 	for (int i=0; i<B1; ++i) {
 		x_l[i] =-1.0/3000.0;;
 		x_u[i] = 1.0/3000.0;;
@@ -57,6 +59,26 @@ bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	x_l[B3] = 2000.0;
 	x_u[B3] = 2500.0;
 
+#elif defined MAGNETO_CALIB
+
+	for (int i=0; i<B1; ++i) {
+		x_l[i] =-1.0/1000.0;;
+		x_u[i] = 1.0/1000.0;;
+	}
+
+	x_l[A11] = x_l[A22] = x_l[A33] = 1.0/750.0;
+	x_u[A11] = x_u[A22] = x_u[A33] = 1.0/300.0;
+
+	x_l[B1] = -200.0;
+	x_u[B1] =  200.0;
+
+	x_l[B2] = -200.0;
+	x_u[B2] =  200.0;
+
+	x_l[B3] = -200.0;
+	x_u[B3] =  200.0;
+
+#endif
 	// Set the bounds for the constraints
 	for (Index i=0; i<m; i++) {
 		g_l[i] = 0;
@@ -79,6 +101,8 @@ bool EllipsoidNLP::get_starting_point(Index n, bool init_x, Number* x,
 	for (Index i=0; i<n; i++)
 		x[i] = 0.0;
 
+#ifdef ACCEL_CALIB
+
 	x[A11] = 1.0/1180.0;
 	x[A22] = 1.0/1189.0;
 	x[A33] = 1.0/1106.0;
@@ -86,6 +110,18 @@ bool EllipsoidNLP::get_starting_point(Index n, bool init_x, Number* x,
 	x[B1] = 2250.0;
 	x[B2] = 2500.0;
 	x[B3] = 2250.0;
+
+#elif defined MAGNETO_CALIB
+
+	x[A11] = 1.0/550.0;
+	x[A22] = 1.0/550.0;
+	x[A33] = 1.0/550.0;
+
+	x[B1] = -100.0;
+	x[B2] = -100.0;
+	x[B3] = -100.0;
+
+#endif
 
 	return true;
 }

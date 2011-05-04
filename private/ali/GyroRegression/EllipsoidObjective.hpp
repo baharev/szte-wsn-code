@@ -46,26 +46,23 @@ class EllipsoidObjective {
 
 public:
 
-	EllipsoidObjective(const std::vector<StaticSample>& samples) : samples(samples) { }
-
-	T f(const T* const x) {
-
-		return accel(x);
+	EllipsoidObjective(const std::vector<StaticSample>& samples)
+	: samples(samples)
+	{
+#ifdef ACCEL_CALIB
+		sample_at = &EllipsoidObjective::accel_at;
+#elif defined MAGNETO_CALIB
+		sample_at = &EllipsoidObjective::magn_at;
+#else
+#error Either accelerometer / megnetometer calibration should be chosen!
+#endif
 	}
 
-	double max_abs_error(const double* const x);
+	T f(const T* const x);
+
+	double max_error(const double* const x);
 
 private:
-
-	T accel(const T* const x) {
-
-		return accumulate(x, &EllipsoidObjective::accel_at);
-	}
-
-	T magn(const T* const x) {
-
-		return accumulate(x, &EllipsoidObjective::magn_at);
-	}
 
 	void set_A_b(const T* const x) {
 
@@ -76,15 +73,26 @@ private:
 		b = Vector<T> (x+6);
 	}
 
-	template <typename MemFun> T accumulate(const T* const x, MemFun at);
-
 	int size() const { return static_cast<int>(samples.size()); }
 
 	const vector3& accel_at(int i) const { return samples.at(i).accel; }
 
 	const vector3& magn_at(int i) const { return samples.at(i).magn; }
 
+	const T error_at(int i) const {
+
+		const Vector<T> x((this->*sample_at)(i));
+
+		const Vector<T> y = A*(x-b); // TODO operator-(double, GradType) would be needed
+
+		return y.length()-T(1.0); // Detto
+	}
+
+	typedef const vector3& (EllipsoidObjective::*MemFun)(int i) const;
+
 	const std::vector<StaticSample> samples;
+
+	MemFun sample_at;
 
 	Matrix<T> A;
 
@@ -92,8 +100,7 @@ private:
 };
 
 template <typename T>
-template <typename MemFun>
-T EllipsoidObjective<T>::accumulate(const T* const v, MemFun at) {
+T EllipsoidObjective<T>::f(const T* const v) {
 
 	set_A_b(v);
 
@@ -101,11 +108,7 @@ T EllipsoidObjective<T>::accumulate(const T* const v, MemFun at) {
 
 	for (int i=0; i<size(); ++i) {
 
-		const Vector<T> x((this->*at)(i));
-
-		Vector<T> y = A*(x-b); // TODO operator-(double, GradType) would be needed
-
-		T err = y.length()-T(1.0); // Detto
+		const T err = error_at(i);
 
 		sum += (err*err);
 	}
@@ -115,7 +118,7 @@ T EllipsoidObjective<T>::accumulate(const T* const v, MemFun at) {
 
 // FIXME Separate interface and implementation
 template<>
-inline double EllipsoidObjective<double>::max_abs_error(const double* const v) {
+inline double EllipsoidObjective<double>::max_error(const double* const v) {
 
 	set_A_b(v);
 
@@ -123,17 +126,12 @@ inline double EllipsoidObjective<double>::max_abs_error(const double* const v) {
 
 	for (int i=0; i<size(); ++i) {
 
-		const vector3& x = accel_at(i); // FIXME Make it template?
-
-		const vector3 y = A*(x-b);
-
-		const double err = y.length()-1.0;
+		const double err = error_at(i);
 
 		if (std::fabs(err) > std::fabs(max_err)) {
 
 			max_err = err;
 		}
-
 	}
 
 	return max_err;

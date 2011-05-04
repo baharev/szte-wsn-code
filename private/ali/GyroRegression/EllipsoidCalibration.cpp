@@ -33,6 +33,7 @@
 
 #include <exception>
 #include <iostream>
+#include "EllipsoidObjective.hpp"
 #include "EllipsoidOptimizer.hpp"
 #include "Log.hpp"
 #include "StaticSample.hpp"
@@ -62,6 +63,10 @@ void realMain(int argc, char* argv[]) {
 
 		cout << x[i] << endl;
 	}
+
+	EllipsoidObjective<double> obj(samples);
+
+	cout << "Max error: " << obj.max_abs_error(x) << endl;
 }
 
 int main(int argc, char* argv[]) {

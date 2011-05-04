@@ -34,6 +34,7 @@
 #ifndef ELLIPSOIDOBJECTIVE_HPP_
 #define ELLIPSOIDOBJECTIVE_HPP_
 
+#include <cmath>
 #include <vector>
 #include "MatrixVector.hpp"
 #include "StaticSample.hpp"
@@ -56,6 +57,8 @@ public:
 
 		return accumulate(x, &EllipsoidObjective::magn_at);
 	}
+
+	double max_abs_error(const double* const x);
 
 private:
 
@@ -103,6 +106,32 @@ T EllipsoidObjective<T>::accumulate(const T* const v, MemFun at) {
 	}
 
 	return sum;
+}
+
+// FIXME Separate interface and implementation
+template<>
+inline double EllipsoidObjective<double>::max_abs_error(const double* const v) {
+
+	set_A_b(v);
+
+	double max_err(0.0);
+
+	for (int i=0; i<size(); ++i) {
+
+		const vector3& x = accel_at(i); // FIXME Make it template?
+
+		const vector3 y = A*(x-b);
+
+		const double err = y.length()-1.0;
+
+		if (std::fabs(err) > std::fabs(max_err)) {
+
+			max_err = err;
+		}
+
+	}
+
+	return max_err;
 }
 
 }

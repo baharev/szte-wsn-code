@@ -40,45 +40,15 @@ bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
 {
 	assert(n==N_VARS);
 
-#ifdef ACCEL_CALIB
+	const double* xL = estimates->lower_bounds();
+	const double* xU = estimates->upper_bounds();
 
-	for (int i=0; i<B1; ++i) {
-		x_l[i] =-1.0/3000.0;;
-		x_u[i] = 1.0/3000.0;;
+	for (int i=0; i<N_VARS; ++i) {
+
+		x_l[i] = xL[i];
+		x_u[i] = xU[i];
 	}
 
-	x_l[A11] = x_l[A22] = x_l[A33] = 1.0/1500.0;
-	x_u[A11] = x_u[A22] = x_u[A33] = 1.0/ 700.0;
-
-	x_l[B1] = 2000.0;
-	x_u[B1] = 2500.0;
-
-	x_l[B2] = 2250.0;
-	x_u[B2] = 2750.0;
-
-	x_l[B3] = 2000.0;
-	x_u[B3] = 2500.0;
-
-#elif defined MAGNETO_CALIB
-
-	for (int i=0; i<B1; ++i) {
-		x_l[i] =-1.0/1000.0;;
-		x_u[i] = 1.0/1000.0;;
-	}
-
-	x_l[A11] = x_l[A22] = x_l[A33] = 1.0/750.0;
-	x_u[A11] = x_u[A22] = x_u[A33] = 1.0/300.0;
-
-	x_l[B1] = -200.0;
-	x_u[B1] =  200.0;
-
-	x_l[B2] = -200.0;
-	x_u[B2] =  200.0;
-
-	x_l[B3] = -200.0;
-	x_u[B3] =  200.0;
-
-#endif
 	// Set the bounds for the constraints
 	for (Index i=0; i<m; i++) {
 		g_l[i] = 0;
@@ -96,34 +66,82 @@ bool EllipsoidNLP::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_x == true);
 	assert(init_z == false);
 	assert(init_lambda == false);
+	assert(n==N_VARS);
 
-	// set the starting point
-	for (Index i=0; i<n; i++)
-		x[i] = 0.0;
+	const double* x0 = estimates->initial_point();
 
-#ifdef ACCEL_CALIB
+	for (int i=0; i<N_VARS; ++i) {
 
-	x[A11] = 1.0/1180.0;
-	x[A22] = 1.0/1189.0;
-	x[A33] = 1.0/1106.0;
-
-	x[B1] = 2250.0;
-	x[B2] = 2500.0;
-	x[B3] = 2250.0;
-
-#elif defined MAGNETO_CALIB
-
-	x[A11] = 1.0/550.0;
-	x[A22] = 1.0/550.0;
-	x[A33] = 1.0/550.0;
-
-	x[B1] = -100.0;
-	x[B2] = -100.0;
-	x[B3] = -100.0;
-
-#endif
+		x[i] = x0[i];
+	}
 
 	return true;
+}
+
+VarEstimates::VarEstimates() {
+
+	for (int i=0; i<N_VARS; ++i) {
+
+		x_0[i] = 0.0;
+	}
+}
+
+VarEstimates::~VarEstimates() { }
+
+AccelVarEstimates::AccelVarEstimates() {
+
+	for (int i=0; i<B1; ++i) {
+		x_L[i] =-1.0/3000.0;;
+		x_U[i] = 1.0/3000.0;;
+	}
+
+	x_L[A11] = x_L[A22] = x_L[A33] = 1.0/1500.0;
+	x_U[A11] = x_U[A22] = x_U[A33] = 1.0/ 700.0;
+
+	x_L[B1] = 2000.0;
+	x_U[B1] = 2500.0;
+
+	x_L[B2] = 2250.0;
+	x_U[B2] = 2750.0;
+
+	x_L[B3] = 2000.0;
+	x_U[B3] = 2500.0;
+
+	x_0[A11] = 1.0/1180.0;
+	x_0[A22] = 1.0/1189.0;
+	x_0[A33] = 1.0/1106.0;
+
+	x_0[B1] = 2250.0;
+	x_0[B2] = 2500.0;
+	x_0[B3] = 2250.0;
+}
+
+MagnetoVarEstimates::MagnetoVarEstimates() {
+
+	for (int i=0; i<B1; ++i) {
+		x_L[i] =-1.0/1000.0;;
+		x_U[i] = 1.0/1000.0;;
+	}
+
+	x_L[A11] = x_L[A22] = x_L[A33] = 1.0/750.0;
+	x_U[A11] = x_U[A22] = x_U[A33] = 1.0/300.0;
+
+	x_L[B1] = -200.0;
+	x_U[B1] =  200.0;
+
+	x_L[B2] = -200.0;
+	x_U[B2] =  200.0;
+
+	x_L[B3] = -200.0;
+	x_U[B3] =  200.0;
+
+	x_0[A11] = 1.0/550.0;
+	x_0[A22] = 1.0/550.0;
+	x_0[A33] = 1.0/550.0;
+
+	x_0[B1] = -100.0;
+	x_0[B2] = -100.0;
+	x_0[B3] = -100.0;
 }
 
 }

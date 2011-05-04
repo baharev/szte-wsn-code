@@ -36,6 +36,7 @@
 
 #include <cmath>
 #include <vector>
+#include "CalibrationType.hpp"
 #include "MatrixVector.hpp"
 #include "StaticSample.hpp"
 
@@ -46,16 +47,20 @@ class EllipsoidObjective {
 
 public:
 
-	EllipsoidObjective(const std::vector<StaticSample>& samples)
+	EllipsoidObjective(const std::vector<StaticSample>& samples, CALIB_TYPE type)
 	: samples(samples)
 	{
-#ifdef ACCEL_CALIB
-		sample_at = &EllipsoidObjective::accel_at;
-#elif defined MAGNETO_CALIB
-		sample_at = &EllipsoidObjective::magn_at;
-#else
-#error Either accelerometer / megnetometer calibration should be chosen!
-#endif
+
+		if (type==ACCELEROMETER) {
+			sample_at = &EllipsoidObjective::accel_at;
+
+		}
+		else if (type==MAGNETOMETER) {
+			sample_at = &EllipsoidObjective::magn_at;
+		}
+		else {
+			// TODO Crashes...
+		}
 	}
 
 	T f(const T* const x);

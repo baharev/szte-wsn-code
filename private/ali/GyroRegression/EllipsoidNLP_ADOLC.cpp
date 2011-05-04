@@ -33,7 +33,7 @@
 
 #ifdef USE_ADOLC
 
-#include "EllipsoidNLP_ADOLC.hpp"
+#include "EllipsoidNLP.hpp"
 #include "EllipsoidObjective.hpp"
 
 #include <adolc.h>
@@ -50,8 +50,8 @@ class ObjDouble {
 
 public:
 
-	ObjDouble(const std::vector<StaticSample>& samples)
-	: obj(EllipsoidObjective<double> (samples))
+	ObjDouble(const std::vector<StaticSample>& samples, CALIB_TYPE type)
+	: obj(EllipsoidObjective<double> (samples, type))
 	{ }
 
 	double evaluate(const double* x) { return obj.f(x); }
@@ -65,8 +65,8 @@ class ObjAD {
 
 public:
 
-	ObjAD(const std::vector<StaticSample>& samples)
-	: obj(EllipsoidObjective<adouble > (samples))
+	ObjAD(const std::vector<StaticSample>& samples, CALIB_TYPE type)
+	: obj(EllipsoidObjective<adouble > (samples, type))
 	{
 
 	}
@@ -79,12 +79,22 @@ private:
 
 };
 
-EllipsoidNLP::EllipsoidNLP(const std::vector<StaticSample>& samples) :
+EllipsoidNLP::EllipsoidNLP(const std::vector<StaticSample>& samples, CALIB_TYPE type) :
 		minimizer(new double[N_VARS]),
-		obj(new ObjDouble(samples)),
-		ad(new  ObjAD(samples))
+		obj(new ObjDouble(samples, type)),
+		ad(new  ObjAD(samples, type)),
+		estimates(0)
 {
 
+	if (type==ACCELEROMETER) {
+		estimates = new AccelVarEstimates;
+	}
+	else if (type==MAGNETOMETER) {
+		estimates = new MagnetoVarEstimates;
+	}
+	else {
+		assert(false);
+	}
 }
 
 EllipsoidNLP::~EllipsoidNLP(){

@@ -31,36 +31,13 @@
 *      Author: Ali Baharev
 */
 
-#ifndef ELLIPSOIDOPTIMIZER_HPP_
-#define ELLIPSOIDOPTIMIZER_HPP_
-
-#include <memory>
-#include <vector>
-#include "CalibrationType.hpp"
+#ifndef CALIBRATIONTYPE_HPP_
+#define CALIBRATIONTYPE_HPP_
 
 namespace gyro {
 
-class StaticSample;
-
-class EllipsoidOptimizer {
-
-public:
-
-	EllipsoidOptimizer(const std::vector<StaticSample>& samples, CALIB_TYPE type);
-
-	const double* solution() const { return minimizer.get(); }
-
-private:
-
-	void init(const std::vector<StaticSample>& samples, CALIB_TYPE type);
-
-	void check_return_code(int ret_code) const;
-
-	void copy_solution(const double* const sol);
-
-	std::auto_ptr<double> minimizer;
-};
+enum CALIB_TYPE { ACCELEROMETER, MAGNETOMETER };
 
 }
 
-#endif // ELLIPSOIDOPTIMIZER_HPP_
+#endif

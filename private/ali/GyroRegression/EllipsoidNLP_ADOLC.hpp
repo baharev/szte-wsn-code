@@ -49,12 +49,13 @@ const int N_VARS(9);
 class ObjDouble;
 class ObjAD;
 class StaticSample;
+class VarEstimates;
 
 class EllipsoidNLP : public TNLP
 {
 public:
 
-	EllipsoidNLP(const std::vector<StaticSample>& samples);
+	EllipsoidNLP(const std::vector<StaticSample>& samples, CALIB_TYPE type);
 
 	const double* solution() const { return minimizer; }
 
@@ -110,13 +111,13 @@ private:
 
 	bool eval_constraints(Index n, const adouble *x, Index m, adouble* g) {	return true; }
 
-	enum { A11, A12, A13, A22, A23, A33, B1, B2, B3 };
-
 	double* const minimizer;
 
 	ObjDouble* const obj;
 
 	ObjAD*   const ad;
+
+	VarEstimates* estimates;
 
 	double **Jac;
 

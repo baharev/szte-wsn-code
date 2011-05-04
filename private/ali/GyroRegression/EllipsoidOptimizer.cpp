@@ -39,12 +39,12 @@
 
 namespace gyro {
 
-EllipsoidOptimizer::EllipsoidOptimizer(const std::vector<StaticSample>& samples)
+EllipsoidOptimizer::EllipsoidOptimizer(const std::vector<StaticSample>& samples, CALIB_TYPE type)
 : minimizer(new double[N_VARS])
 {
 	try {
 
-		init(samples);
+		init(samples, type);
 	}
 	catch (std::exception& ) {
 
@@ -56,7 +56,7 @@ EllipsoidOptimizer::EllipsoidOptimizer(const std::vector<StaticSample>& samples)
 	}
 }
 
-void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples) {
+void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples, CALIB_TYPE type) {
 
 	SmartPtr<IpoptApplication> app = new IpoptApplication();
 
@@ -79,9 +79,11 @@ void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples) {
 		throw std::runtime_error("initialization of IPOPT failed");
 	}
 
-	EllipsoidNLP* const nlp = new EllipsoidNLP(samples);
+	EllipsoidNLP* const nlp = new EllipsoidNLP(samples, type);
 
-	status = app->OptimizeTNLP(SmartPtr<TNLP>(nlp));
+	SmartPtr<TNLP> NLP(nlp);
+
+	status = app->OptimizeTNLP(NLP);
 
 	check_return_code(status);
 

@@ -33,6 +33,7 @@
 
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include "EllipsoidObjective.hpp"
 #include "EllipsoidOptimizer.hpp"
 #include "Log.hpp"
@@ -47,7 +48,7 @@ const int ERROR   = 1;
 
 }
 
-void print_results(const std::vector<StaticSample>& samples, const double x[9]) {
+void print_results(const std::vector<StaticSample>& samples, const double x[9], CALIB_TYPE type) {
 
 	using namespace std;
 
@@ -62,12 +63,19 @@ void print_results(const std::vector<StaticSample>& samples, const double x[9]) 
 
 	for (int i=0; i<6; ++i) {
 
-		cout << 1.0/x[i] << endl;
+		cout << ((x[i]!=0)? 1.0/x[i] : 0.0) << endl;
 	}
 
-	EllipsoidObjective<double> obj(samples);
+	EllipsoidObjective<double> obj(samples, type);
 
-	cout << endl << "Max error: " << obj.max_error(x) << endl;
+	cout << endl << "Max error: " << obj.max_error(x) << endl << endl;
+}
+
+void runOptimizer(const std::vector<StaticSample>& samples, CALIB_TYPE type) {
+
+	EllipsoidOptimizer opt(samples, type);
+
+	print_results(samples, opt.solution(), type);
 }
 
 void realMain(int argc, char* argv[]) {
@@ -76,9 +84,9 @@ void realMain(int argc, char* argv[]) {
 
 	const std::vector<StaticSample> samples = reader.get_samples();
 
-	EllipsoidOptimizer opt(samples);
+	runOptimizer(samples, ACCELEROMETER);
 
-	print_results(samples, opt.solution());
+	runOptimizer(samples, MAGNETOMETER);
 }
 
 int main(int argc, char* argv[]) {

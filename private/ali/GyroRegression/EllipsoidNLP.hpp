@@ -34,6 +34,8 @@
 #ifndef ELLIPSOIDNLP_HPP_
 #define ELLIPSOIDNLP_HPP_
 
+#include "CalibrationType.hpp"
+
 #ifdef USE_GRADTYPE
 #include "EllipsoidNLP_GradType.hpp"
 #elif defined USE_ADOLC
@@ -41,5 +43,45 @@
 #else
 #error Must define either USE_GRADTYPE or USE_ADOLC! (GRADTYPE is self-contained)
 #endif
+
+namespace gyro {
+
+class VarEstimates {
+
+public:
+
+	enum { A11, A12, A13, A22, A23, A33, B1, B2, B3 };
+
+	const double* lower_bounds()  const { return x_L; }
+	const double* upper_bounds()  const { return x_U; }
+	const double* initial_point() const { return x_0; }
+
+	virtual ~VarEstimates() = 0;
+
+protected:
+
+	VarEstimates();
+
+	double x_L[N_VARS];
+	double x_U[N_VARS];
+	double x_0[N_VARS];
+};
+
+class AccelVarEstimates : public VarEstimates {
+
+public:
+
+	AccelVarEstimates();
+};
+
+
+class MagnetoVarEstimates : public VarEstimates {
+
+public:
+
+	MagnetoVarEstimates();
+};
+
+}
 
 #endif // ELLIPSOIDNLP_HPP_

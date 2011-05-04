@@ -62,12 +62,14 @@ void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples) {
 
 	SmartPtr<OptionsList> opt = app->Options();
 
-	opt->SetNumericValue("tol", 1.0e-3);
+	opt->SetNumericValue("tol", 1.0e-4);
 	opt->SetIntegerValue("print_level", 0);
 	opt->SetStringValue("output_file", "ipopt.log");
 	opt->SetIntegerValue("file_print_level", 5);
 	opt->SetStringValue("hessian_approximation", "limited-memory");
 	opt->SetStringValue("limited_memory_update_type", "bfgs");
+	//opt->SetStringValue("derivative_test","first-order");
+	//opt->SetStringValue("derivative_test_print_all","yes");
 
 	ApplicationReturnStatus status(app->Initialize("ipopt.opt"));
 

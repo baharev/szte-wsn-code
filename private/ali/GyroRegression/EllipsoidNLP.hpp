@@ -31,84 +31,15 @@
 *      Author: Ali Baharev
 */
 
-#include <exception>
-#include <iostream>
-#include "EllipsoidObjective.hpp"
-#include "EllipsoidOptimizer.hpp"
-#include "Log.hpp"
-#include "StaticSample.hpp"
+#ifndef ELLIPSOIDNLP_HPP_
+#define ELLIPSOIDNLP_HPP_
 
-using namespace gyro;
+#ifdef USE_GRADTYPE
+#include "EllipsoidNLP_GradType.hpp"
+#elif defined USE_ADOLC
+#include "EllipsoidNLP_ADOLC.hpp"
+#else
+#error Must define either USE_GRADTYPE or USE_ADOLC! (GRADTYPE is self-contained)
+#endif
 
-namespace {
-
-const int SUCCESS = 0;
-const int ERROR   = 1;
-
-}
-
-void print_results(const std::vector<StaticSample>& samples, const double x[9]) {
-
-	using namespace std;
-
-	cout << "Solution" << endl;
-
-	for (int i=0; i<9; ++i) {
-
-		cout << x[i] << endl;
-	}
-
-	cout << endl << "1/scale (check if near variable bound)" << endl;
-
-	for (int i=0; i<6; ++i) {
-
-		cout << 1.0/x[i] << endl;
-	}
-
-	EllipsoidObjective<double> obj(samples);
-
-	cout << endl << "Max error: " << obj.max_abs_error(x) << endl;
-}
-
-void realMain(int argc, char* argv[]) {
-
-	StaticSampleReader reader(argv[1]);
-
-	const std::vector<StaticSample> samples = reader.get_samples();
-
-	EllipsoidOptimizer opt(samples);
-
-	print_results(samples, opt.solution());
-}
-
-int main(int argc, char* argv[]) {
-
-	if (argc!=3) {
-
-		log_error("invalid number of arguments, specify input and output files");
-
-		return ERROR;
-	}
-
-	try {
-
-		realMain(argc, argv);
-
-	}
-	catch (std::exception& excp) {
-
-		log_error(excp.what());
-
-		return ERROR;
-	}
-	catch (...) {
-
-		log_error("unhandled exception");
-
-		return ERROR;
-	}
-
-	log_success();
-
-	return SUCCESS;
-}
+#endif // ELLIPSOIDNLP_HPP_

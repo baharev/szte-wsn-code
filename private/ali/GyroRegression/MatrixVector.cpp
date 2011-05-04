@@ -35,6 +35,7 @@
 #include <ostream>
 #include "MatrixVector.hpp"
 #include "GradType.hpp"
+#include "adolc.h"
 
 namespace gyro {
 
@@ -354,5 +355,21 @@ template const Vector<GradType<9> > cross_product(const Vector<GradType<9> >& x,
 
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const Vector<GradType<9> >& v);
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const vector3& v);
+
+template class Vector<adouble>;
+template class Matrix<adouble>;
+
+template const Vector<adouble> operator+(const Vector<adouble>& x, const Vector<adouble>& y);
+template const Vector<adouble> operator-(const Vector<adouble>& x, const Vector<adouble>& y);
+template const Vector<adouble> operator*(const Vector<adouble>& x, double y);
+template const Vector<adouble> operator/(const Vector<adouble>& x, double y);
+template const Matrix<adouble> operator+(const Matrix<adouble>& A, const Matrix<adouble>& B);
+
+template const adouble operator*(const Vector<adouble>& x, const Vector<adouble>& y);
+template const Vector<adouble> operator*(const adouble& c, const Vector<adouble>& x);
+template const Vector<adouble> cross_product(const Vector<adouble>& x, const Vector<adouble>& y);
+
+template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
+template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3& v);
 
 }

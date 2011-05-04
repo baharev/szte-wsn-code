@@ -35,7 +35,7 @@
 #include "IpIpoptApplication.hpp"
 #include "IpSolveStatistics.hpp"
 #include "EllipsoidOptimizer.hpp"
-#include "EllipsoidNLP_GradType.hpp"
+#include "EllipsoidNLP.hpp"
 
 namespace gyro {
 
@@ -62,12 +62,13 @@ void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples) {
 
 	SmartPtr<OptionsList> opt = app->Options();
 
-	opt->SetNumericValue("tol", 1.0e-4);
+	opt->SetNumericValue("tol", 1.0e-9);
 	opt->SetIntegerValue("print_level", 0);
 	opt->SetStringValue("output_file", "ipopt.log");
 	opt->SetIntegerValue("file_print_level", 5);
-	opt->SetStringValue("hessian_approximation", "limited-memory");
-	opt->SetStringValue("limited_memory_update_type", "bfgs");
+	opt->SetStringValue("hessian_approximation", "exact");
+	//opt->SetStringValue("hessian_approximation", "limited-memory");
+	//opt->SetStringValue("limited_memory_update_type", "bfgs");
 	//opt->SetStringValue("derivative_test","first-order");
 	//opt->SetStringValue("derivative_test_print_all","yes");
 

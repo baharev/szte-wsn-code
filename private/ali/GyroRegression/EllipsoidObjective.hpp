@@ -59,15 +59,13 @@ public:
 
 private:
 
-	void set_A_b_sum(const T* const x) {
+	void set_A_b(const T* const x) {
 
 		A = Matrix<T> (	  x[0],   x[1], x[2],
 						T(0.0),   x[3], x[4],
 						T(0.0), T(0.0), x[5]);
 
 		b = Vector<T> (x+6);
-
-		sum = T(0.0);
 	}
 
 	template <typename MemFun> T accumulate(const T* const x, MemFun at);
@@ -81,27 +79,27 @@ private:
 	const std::vector<StaticSample> samples;
 
 	Matrix<T> A;
+
 	Vector<T> b;
-	T sum;
 };
 
 template <typename T>
 template <typename MemFun>
 T EllipsoidObjective<T>::accumulate(const T* const v, MemFun at) {
 
-	set_A_b_sum(v);
+	set_A_b(v);
 
-	const int n = size();
+	T sum(0.0);
 
-	const T one(1.0);
-
-	for (int i=0; i<n; ++i) {
+	for (int i=0; i<size(); ++i) {
 
 		const Vector<T> x((this->*at)(i));
 
 		Vector<T> y = A*(x-b); // TODO operator-(double, GradType) would be needed
 
-		sum += (y*y-one); // Detto
+		T err = y.length()-T(1.0); // Detto
+
+		sum += (err*err);
 	}
 
 	return sum;

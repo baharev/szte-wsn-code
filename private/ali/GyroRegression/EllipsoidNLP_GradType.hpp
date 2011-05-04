@@ -91,6 +91,8 @@ private:
 	EllipsoidNLP(const EllipsoidNLP&);
 	EllipsoidNLP& operator=(const EllipsoidNLP&);
 
+	enum { A11, A12, A13, A22, A23, A33, B1, B2, B3 };
+
 	double* const minimizer;
 
 	ObjDouble* const obj;

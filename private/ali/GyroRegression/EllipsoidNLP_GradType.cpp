@@ -125,19 +125,23 @@ bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		Index m, Number* g_l, Number* g_u)
 {
 	assert(n==N_VARS);
-	const int N_ELEM(6);
 
-	for (int i=0; i<N_ELEM; ++i) {
-		x_l[i] =-0.1;
-		x_u[i] = 0.1;
+	for (int i=0; i<B1; ++i) {
+		x_l[i] =-1.0/3000.0;;
+		x_u[i] = 1.0/3000.0;;
 	}
 
-	x_l[0] = x_l[3] = 0.0;
+	x_l[A11] = x_l[A22] = x_l[A33] = 1.0/1500.0;
+	x_u[A11] = x_u[A22] = x_u[A33] = 1.0/ 700.0;
 
-	for (int i=N_ELEM; i<N_VARS; ++i) {
-		x_l[i] =  1000.0;
-		x_u[i] =  3000.0;
-	}
+	x_l[B1] = 2000.0;
+	x_u[B1] = 2500.0;
+
+	x_l[B2] = 2250.0;
+	x_u[B2] = 2750.0;
+
+	x_l[B3] = 2000.0;
+	x_u[B3] = 2500.0;
 
 	// Set the bounds for the constraints
 	for (Index i=0; i<m; i++) {
@@ -160,6 +164,14 @@ bool EllipsoidNLP::get_starting_point(Index n, bool init_x, Number* x,
 	// set the starting point
 	for (Index i=0; i<n; i++)
 		x[i] = 0.0;
+
+	x[A11] = 1.0/1180.0;
+	x[A22] = 1.0/1189.0;
+	x[A33] = 1.0/1106.0;
+
+	x[B1] = 2250.0;
+	x[B2] = 2500.0;
+	x[B3] = 2250.0;
 
 	return true;
 }

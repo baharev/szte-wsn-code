@@ -49,7 +49,7 @@ public:
 	: obj(EllipsoidObjective<double> (samples))
 	{ }
 
-	double evaluate(const double* x) { return obj.accel(x); }
+	double evaluate(const double* x) { return obj.f(x); }
 
 private:
 
@@ -72,7 +72,7 @@ public:
 
 		init_vars(vars, x);
 
-		const GradType<N_VARS> result = obj.accel(vars);
+		const GradType<N_VARS> result = obj.f(vars);
 
 		const double* const g = result.gradient();
 
@@ -117,61 +117,6 @@ bool EllipsoidNLP::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
 	// use the C style indexing (0-based)
 	index_style = C_STYLE;
-
-	return true;
-}
-
-bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
-		Index m, Number* g_l, Number* g_u)
-{
-	assert(n==N_VARS);
-
-	for (int i=0; i<B1; ++i) {
-		x_l[i] =-1.0/3000.0;;
-		x_u[i] = 1.0/3000.0;;
-	}
-
-	x_l[A11] = x_l[A22] = x_l[A33] = 1.0/1500.0;
-	x_u[A11] = x_u[A22] = x_u[A33] = 1.0/ 700.0;
-
-	x_l[B1] = 2000.0;
-	x_u[B1] = 2500.0;
-
-	x_l[B2] = 2250.0;
-	x_u[B2] = 2750.0;
-
-	x_l[B3] = 2000.0;
-	x_u[B3] = 2500.0;
-
-	// Set the bounds for the constraints
-	for (Index i=0; i<m; i++) {
-		g_l[i] = 0;
-		g_u[i] = 0;
-	}
-
-	return true;
-}
-
-bool EllipsoidNLP::get_starting_point(Index n, bool init_x, Number* x,
-		bool init_z, Number* z_L, Number* z_U,
-		Index m, bool init_lambda,
-		Number* lambda)
-{
-	assert(init_x == true);
-	assert(init_z == false);
-	assert(init_lambda == false);
-
-	// set the starting point
-	for (Index i=0; i<n; i++)
-		x[i] = 0.0;
-
-	x[A11] = 1.0/1180.0;
-	x[A22] = 1.0/1189.0;
-	x[A33] = 1.0/1106.0;
-
-	x[B1] = 2250.0;
-	x[B2] = 2500.0;
-	x[B3] = 2250.0;
 
 	return true;
 }

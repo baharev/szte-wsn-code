@@ -48,6 +48,15 @@ public:
 
 	EllipsoidObjective(const std::vector<StaticSample>& samples) : samples(samples) { }
 
+	T f(const T* const x) {
+
+		return accel(x);
+	}
+
+	double max_abs_error(const double* const x);
+
+private:
+
 	T accel(const T* const x) {
 
 		return accumulate(x, &EllipsoidObjective::accel_at);
@@ -57,10 +66,6 @@ public:
 
 		return accumulate(x, &EllipsoidObjective::magn_at);
 	}
-
-	double max_abs_error(const double* const x);
-
-private:
 
 	void set_A_b(const T* const x) {
 

@@ -50,7 +50,7 @@ public:
 	EllipsoidObjective(const std::vector<StaticSample>& samples, CALIB_TYPE type)
 	: samples(samples)
 	{
-
+		// Could be eliminated but that would make EllipsoidNLP and EllipsoidOptimizer template
 		if (type==ACCELEROMETER) {
 			sample_at = &EllipsoidObjective::accel_at;
 

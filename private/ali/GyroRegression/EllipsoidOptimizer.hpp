@@ -50,15 +50,23 @@ public:
 
 	const double* solution() const { return minimizer.get(); }
 
+	double max_error() const { return maximum_error; }
+
 private:
 
-	void init(const std::vector<StaticSample>& samples, CALIB_TYPE type);
+	void init();
 
 	void check_return_code(int ret_code) const;
 
-	void copy_solution(const double* const sol);
+	void postprocess_solution(const double* const sol);
+
+	const CALIB_TYPE type;
+
+	const std::vector<StaticSample>& samples;
 
 	std::auto_ptr<double> minimizer;
+
+	double maximum_error;
 };
 
 }

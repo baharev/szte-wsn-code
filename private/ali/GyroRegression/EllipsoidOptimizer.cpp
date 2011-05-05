@@ -36,15 +36,16 @@
 #include "IpSolveStatistics.hpp"
 #include "EllipsoidOptimizer.hpp"
 #include "EllipsoidNLP.hpp"
+#include "EllipsoidObjective.hpp"
 
 namespace gyro {
 
 EllipsoidOptimizer::EllipsoidOptimizer(const std::vector<StaticSample>& samples, CALIB_TYPE type)
-: minimizer(new double[N_VARS])
+: type(type), samples(samples), minimizer(new double[N_VARS])
 {
 	try {
 
-		init(samples, type);
+		init();
 	}
 	catch (std::exception& ) {
 
@@ -56,7 +57,7 @@ EllipsoidOptimizer::EllipsoidOptimizer(const std::vector<StaticSample>& samples,
 	}
 }
 
-void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples, CALIB_TYPE type) {
+void EllipsoidOptimizer::init() {
 
 	SmartPtr<IpoptApplication> app = new IpoptApplication();
 
@@ -87,7 +88,7 @@ void EllipsoidOptimizer::init(const std::vector<StaticSample>& samples, CALIB_TY
 
 	check_return_code(status);
 
-	copy_solution(nlp->solution());
+	postprocess_solution(nlp->solution());
 }
 
 void EllipsoidOptimizer::check_return_code(int status) const {
@@ -106,13 +107,22 @@ void EllipsoidOptimizer::check_return_code(int status) const {
 	}
 }
 
-void EllipsoidOptimizer::copy_solution(const double* const x) {
+void EllipsoidOptimizer::postprocess_solution(const double* const x) {
 
 	double* const sol = minimizer.get();
 
 	for (int i=0; i<N_VARS; ++i) {
 
 		sol[i] = x[i];
+	}
+
+	EllipsoidObjective<double> obj(samples, type);
+
+	maximum_error = obj.max_error(x);
+
+	if (std::fabs(maximum_error) > 0.01) {
+
+		throw std::runtime_error("poor quality objective, check the log");
 	}
 }
 

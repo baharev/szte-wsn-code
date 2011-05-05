@@ -60,6 +60,8 @@ public:
 
 	int get_mote_id() const { return moteID; }
 
+	const std::string mote_id_str() const;
+
 	const std::vector<StaticSample>& get_samples() const { return samples; }
 
 	~StaticSampleReader();

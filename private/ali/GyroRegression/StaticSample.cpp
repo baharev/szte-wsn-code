@@ -96,6 +96,15 @@ void StaticSampleReader::parseLine(const string& line) {
 	samples.push_back(StaticSample(acc, mag));
 }
 
+const string StaticSampleReader::mote_id_str() const {
+
+	ostringstream oss;
+
+	oss << moteID << flush;
+
+	return oss.str();
+}
+
 StaticSampleReader::~StaticSampleReader() {
 	// Do NOT remove, needed to generate dtor of auto_ptr
 }

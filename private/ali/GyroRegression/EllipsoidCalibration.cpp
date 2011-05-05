@@ -38,24 +38,24 @@
 #include "Log.hpp"
 #include "StaticSample.hpp"
 
+using namespace std;
 using namespace gyro;
 
 namespace {
 
 const int SUCCESS = 0;
 const int ERROR   = 1;
+const int N_VARS  = 9;
 
 }
 
 void print_results(const EllipsoidOptimizer& opt) {
 
-	using namespace std;
-
 	const double* const x = opt.solution();
 
 	cout << "Solution" << endl;
 
-	for (int i=0; i<9; ++i) {
+	for (int i=0; i<N_VARS; ++i) {
 
 		cout << x[i] << endl;
 	}
@@ -70,20 +70,46 @@ void print_results(const EllipsoidOptimizer& opt) {
 	cout << endl << "Max error: " << opt.max_error() << endl << endl;
 }
 
-void runOptimizer(const StaticSampleReader& reader, CALIB_TYPE type) {
+void write_results(fstream& out, const double* x) {
+
+	for (int i=0; i<N_VARS; ++i) {
+
+		out << x[i] << '\n';
+	}
+
+	out << flush;
+}
+
+void runOptimizer(const StaticSampleReader& reader, CALIB_TYPE type, fstream& out) {
 
 	EllipsoidOptimizer opt(reader.get_samples(), type);
 
 	print_results(opt);
+
+	write_results(out, opt.solution());
 }
 
-void realMain(int argc, char* argv[]) {
+void realMain(const char* input_file, const char* output_file) {
 
-	StaticSampleReader reader(argv[1]);
+	StaticSampleReader reader(input_file);
 
-	runOptimizer(reader, ACCELEROMETER);
+	string outfile(output_file+reader.mote_id_str()+".cal");
 
-	runOptimizer(reader, MAGNETOMETER);
+	fstream out(outfile.c_str(), ios_base::out);
+
+	out << "# Mote ID\n";
+
+	out << reader.mote_id_str() << '\n';
+
+	out << "# Accelerometer A11, A12, A13, A22, A23, A33, B1, B2, B3; y = A(x-b)\n";
+
+	runOptimizer(reader, ACCELEROMETER, out);
+
+	out << "# Magnetometer A11, A12, A13, A22, A23, A33, B1, B2, B3; y = A(x-b)\n";
+
+	runOptimizer(reader, MAGNETOMETER, out);
+
+	out << '\n';
 }
 
 int main(int argc, char* argv[]) {
@@ -97,10 +123,10 @@ int main(int argc, char* argv[]) {
 
 	try {
 
-		realMain(argc, argv);
+		realMain(argv[1], argv[2]);
 
 	}
-	catch (std::exception& excp) {
+	catch (exception& excp) {
 
 		log_error(excp.what());
 

@@ -72,6 +72,7 @@ template const vector3 operator*(const vector3& x, double y);
 template const vector3 operator/(const vector3& x, double y);
 template const matrix3 operator+(const matrix3& A, const matrix3& B);
 
+template std::ostream& operator<<(std::ostream& os, const vector3& x);
 template const double  operator*(const vector3& x, const vector3& y);
 template const vector3 operator*(const double& c, const vector3& x);
 template const vector3 cross_product(const vector3& x, const vector3& y);
@@ -87,6 +88,7 @@ template const Vector<GradType<12> > operator*(const Vector<GradType<12> >& x, d
 template const Vector<GradType<12> > operator/(const Vector<GradType<12> >& x, double y);
 template const Matrix<GradType<12> > operator+(const Matrix<GradType<12> >& A, const Matrix<GradType<12> >& B);
 
+template std::ostream& operator<<(std::ostream& os, const Vector<GradType<12> >& x);
 template const GradType<12>  operator*(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
 template const Vector<GradType<12> > operator*(const GradType<12> & c, const Vector<GradType<12> >& x);
 template const Vector<GradType<12> > cross_product(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
@@ -103,6 +105,7 @@ template const Vector<GradType<9> > operator*(const Vector<GradType<9> >& x, dou
 template const Vector<GradType<9> > operator/(const Vector<GradType<9> >& x, double y);
 template const Matrix<GradType<9> > operator+(const Matrix<GradType<9> >& A, const Matrix<GradType<9> >& B);
 
+template std::ostream& operator<<(std::ostream& os, const Vector<GradType<9> >& x);
 template const GradType<9>  operator*(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
 template const Vector<GradType<9> > operator*(const GradType<9> & c, const Vector<GradType<9> >& x);
 template const Vector<GradType<9> > cross_product(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
@@ -119,6 +122,7 @@ template const Vector<adouble> operator*(const Vector<adouble>& x, double y);
 template const Vector<adouble> operator/(const Vector<adouble>& x, double y);
 template const Matrix<adouble> operator+(const Matrix<adouble>& A, const Matrix<adouble>& B);
 
+template std::ostream& operator<<(std::ostream& os, const Vector<adouble>& x);
 template const adouble operator*(const Vector<adouble>& x, const Vector<adouble>& y);
 template const Vector<adouble> operator*(const adouble& c, const Vector<adouble>& x);
 template const Vector<adouble> cross_product(const Vector<adouble>& x, const Vector<adouble>& y);

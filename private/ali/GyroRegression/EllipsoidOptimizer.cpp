@@ -118,11 +118,14 @@ void EllipsoidOptimizer::postprocess_solution(const double* const x) {
 
 	EllipsoidObjective<double> obj(samples, type);
 
-	maximum_error = obj.max_error(x);
+	std::pair<int,double> p = obj.max_error(x);
+	// TODO Drop the outlier and restart?
+	int index     = p.first; // Zero-based!
+	maximum_error = p.second;
 
-	if (std::fabs(maximum_error) > 0.01) {
+	if (std::fabs(maximum_error) > 0.02) {
 
-		throw std::runtime_error("poor quality objective, check the log");
+		throw std::runtime_error("poor quality solution, check the log");
 	}
 }
 

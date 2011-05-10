@@ -126,7 +126,7 @@ MagnetoVarEstimates::MagnetoVarEstimates() {
 	x_L[A11] = x_L[A22] = x_L[A33] = 1.0/750.0;
 	x_U[A11] = x_U[A22] = x_U[A33] = 1.0/300.0;
 
-	x_L[B1] = -200.0;
+	x_L[B1] = -250.0;
 	x_U[B1] =  200.0;
 
 	x_L[B2] = -200.0;

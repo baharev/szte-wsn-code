@@ -36,6 +36,7 @@
 
 #include <cmath>
 #include <vector>
+#include <utility>
 #include "CalibrationType.hpp"
 #include "MatrixVector.hpp"
 #include "StaticSample.hpp"
@@ -65,7 +66,7 @@ public:
 
 	T f(const T* const x);
 
-	double max_error(const double* const x);
+	std::pair<int,double> max_error(const double* const x);
 
 private:
 
@@ -123,11 +124,13 @@ T EllipsoidObjective<T>::f(const T* const v) {
 
 // FIXME Separate interface and implementation
 template<>
-inline double EllipsoidObjective<double>::max_error(const double* const v) {
+inline std::pair<int,double> EllipsoidObjective<double>::max_error(const double* const v) {
 
 	set_A_b(v);
 
 	double max_err(0.0);
+
+	int index = -1;
 
 	for (int i=0; i<size(); ++i) {
 
@@ -136,10 +139,11 @@ inline double EllipsoidObjective<double>::max_error(const double* const v) {
 		if (std::fabs(err) > std::fabs(max_err)) {
 
 			max_err = err;
+			index = i;
 		}
 	}
 
-	return max_err;
+	return std::make_pair(index, max_err);
 }
 
 }

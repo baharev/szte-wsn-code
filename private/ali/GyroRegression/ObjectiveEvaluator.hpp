@@ -38,7 +38,7 @@
 #include "InputData.hpp"
 #include "CompileTimeConstants.hpp"
 
-#define NEW_VERSION
+//#define NEW_VERSION
 #ifdef NEW_VERSION
 
 #include "MatrixVector.hpp"
@@ -304,18 +304,30 @@ private:
 
 	void compute_G(const int i, const T* const x) {
 
+		C_11 = 1.0;
+		C_12 = 0.0;
+		C_13 = 0.0;
+
+		C_21 = 0.0;
+		C_22 = 1.0;
+		C_23 = 0.0;
+
+		C_31 = 0.0;
+		C_32 = 0.0;
+		C_33 = 1.0;
+
 		// FIXME C and d does NOT change with i
-		C_11 = x[0] + 1.0;
-		C_12 = x[1];
-		C_13 = x[2];
+		//C_11 = x[0] + 1.0;
+		//C_12 = x[1];
+		//C_13 = x[2];
 
-		C_21 = x[3];
-		C_22 = x[4] + 1.0;  // <-- FIXME Fix in calibration
-		C_23 = x[5];
+		//C_21 = x[3];
+		//C_22 = x[4] + 1.0;  // <-- FIXME Fix in calibration
+		//C_23 = x[5];
 
-		C_31 = x[6];
-		C_32 = x[7];
-		C_33 = x[8] + 1.0;
+		//C_31 = x[6];
+		//C_32 = x[7];
+		//C_33 = x[8] + 1.0;
 
 		d1 = x[ 9];
 		d2 = x[10];

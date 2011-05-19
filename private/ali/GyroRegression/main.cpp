@@ -52,7 +52,11 @@ void run_solver(const Input& data, const char* outfile) {
 
 	const double* const x = opt.solution();
 
-	RotationMatrix rot(data, x);
+	const double X[12] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, x[9], x[10], x[11] };
+
+	//const double X[12] = { x[0], x[1], x[2], 0.0, x[4], x[5], 0.0, 0.0, x[8], x[9], x[10], x[11] };
+
+	RotationMatrix rot(data, X);
 
 	write_result(outfile, opt, data, rot);
 
@@ -60,6 +64,7 @@ void run_solver(const Input& data, const char* outfile) {
 		cout << x[i] << endl;
 	}
 
+/*
 	fstream out("error.txt", ios_base::out);
 
 	PIFeedBack<double> pif(data, out, false);
@@ -68,7 +73,6 @@ void run_solver(const Input& data, const char* outfile) {
 
 	pif.f(x);
 
-/*
 	PathOptimizer path(rot.matrices(), data);
 
 	const double* const y = path.solution();

@@ -55,8 +55,6 @@ public:
 
 	void dump_g_err(std::ostream& log = std::cout) const;
 
-	const double* matrices() const;
-
 	~RotationMatrix();
 
 private:

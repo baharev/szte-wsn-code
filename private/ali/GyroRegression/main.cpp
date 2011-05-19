@@ -31,16 +31,12 @@
 * Author: Ali Baharev
 */
 
-#include <fstream>
 #include <iostream>
 #include "CompileTimeConstants.hpp"
 #include "Optimizer.hpp"
-#include "PathOptimizer.hpp"
-#include "PathCalculator.hpp"
 #include "DataIO.hpp"
 #include "RotationMatrix.hpp"
 #include "InputData.hpp"
-#include "PIFeedBack.hpp"
 
 using namespace std;
 
@@ -54,50 +50,51 @@ void run_solver(const Input& data, const char* outfile) {
 
 	const double X[12] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, x[9], x[10], x[11] };
 
-	//const double X[12] = { x[0], x[1], x[2], 0.0, x[4], x[5], 0.0, 0.0, x[8], x[9], x[10], x[11] };
-
 	RotationMatrix rot(data, X);
 
 	write_result(outfile, opt, data, rot);
 
 	for (int i=0; i<12; ++i) {
-		cout << x[i] << endl;
+
+		cout << X[i] << endl;
 	}
+}
 
-/*
-	fstream out("error.txt", ios_base::out);
+void real_main(const char* input_filename, const char* output_filename) {
 
-	PIFeedBack<double> pif(data, out, false);
+	const Input* data = read_file(input_filename);
 
-	pif.set_M_Matrix(rot.matrices());
+	run_solver(*data, output_filename);
 
-	pif.f(x);
-
-	PathOptimizer path(rot.matrices(), data);
-
-	const double* const y = path.solution();
-
-	dump_path(rot.matrices(), data, y, outfile);
-
-	for (int i=0; i<12; ++i) {
-		cout << y[i] << endl;
-	}
-*/
+	delete data;
 }
 
 int main(int argc, char* argv[]) {
 
 	if (argc!=3) {
+
 		cerr << "Usage: " << argv[0] << " input_file_name  output_file_name" << endl;
+		cerr << "Built on " __DATE__ " " __TIME__ << endl;;
+
 		return ERROR_ARG_COUNT;
 	}
 
-	const Input* data = read_file(argv[1]);
+	try {
 
-	run_solver(*data, argv[2]);
+		real_main(argv[1], argv[2]);
+	}
+	catch (std::exception& e) {
 
-	delete data;
+		cerr << "Runtime error: " << e.what() << endl;
+
+		return ERROR_UNKNOWN;
+	}
+	catch (...) {
+
+		cerr << "Unknown exception type (IPOPT?)" << endl;
+
+		return ERROR_UNKNOWN;
+	}
 
 	return SUCCESS;
-
 }

@@ -31,8 +31,6 @@
 * Author: Ali Baharev
 */
 
-// FIXME Remove fstream; add new exit-code for runtime-error
-#include <fstream>
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
@@ -118,11 +116,11 @@ RotationMatrix::RotationMatrix(	const Input& data,
 
 	orthogonality_accept();
 
+	/*
 	ofstream out("tilt_angles.txt");
 
 	dump_angles(data, out);
 
-	/*
 	ofstream out("path_dump");
 
 	dump_path(data, out);
@@ -178,10 +176,6 @@ void RotationMatrix::dump_g_err(ostream& log) const {
 		const int k = 3*i;
 		log << g_err[k] << '\t' << g_err[k+1] << '\t' << g_err[k+2] << endl;
 	}
-}
-
-const double* RotationMatrix::matrices() const {
-	return R;
 }
 
 void RotationMatrix::compute_M(const double ax,

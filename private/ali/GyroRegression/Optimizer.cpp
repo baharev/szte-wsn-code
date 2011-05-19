@@ -48,61 +48,55 @@ namespace gyro {
 
 Optimizer::Optimizer(const Input& data, std::ostream& os, bool verbose) {
 
-	try {
+	SmartPtr<IpoptApplication> app = new IpoptApplication();
 
-		SmartPtr<IpoptApplication> app = new IpoptApplication();
+	SmartPtr<OptionsList> opt = app->Options();
 
-		SmartPtr<OptionsList> opt = app->Options();
+	opt->SetNumericValue("tol", 1.0e-3);
+	opt->SetIntegerValue("print_level", 0);
+	opt->SetStringValue("output_file", "ipopt.log");
+	opt->SetIntegerValue("file_print_level", 5);
+	opt->SetStringValue("hessian_approximation", "limited-memory");
+	opt->SetStringValue("limited_memory_update_type", "bfgs");
 
-		opt->SetNumericValue("tol", 1.0e-3);
-		opt->SetIntegerValue("print_level", 0);
-		opt->SetStringValue("output_file", "ipopt.log");
-		opt->SetIntegerValue("file_print_level", 5);
-		opt->SetStringValue("hessian_approximation", "limited-memory");
-		opt->SetStringValue("limited_memory_update_type", "bfgs");
+	ApplicationReturnStatus status(app->Initialize("ipopt.opt"));
 
-		ApplicationReturnStatus status(app->Initialize("ipopt.opt"));
-
-		if (status != Solve_Succeeded) {
-			cerr << "Error during initialization of IPOPT!" << endl;
-			exit(ERROR_INITIALIZATION);
-		}
-
-		GyroNLP* const gyro_nlp = new GyroNLP(data, os, verbose);
-
-		gyro_nlp->get_bounds_info(NUMBER_OF_VARIABLES, var_lb_, var_ub_, 0, 0, 0);
-
-		conf_file_id = gyro_nlp->config_file_id();
-
-		status = app->OptimizeTNLP(SmartPtr<TNLP>(gyro_nlp));
-
-		if (status == Invalid_Option) {
-			cerr << "Error: invalid option!" << endl;
-			exit(ERROR_INVALID_OPTION);
-		}
-		else if (status == Invalid_Number_Detected) {
-			cerr << "Error during function or derivative evaluation!" << endl;
-			exit(ERROR_NUMBER_INVALID);
-		}
-		else if (status != Solve_Succeeded && status != Solved_To_Acceptable_Level) {
-			cerr << "Error during optimization, code: " << status << "!" << endl;
-			exit(ERROR_OPTIMIZATION);
-		}
-
-		g_computed = std::sqrt(-app->Statistics()->FinalObjective());
-
-		g_error = g_computed - (fabs(data.g_ref()));
-
-		const double* x = gyro_nlp->solution();
-
-		for (int i=0; i<NUMBER_OF_VARIABLES; ++i) {
-			minimizer[i] = x[i];
-		}
-
+	if (status != Solve_Succeeded) {
+		cerr << "Error during initialization of IPOPT!" << endl;
+		exit(ERROR_INITIALIZATION);
 	}
-	catch(...) {
-		cerr << "Unknown error!" << endl;
-		exit(ERROR_UNKNOWN);
+
+	GyroNLP* const gyro_nlp = new GyroNLP(data, os, verbose);
+
+	gyro_nlp->get_bounds_info(NUMBER_OF_VARIABLES, var_lb_, var_ub_, 0, 0, 0);
+
+	conf_file_id = gyro_nlp->config_file_id();
+
+	SmartPtr<TNLP> NLP(gyro_nlp);
+
+	status = app->OptimizeTNLP(NLP);
+
+	if (status == Invalid_Option) {
+		cerr << "Error: invalid option!" << endl;
+		exit(ERROR_INVALID_OPTION);
+	}
+	else if (status == Invalid_Number_Detected) {
+		cerr << "Error during function or derivative evaluation!" << endl;
+		exit(ERROR_NUMBER_INVALID);
+	}
+	else if (status != Solve_Succeeded && status != Solved_To_Acceptable_Level) {
+		cerr << "Error during optimization, code: " << status << "!" << endl;
+		exit(ERROR_OPTIMIZATION);
+	}
+
+	g_computed = std::sqrt(-app->Statistics()->FinalObjective());
+
+	g_error = g_computed - (fabs(data.g_ref()));
+
+	const double* x = gyro_nlp->solution();
+
+	for (int i=0; i<NUMBER_OF_VARIABLES; ++i) {
+		minimizer[i] = x[i];
 	}
 }
 

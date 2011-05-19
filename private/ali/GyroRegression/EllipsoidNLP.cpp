@@ -31,8 +31,8 @@
 *      Author: Ali Baharev
 */
 
+#ifdef USE_ADOLC
 #include "EllipsoidNLP.hpp"
-
 namespace gyro {
 
 bool EllipsoidNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
@@ -145,3 +145,5 @@ MagnetoVarEstimates::MagnetoVarEstimates() {
 }
 
 }
+
+#endif

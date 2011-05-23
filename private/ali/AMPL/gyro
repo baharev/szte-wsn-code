@@ -1,0 +1,159 @@
+
+option showstats 1;
+option solver "/home/ali/ampl/ipopt";
+
+param X := 1 integer;
+param Y := 2 integer;
+param Z := 3 integer;
+
+set coord := { X, Y, Z };
+
+param R0 { i in coord, j in coord } default 0.0;
+
+### VARIABLE LOWER BOUNDS, UPPER BOUNDS AND INITIAL ESTIMATES ###
+
+param gain_L { i in coord, j in coord } default -1.0;
+param gain_U { i in coord, j in coord } default  2.0;
+param gain_0 { i in coord, j in coord } default  1.0;
+
+param offset_L { i in coord } default -1.0;
+param offset_U { i in coord } default  1.0;
+param offset_0 { i in coord } default  0.0;
+
+### INPUT DATA ###
+
+param N_SAMPLES > 1 integer;
+
+set samples := { 1..N_SAMPLES };
+
+param gyro  { samples, coord };
+
+param accel { samples, coord };
+
+param TICKS_PER_SEC;
+
+param timestamp { samples };
+
+param time_step { k in 1..N_SAMPLES-1 } = ((timestamp[k+1]-timestamp[k])/TICKS_PER_SEC)/2.0;
+
+### VARIABLES ###
+
+var gain { i in coord, j in coord } >= gain_L[i,j], <= gain_U[i,j], := gain_0[i,j];
+
+var offset { i in coord } >= offset_L[i], <= offset_U[i], := offset_0[i];
+
+### DEFINED VARIABLES ###
+
+var angular_rate { s in samples, i in coord } =
+  sum { j in coord } (gain[i,j]*gyro[s,i] + offset[i]);
+
+var angle { k in 1..N_SAMPLES-1, i in coord } =
+  angular_rate[k,i]*time_step[k];
+
+var G { k in 1..N_SAMPLES-1, i in coord, j in coord } =
+  (if i=j then 1.0) +
+  (if i=X and j=Y then -angle[k,Z]) +
+  (if i=X and j=Z then  angle[k,Y]) +
+  (if i=Y and j=X then  angle[k,Z]) +
+  (if i=Y and j=Z then -angle[k,X]) +
+  (if i=Z and j=X then -angle[k,Y]) +
+  (if i=Z and j=Y then  angle[k,X]) ;
+
+### LOOP STARTS HERE ###
+
+var R { k in 1..N_SAMPLES, i in coord, j in coord };
+
+var R_update { k in 2..N_SAMPLES, i in coord, j in coord } = 
+  sum { r in coord, s in coord } R[k-1,i,s]*G[k-1,r,j];
+
+var err { k in 2..N_SAMPLES } =
+  sum {i in coord} R_update[k,X,i]*R_update[k,Y,i]/2.0;
+
+var R_x { k in 2..N_SAMPLES, i in coord } =
+  R_update[k,X,i] - err[k]*R_update[k,Y,i];
+
+var R_y { k in 2..N_SAMPLES, i in coord } =
+  R_update[k,Y,i] - err[k]*R_update[k,X,i];
+
+var R_z { k in 2..N_SAMPLES, i in coord } =
+  (if i=X then R_x[k,Y]*R_y[k,Z]-R_x[k,Z]*R_y[k,Y]) +
+  (if i=Y then R_x[k,Z]*R_y[k,X]-R_x[k,X]*R_y[k,Z]) +
+  (if i=Z then R_x[k,X]*R_y[k,Y]-R_x[k,Y]*R_y[k,X]) ;
+
+var Correction { k in 2..N_SAMPLES, j in coord } =
+  (if j=X then (3.0 - sum {i in coord } R_x[k,i]*R_x[k,i])/2.0 ) +
+  (if j=Y then (3.0 - sum {i in coord } R_y[k,i]*R_y[k,i])/2.0 ) +
+  (if j=Z then (3.0 - sum {i in coord } R_z[k,i]*R_z[k,i])/2.0 );
+
+var R_x_new { k in 2..N_SAMPLES, i in coord } =
+  Correction[k,i]*R_x[k,i];
+
+var R_y_new { k in 2..N_SAMPLES, i in coord } =
+  Correction[k,i]*R_y[k,i];
+
+var R_z_new { k in 2..N_SAMPLES, i in coord } =
+  Correction[k,i]*R_z[k,i];
+
+var a_rotated { k in 2..N_SAMPLES, j in coord } =
+  sum { i in coord } R[k,i,j]*accel[k,j];
+
+var a_sum { j in coord } =
+  sum { k in 2..N_SAMPLES } a_rotated[k,j];
+
+### OBJECTIVE ###
+
+maximize z:
+  sum {i in coord } a_sum[i]*a_sum[i];
+
+### CONSTRAINT ###
+
+s.t.
+
+Rotation { k in 1..N_SAMPLES, i in coord, j in coord }:
+
+  R[k,i,j] =
+  
+  if k=1 then R0[i,j] else
+
+  (if i=X then R_x_new[k,j]) +
+  (if i=Y then R_y_new[k,j]) +
+  (if i=Z then R_z_new[k,j]);
+
+################################################################################
+
+data;
+
+param N_SAMPLES := 4;
+
+param TICKS_PER_SEC := 1.0;
+
+param timestamp := 
+1  0.1
+2  0.2
+3  0.3
+4  0.4
+;
+
+param gyro :
+   1  2  3  :=
+1  0.1  0.2  0.3
+2  0.2  0.2  0.3
+3  0.3  0.2  0.3
+4  0.1  0.1  0.1
+;
+
+param accel :
+   1  2  3  :=
+1  0.1  0.2  0.3
+2  0.2  0.2  0.3
+3  0.3  0.2  0.3
+4  0.1  0.1  0.1
+;
+
+for { i in coord } {
+
+  let     R0[i,i] := 1.0;
+  let gain_0[i,i] := 1.0
+}
+
+end;

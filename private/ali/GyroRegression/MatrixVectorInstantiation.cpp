@@ -31,7 +31,6 @@
 *      Author: Ali Baharev
 */
 
-#include <cmath>
 #include <ostream>
 #include "GradType.hpp"
 #include "adolc.h"

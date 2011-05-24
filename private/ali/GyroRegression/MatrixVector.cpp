@@ -31,6 +31,7 @@
 *      Author: Ali Baharev
 */
 
+#include <cmath>
 #include <ostream>
 #include "MatrixVector.hpp"
 

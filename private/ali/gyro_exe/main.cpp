@@ -48,8 +48,31 @@ void run_solver(const Input& data, const char* outfile) {
 	Optimizer opt(data);
 
 	const double* const x = opt.solution();
+/*
+    const double X[12] = {  0.0, 0.0, 0.0,
+                            0.0, 0.0, 0.0,
+                            0.0, 0.0, 0.0,
 
-	const double X[12] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, x[9], x[10], x[11] };
+                           x[9], x[10], x[11]
+                         };
+*/
+/*
+    const double X[12] = { x[0],  0.0, 0.0,
+                            0.0, x[4], 0.0,
+                            0.0, 0.0, x[8],
+
+                            x[9], x[10], x[11]
+                         };
+*/
+/*
+    const double X[12] = { x[0], x[1], x[2],
+                            0.0, x[4], x[5],
+                            0.0,  0.0, x[8],
+
+                           x[9], x[10], x[11]
+                         };
+*/
+	const double* X = opt.solution();
 
 	RotationMatrix rot(data, X);
 

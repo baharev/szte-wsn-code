@@ -84,7 +84,22 @@ private:
 
 		R = Matrix<T>::identity();
 
-		C = Matrix<T>::identity() /*+ Matrix<T> (x)*/;
+		// Offset only
+		//C = Matrix<T>::identity();
+
+		// 3 diagonal and offset
+		//C = Matrix<T> ( 1.0 + x[0], 0.0,        0.0,
+        //                0.0,        1.0 + x[4], 0.0,
+        //                0.0,        0.0,        1.0 + x[8] );
+
+		// 6 elements as in ellipsoid calibration and offset
+		//C = Matrix<T> ( 1.0 + x[0], x[1],       x[2],
+        //                0.0,        1.0 + x[4], x[5],
+        //                0.0,        0.0,        1.0 + x[8] );
+
+		// All 9 elements and offset
+		C = Matrix<T>::identity() + Matrix<T> (x);
+
 		d = Vector<T>(x+9);
 	}
 

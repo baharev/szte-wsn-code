@@ -84,7 +84,7 @@ private:
 
 		R = Matrix<T>::identity();
 
-		C = Matrix<T>::identity() + Matrix<T> (x);
+		C = Matrix<T>::identity() /*+ Matrix<T> (x)*/;
 		d = Vector<T>(x+9);
 	}
 

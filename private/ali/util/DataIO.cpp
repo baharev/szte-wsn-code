@@ -31,18 +31,18 @@
 * Author: Ali Baharev
 */
 
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstdlib>
 #include <cmath>
-#include "InputData.hpp"
 #include "DataIO.hpp"
+#include "InputData.hpp"
+#include "Result.hpp"
 #include "CompileTimeConstants.hpp"
 
 using namespace std;
-
-typedef double NT;
 
 namespace gyro {
 
@@ -79,8 +79,8 @@ void check_time_stamp(int sample, double current) {
 
 Input* grab_content(const char* filename) {
 
-	double dt    = NT(SAMPLING_RATE_TICK/TICKS_PER_SEC);
-	double g_ref = NT(GRAVITY);
+	double dt    = SAMPLING_RATE_TICK/TICKS_PER_SEC;
+	double g_ref = GRAVITY;
 
 	ifstream in;
 
@@ -105,15 +105,15 @@ Input* grab_content(const char* filename) {
 
 	skip_line(in, INPUT_DATA);
 
-	double* time_stamp = new NT[N];
+	double* time_stamp = new double[N];
 
-	double* wx = new NT[N];
-	double* wy = new NT[N];
-	double* wz = new NT[N];
+	double* wx = new double[N];
+	double* wy = new double[N];
+	double* wz = new double[N];
 
-	double* acc_x = new NT[N];
-	double* acc_y = new NT[N];
-	double* acc_z = new NT[N];
+	double* acc_x = new double[N];
+	double* acc_y = new double[N];
+	double* acc_z = new double[N];
 
 	for (int i=0; i<N; ++i) {
 
@@ -153,6 +153,85 @@ Input* read_file(const char* filename) {
 	}
 
 	return input;
+}
+
+void print_vector(ostream& out, const double* x, const int length) {
+
+	for (int i=0; i<length; ++i) {
+		out << x[i] << '\n';
+	}
+}
+
+void print_rotation_matrices(ostream& out, const double* const R, const int N) {
+
+	out << scientific;
+
+	out << setprecision(16);
+
+	for (int k=0; k<N; ++k) {
+
+		const double* const mat = R + 9*k;
+
+		for (int i=0; i<9; ++i) {
+
+			out << mat[i] << '\n';
+		}
+	}
+
+	out << flush;
+}
+
+void print_result(const char* filename, const Result& res) {
+
+	ofstream out;
+
+	out.exceptions(ofstream::failbit | ofstream::badbit);
+
+	out.open(filename);
+
+	out << '\n' << FIRST_LINE << '\n';
+
+	out << BUILD_ID << '\n';
+
+	out << CONFIG_FILE_ID << '\n';
+	out << res.config_file_id << '\n';
+
+	out << ERROR_IN_G << '\n';
+	out << res.error_in_g << '\n';
+
+	out << NUMBER_OF_VARS << '\n';
+	out << res.n_vars << '\n';
+
+	out << SOLUTION_VECTOR << '\n';
+	print_vector(out, res.solution, res.n_vars);
+
+	out << VARIABLE_LOWER_BOUNDS << '\n';
+	print_vector(out, res.var_lb, res.n_vars);
+
+	out << VARIABLE_UPPER_BOUNDS << '\n';
+	print_vector(out, res.var_ub, res.n_vars);
+
+	out << NUMBER_OF_SAMPLES << '\n';
+	out << res.N_SAMPLES << '\n';
+
+	out << ROTATION_MATRICES << '\n';
+	print_rotation_matrices(out, res.rotation_matrices, res.N_SAMPLES);
+
+	out << END_OF_FILE << '\n';
+	out << flush;
+}
+
+void write_result(const char* filename, const Result& res) {
+
+	try {
+
+		print_result(filename, res);
+	}
+	catch(...) {
+		cerr << "Unexpected error when writing the results into file ";
+		cerr << filename << endl;
+		exit(ERROR_WRITING_RESULTS);
+	}
 }
 
 }

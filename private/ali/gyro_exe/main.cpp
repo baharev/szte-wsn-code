@@ -35,6 +35,7 @@
 #include "CompileTimeConstants.hpp"
 #include "Optimizer.hpp"
 #include "DataIO.hpp"
+#include "Result.hpp"
 #include "RotationMatrix.hpp"
 #include "InputData.hpp"
 
@@ -52,7 +53,11 @@ void run_solver(const Input& data, const char* outfile) {
 
 	RotationMatrix rot(data, X);
 
-	write_result(outfile, opt, data, rot);
+	Result result = { opt.config_file_id(), opt.error_in_g(), opt.n_vars(),
+                      X,
+			          opt.var_lb(), opt.var_ub(), data.N(), rot.matrices() };
+
+	write_result(outfile, result);
 
 	for (int i=0; i<12; ++i) {
 

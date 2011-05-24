@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2011, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,65 +28,29 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#ifndef ROTATIONMATRIX_HPP_
-#define ROTATIONMATRIX_HPP_
-
-#include <iosfwd>
+#ifndef RESULT_HPP_
+#define RESULT_HPP_
 
 namespace gyro {
 
-class Input;
+// Just a data chunk, puts a level of indirection between DataIO and Optimizer
 
-class RotationMatrix {
+struct Result {
 
-public:
-
-	RotationMatrix(	const Input& data,
-					const double* const x,
-					std::ostream& log = std::cout,
-					bool verbose = false);
-
-	double at(const int measurement, const int i, const int j) const;
-
-	void dump_matrices(std::ostream& log = std::cout) const;
-
-	void dump_g_err(std::ostream& log = std::cout) const;
-
-	const double* matrices() const { return R; }
-
-	~RotationMatrix();
-
-private:
-
-	RotationMatrix(const RotationMatrix& );
-
-	RotationMatrix& operator=(const RotationMatrix& );
-
-	void compute_M(	const double ax,
-					const double ay,
-					const double az,
-					const Input& data);
-
-	void orthogonality_accept() const;
-
-	void objective_accept(double sx, double sy, double sz) const;
-
-	void dump_angles(const Input& data, std::ostream& log = std::cout) const;
-
-	void dump_path(const Input& data, std::ostream& log);
-
-	const double* matrix_at(int i) const;
-
-	double* const R;
-	double* const g_err;
-	const int N;
+	int config_file_id;
+	double error_in_g;
+	int n_vars;
+	const double* solution;
+	const double* var_lb;
+	const double* var_ub;
+	int N_SAMPLES;
+	const double* rotation_matrices;
 
 };
 
 }
 
-#endif
-
+#endif // RESULT_HPP_

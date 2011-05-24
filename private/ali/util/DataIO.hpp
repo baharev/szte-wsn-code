@@ -39,8 +39,7 @@
 namespace gyro {
 
 class Input;
-class Optimizer;
-class RotationMatrix;
+struct Result;
 
 // FIXME Gravitational acceleration and time step are taken from compile
 // time constants
@@ -48,10 +47,7 @@ class RotationMatrix;
 // Calls exit() if an error occurs
 Input* read_file(const char* filename);
 
-void write_result(const char* filename,
-				const Optimizer& opt,
-				const Input& data,
-				const RotationMatrix& rot);
+void write_result(const char* filename, const Result& res);
 
 }
 

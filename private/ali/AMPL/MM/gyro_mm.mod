@@ -106,7 +106,7 @@ else if v = ROT_UPDATE then
 	sum { k in COORDS } variable[s-1, ROTATION_MATRIX, i, k] * variable[s, ROT_DELTA, k, j]
 
 else if v = ROT_ERROR then
-	sum { k in COORDS } variable[s, ROT_UPDATE, X, k] * variable[s, ROT_UPDATE, Y, k]
+	(sum { k in COORDS } variable[s, ROT_UPDATE, X, k] * variable[s, ROT_UPDATE, Y, k])/2.0
 
 ### R_x , R_y and R_z vectors
 
@@ -132,7 +132,7 @@ else if v = ROT_CORRECTION then
 	(3.0 - sum { k in COORDS } variable[s, ROT_ORTHOGONAL, i, k] * variable[s, ROT_ORTHOGONAL, i, k]) / 2.0
 
 else if v = ROTATION_MATRIX then
-        variable[s, ROT_ORTHOGONAL, i, j] * variable[s, ROT_CORRECTION, j, 0]
+        variable[s, ROT_ORTHOGONAL, i, j] * variable[s, ROT_CORRECTION, i, 0]
 ;
 
 var accelSum { i in COORDS } =

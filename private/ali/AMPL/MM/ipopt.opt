@@ -1,0 +1,4 @@
+print_level 4
+#output_file  ipopt.log
+#file_print_level 4
+

@@ -127,6 +127,8 @@ void input2ampl::write_line(int timestamp, const int accel[3], const int gyro[3]
 
 	out << line;
 
+	out << '\t' << timestamp;
+
 	for (int i=0; i<3; ++i) {
 
 		out << '\t' << accel[i];

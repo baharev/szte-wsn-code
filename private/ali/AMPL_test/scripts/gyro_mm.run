@@ -1,0 +1,122 @@
+
+for { i in COORDS, j in COORDS } {
+
+  let gyroGain_L[i,j] := if i>=j then gyroGain_0[i,j]-0.003 else gyroGain_0[i,j];
+  let gyroGain_U[i,j] := if i>=j then gyroGain_0[i,j]+0.003 else gyroGain_0[i,j];
+
+  let gyroOffset_L[i] := -15;
+  let gyroOffset_U[i] :=  -5;
+
+}
+
+# printf "\nROT_ERROR\n";
+# for {s in SAMPLES}
+#   print s," ",variable[s,ROT_ERROR,0,0];
+# 
+# printf "\nCALIBRATED_GYRO\n";
+# for {s in SAMPLES}
+#   print s," ",variable[s,CALIBRATED_GYRO,1,0],variable[s,CALIBRATED_GYRO,2,0],variable[s,CALIBRATED_GYRO,3,0];
+
+#display { s in SAMPLES } : variable[s,ROT_ERROR,0,0];
+
+display total;
+
+#for {s in SAMPLES, i in COORDS, j in COORDS } print "sample",s,"i, j",i,j,"value",variable[s,ROT_ORTHOGONAL,i,j];
+
+# print "";
+# print "CALIBRATED_GYRO";
+# for {s in SAMPLES}
+#   print "s",s,"v",variable[s,CALIBRATED_GYRO,1,0],variable[s,CALIBRATED_GYRO,2,0],variable[s,CALIBRATED_GYRO,3,0];
+# 
+# print "";
+# print "ROTATION_MATRIX";
+# for {s in SAMPLES, i in COORDS}
+#   print "s",s,"i",i,variable[s,ROTATION_MATRIX,i,1],variable[s,ROTATION_MATRIX,i,2],variable[s,ROTATION_MATRIX,i,3];
+# 
+# print "";
+# print "ROT_DELTA";
+# for {s in SAMPLES, i in COORDS}
+#   print "s",s,"i",i,variable[s,ROT_DELTA,i,1],variable[s,ROT_DELTA,i,2],variable[s,ROT_DELTA,i,3];
+# 
+# print "";
+# print "ROT_UPDATE";
+# for {s in SAMPLES, i in COORDS} 
+#   print "s",s,"i",i,variable[s,ROT_UPDATE,i,1],variable[s,ROT_UPDATE,i,2],variable[s,ROT_UPDATE,i,3];
+# 
+# print "";
+# print "ROT_ORTHOGONAL";
+# for {s in SAMPLES, i in COORDS, j in COORDS } print "s",s,"i",i,"j",j,"v",variable[s,ROT_ORTHOGONAL,i,j];
+
+option show_stats 1;
+
+option solver "/home/ali/ampl/ipopt";
+
+solve;
+
+display gyroGain;
+
+display gyroOffset;
+
+# print "";
+# print "ROTATION_MATRIX";
+# for {s in SAMPLES, i in COORDS} {
+#   print variable[s,ROTATION_MATRIX,i,1];
+#   print variable[s,ROTATION_MATRIX,i,2];
+#   print variable[s,ROTATION_MATRIX,i,3];
+# }
+
+# print "";
+# print "ROT_ERROR";
+# for {s in SAMPLES}
+#   print "s",s,variable[s,ROT_ERROR,0,0];
+
+################################################################################
+# accelSum should point downwards, rotating accordingly
+
+let sumLength_ := sqrt( sum { i in COORDS } (accelSum[i]/N)^2 );
+
+# Make u_ a unit-length vector parallel to accelSum
+for { i in COORDS }
+  let u_[i] := ( accelSum[i]/N ) / sumLength_;
+
+# v_ is perpendicular to u_
+if ( abs(u_[Z]) > 1.0e-6 and abs(u_[X]) > 1.0e-6 ) then {
+
+  let v_[X] := -u_[Z];
+  let v_[Y] :=    0.0;
+  let v_[Z] :=  u_[X];
+}
+else {
+
+  let v_[X] := 0.0;
+  let v_[Y] := 0.0;
+  let v_[Z] := 1.0;
+}
+
+# Make v_ a unit-length vector
+let vLength_ := sqrt( sum { i in COORDS } v_[i]^2 );
+
+for { i in COORDS }
+  let v_[i] := v_[i] / vLength_;
+
+# w_ is the third basis vector, cross product
+let w_[X] := v_[Y]*u_[Z]-v_[Z]*u_[Y];
+let w_[Y] := v_[Z]*u_[X]-v_[X]*u_[Z];
+let w_[Z] := v_[X]*u_[Y]-v_[Y]*u_[X];
+
+# display u_, v_, w_;
+
+for { j in COORDS }  {
+  let R0_[X,j] :=  v_[j];
+  let R0_[Y,j] :=  w_[j];
+  let R0_[Z,j] := -u_[j];
+}
+
+display R0_;
+
+print "Number of samples";
+print N;
+print "Rotation matrices row-wise";
+for {s in SAMPLES, i in COORDS, j in COORDS}
+  print sum { k in COORDS } R0_[i,k]*variable[s,ROTATION_MATRIX,k,j];
+

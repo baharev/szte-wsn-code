@@ -1,0 +1,48 @@
+# First line after the output of IPOPT
+# AMPL script run, all header data is dummy
+# ID of configuration file
+-1
+# Error in g (in m/s^2)
+0.0
+# Number of variables
+12
+# Solution vector
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+# Lower bounds of the variables
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+# Upper bounds of the variables
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+

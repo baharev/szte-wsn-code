@@ -42,7 +42,31 @@ ampl2gui::ampl2gui(const char* filename) : ptr_out(new ofstream(filename)), out(
 
 	out.exceptions(ios_base::failbit | ios_base::badbit );
 
+	copy_dummy_header();
+
 	append_rotation_matrices();
+
+	out.close();
+}
+
+void ampl2gui::copy_dummy_header() {
+
+	ifstream in;
+
+	in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
+
+	in.open("result_dummy_header.txt");
+
+	string buffer;
+
+	getline(in, buffer);
+
+	while (!buffer.empty()) {
+
+		out << buffer << '\n';
+
+		getline(in, buffer);
+	}
 }
 
 void ampl2gui::append_rotation_matrices() {
@@ -94,6 +118,4 @@ void ampl2gui::extract_matrices(ifstream& in) {
 	}
 
 	out << END_OF_FILE << '\n';
-
-	out << flush;
 }

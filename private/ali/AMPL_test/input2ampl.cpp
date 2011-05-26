@@ -72,6 +72,7 @@ void input2ampl::data_header() {
 
 	out << "\n\nparam samples :\n";
     out << "#\ttime\taccel_x\taccel_y\taccel_z\tgyro_x\tgyro_y\tgyro_z\n";
+    out << "\t1\t\t2\t3\t4\t5\t6\t7\t:=\n";
 }
 
 void input2ampl::append_data() {

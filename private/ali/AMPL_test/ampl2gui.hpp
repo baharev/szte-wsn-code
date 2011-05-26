@@ -47,6 +47,8 @@ public:
 
 private:
 
+	void copy_dummy_header();
+
 	void append_rotation_matrices();
 
 	void write_n_samples(ifstream& in);

@@ -58,6 +58,64 @@ display gyroGain;
 display gyroOffset;
 
 # print "";
+# print "ROTATION_MATRIX";
+# for {s in SAMPLES, i in COORDS} {
+#   print variable[s,ROTATION_MATRIX,i,1];
+#   print variable[s,ROTATION_MATRIX,i,2];
+#   print variable[s,ROTATION_MATRIX,i,3];
+# }
+
+# print "";
 # print "ROT_ERROR";
 # for {s in SAMPLES}
 #   print "s",s,variable[s,ROT_ERROR,0,0];
+
+################################################################################
+# accelSum should point downwards, rotating accordingly
+
+let sumLength_ := sqrt( sum { i in COORDS } (accelSum[i]/N)^2 );
+
+# Make u_ a unit-length vector parallel to accelSum
+for { i in COORDS }
+  let u_[i] := ( accelSum[i]/N ) / sumLength_;
+
+# v_ is perpendicular to u_
+if ( abs(u_[Z]) > 1.0e-6 and abs(u_[X]) > 1.0e-6 ) then {
+
+  let v_[X] := -u_[Z];
+  let v_[Y] :=    0.0;
+  let v_[Z] :=  u_[X];
+}
+else {
+
+  let v_[X] := 0.0;
+  let v_[Y] := 0.0;
+  let v_[Z] := 1.0;
+}
+
+# Make v_ a unit-length vector
+let vLength_ := sqrt( sum { i in COORDS } v_[i]^2 );
+
+for { i in COORDS }
+  let v_[i] := v_[i] / vLength_;
+
+# w_ is the third basis vector, cross product
+let w_[X] := v_[Y]*u_[Z]-v_[Z]*u_[Y];
+let w_[Y] := v_[Z]*u_[X]-v_[X]*u_[Z];
+let w_[Z] := v_[X]*u_[Y]-v_[Y]*u_[X];
+
+# display u_, v_, w_;
+
+for { j in COORDS }  {
+  let R0_[X,j] :=  v_[j];
+  let R0_[Y,j] :=  w_[j];
+  let R0_[Z,j] := -u_[j];
+}
+
+display R0_;
+
+print "";
+print "Rotation matrices";
+for {s in SAMPLES, i in COORDS, j in COORDS}
+  print sum { k in COORDS } R0_[i,k]*variable[s,ROTATION_MATRIX,k,j];
+

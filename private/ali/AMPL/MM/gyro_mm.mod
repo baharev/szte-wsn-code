@@ -74,6 +74,16 @@ param gyroOffset_L { COORDS };
 param gyroOffset_U { COORDS };
 param gyroOffset_0 { COORDS };
 
+####### parameters needed to compute initial rotation matrix after successful solve;
+
+param sumLength_ default 0.0;
+param vLength_ default 0.0;
+
+param u_ { COORDS } default 0.0;
+param v_ { COORDS } default 0.0;
+param w_ { COORDS } default 0.0;
+param R0_ { COORDS, COORDS } default 0.0;
+
 ####### recursive definition of goal
 
 var gyroGain{i in COORDS, j in COORDS} >=gyroGain_L[i,j], <=gyroGain_U[i,j],:=gyroGain_0[i,j];

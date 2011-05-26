@@ -35,6 +35,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include "ampl2gui.hpp"
 #include "input2ampl.hpp"
 
 using namespace std;
@@ -52,10 +53,12 @@ void real_main(const string& io_mode, const char* file_name) {
 	}
 	else if (io_mode=="out") {
 
+		ampl2gui converter(file_name);
 	}
 	else {
 
 		ostringstream os;
+
 		os << "io_mode not recognized: " << io_mode << ", should be in or out";
 
 		throw runtime_error(os.str());

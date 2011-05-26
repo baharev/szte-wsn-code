@@ -1,4 +1,4 @@
-/* Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2011, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,39 +31,34 @@
 *      Author: Ali Baharev
 */
 
-#ifndef INPUT2AMPL_HPP_
-#define INPUT2AMPL_HPP_
+#ifndef AMPL2GUI_HPP_
+#define AMPL2GUI_HPP_
 
 #include <fstream>
 #include <memory>
 
 using namespace std;
 
-class input2ampl {
+class ampl2gui {
 
 public:
 
-	input2ampl(const char* filename);
+	ampl2gui(const char* filename);
 
 private:
 
-	void copy_header();
+	void append_rotation_matrices();
 
-	void append_data();
+	void write_n_samples(ifstream& in);
 
-	void data_header();
-
-	void convert_line(const string& buffer);
-
-	void write_line(int timestamp, const int accel[3], const int gyro[3]);
-
-	void closing_lines();
+	void extract_matrices(ifstream& in);
 
 	auto_ptr<ofstream> ptr_out;
 
 	ofstream& out;
 
-	int line;
+	int N;
+
 };
 
-#endif // INPUT2AMPL_HPP_
+#endif /* AMPL2GUI_HPP_ */

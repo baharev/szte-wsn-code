@@ -1,4 +1,4 @@
-/* Copyright (c) 2010, University of Szeged
+/* Copyright (c) 2011, University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,39 +31,69 @@
 *      Author: Ali Baharev
 */
 
-#ifndef INPUT2AMPL_HPP_
-#define INPUT2AMPL_HPP_
+#include <iomanip>
+#include <sstream>
+#include "ampl2gui.hpp"
+#include "CompileTimeConstants.hpp"
 
-#include <fstream>
-#include <memory>
+using namespace gyro;
 
-using namespace std;
+ampl2gui::ampl2gui(const char* filename) : ptr_out(new ofstream(filename)), out(*ptr_out) {
 
-class input2ampl {
+	out.exceptions(ios_base::failbit | ios_base::badbit );
 
-public:
+	append_rotation_matrices();
+}
 
-	input2ampl(const char* filename);
+void ampl2gui::append_rotation_matrices() {
 
-private:
+	ifstream in;
 
-	void copy_header();
+	in.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
 
-	void append_data();
+	in.open("gyro.log");
 
-	void data_header();
+	write_n_samples(in);
 
-	void convert_line(const string& buffer);
+	extract_matrices(in);
+}
 
-	void write_line(int timestamp, const int accel[3], const int gyro[3]);
+void ampl2gui::write_n_samples(ifstream& in) {
 
-	void closing_lines();
+	string buffer;
 
-	auto_ptr<ofstream> ptr_out;
+	while (buffer!="Number of samples") {
 
-	ofstream& out;
+		getline(in, buffer);
+	}
 
-	int line;
-};
+	in >> N;
 
-#endif // INPUT2AMPL_HPP_
+	out << NUMBER_OF_SAMPLES << '\n';
+
+	out << N << '\n';
+
+	getline(in, buffer);
+
+	getline(in, buffer);
+}
+
+void ampl2gui::extract_matrices(ifstream& in) {
+
+	out << ROTATION_MATRICES << '\n';
+
+	out << setprecision(16) << scientific;
+
+	for (int i=1; i<=9*N; ++i) {
+
+		double temp;
+
+		in >> temp;
+
+		out << temp << '\n';
+	}
+
+	out << END_OF_FILE << '\n';
+
+	out << flush;
+}

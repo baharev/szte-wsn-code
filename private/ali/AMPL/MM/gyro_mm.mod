@@ -54,7 +54,6 @@ param ROT_ERROR       := 4 integer;
 param ROT_ORTHOGONAL  := 5 integer;
 param ROT_CORRECTION  := 6 integer;
 param ROTATION_MATRIX := 7 integer;
-param ROTATED_ACCEL   := 8 integer;
 
 set VARS =    { CALIBRATED_GYRO } cross COORDS cross    {0}
 	union { ROT_DELTA }       cross COORDS cross COORDS
@@ -63,7 +62,6 @@ set VARS =    { CALIBRATED_GYRO } cross COORDS cross    {0}
 	union { ROT_ORTHOGONAL }  cross COORDS cross COORDS
 	union { ROT_CORRECTION }  cross COORDS cross    {0}
 	union { ROTATION_MATRIX } cross COORDS cross COORDS
-	union { ROTATED_ACCEL }   cross COORDS cross    {0}
 ;
 
 #### Variable Lower bounds, Upper bounds, Initial estimates
@@ -84,10 +82,7 @@ var gyroOffset{i in COORDS}  >=gyroOffset_L[i], <=gyroOffset_U[i],:=gyroOffset_0
 
 var variable{s in SAMPLES, (v,i,j) in VARS} =
 
-if v = ROTATED_ACCEL then
-	sum { k in COORDS } variable[s, ROTATION_MATRIX, i, k] * calibAccel[s, k]
-
-else if s = 1 then
+if s = 1 then
 	(if v = ROTATION_MATRIX and i = j then 1.0 else 0.0)
 
 else if v = CALIBRATED_GYRO then 
@@ -135,8 +130,11 @@ else if v = ROTATION_MATRIX then
         variable[s, ROT_ORTHOGONAL, i, j] * variable[s, ROT_CORRECTION, i, 0]
 ;
 
+var rotatedAccel {s in SAMPLES, i in COORDS } =
+   sum { k in COORDS } variable[s, ROTATION_MATRIX, i, k] * calibAccel[s, k];
+
 var accelSum { i in COORDS } =
-  sum { s in SAMPLES } variable[s, ROTATED_ACCEL, i, 0];
+  sum { s in SAMPLES } rotatedAccel[s, i];
 
 maximize total:
 	sum { i in COORDS } (accelSum[i]/N) * (accelSum[i]/N);

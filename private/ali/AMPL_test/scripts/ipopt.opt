@@ -1,0 +1,11 @@
+
+tol              1.0e-3
+#output_file      ipopt.log
+#file_print_level 5 
+hessian_approximation limited-memory
+limited_memory_update_type bfgs
+
+#tol			1.0e-8
+#hessian_approximation	exact
+
+

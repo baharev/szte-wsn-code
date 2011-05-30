@@ -31,57 +31,41 @@
 *      Author: Ali Baharev
 */
 
-#include <exception>
-#include <iostream>
+#ifndef OPTIMIZER_HPP_
+#define OPTIMIZER_HPP_
+
+#include <memory>
 #include <vector>
-#include "Optimizer.hpp"
 #include "Sample.hpp"
 
-using namespace std;
-using namespace gyro;
+namespace gyro {
 
-enum {
-	SUCCESS,
-	FAILURE
+class Optimizer {
+
+public:
+
+	Optimizer(const std::vector<Sample>& samples);
+
+	const double* solution() const { return minimizer.get(); }
+
+private:
+
+	Optimizer(const Optimizer& );
+
+	Optimizer& operator=(const Optimizer& );
+
+	void init();
+
+	void check_return_code(int ret_code) const;
+
+	void postprocess_solution(const double* const sol);
+
+	const std::vector<Sample>& samples;
+
+	std::auto_ptr<double> minimizer;
+
 };
 
-void real_main(const char* input, const char* output) {
-
-	vector<Sample> samples;
-
-	SampleReader read(input, samples);
-
-	Optimizer opt(samples);
-
 }
 
-int main(int argc, char* argv[]) {
-
-	if (argc!=3) {
-
-		cerr << "Usage: " << argv[0] << " input_file  output_file" << endl;
-		cerr << "Built on " __DATE__ " " __TIME__ << endl;
-
-		return FAILURE;
-	}
-
-	try {
-
-		real_main(argv[1], argv[2]);
-	}
-	catch (exception& e) {
-
-		cerr << "Runtime error: " << e.what() << endl;
-
-		return FAILURE;
-	}
-	catch (...) {
-
-		cerr << "Unknown exception type (IPOPT?)" << endl;
-
-		return FAILURE;
-	}
-
-
-	return SUCCESS;
-}
+#endif // OPTIMIZER_HPP_

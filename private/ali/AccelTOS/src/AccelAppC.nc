@@ -42,19 +42,19 @@ implementation {
 
 	components MainC;
 	components AssertC;
-	components TimeSyncMessageC;
+	//components TimeSyncMessageC;
 	components AccelAppP;
 	components SimpleFileC;
 	components LedHandlerC;
 	components MeterC;
-	components SyncMsgSenderC;
-	components SyncMsgReceiverC;
+	//components SyncMsgSenderC;
+	//components SyncMsgReceiverC;
 	
 	AccelAppP.Boot -> MainC;	
 	AccelAppP.DiskCtrl -> SimpleFileC;
-	AccelAppP.TimeSyncMsg -> TimeSyncMessageC.SplitControl;
+	//AccelAppP.TimeSyncMsg -> TimeSyncMessageC.SplitControl;
 	AccelAppP.LedHandler -> LedHandlerC;
 	AccelAppP.Sampling -> MeterC.Sampling;
 	AccelAppP.MeterCtrl -> MeterC.StdControl;
-	AccelAppP.SyncMsgCtrl -> SyncMsgSenderC;	
+	//AccelAppP.SyncMsgCtrl -> SyncMsgSenderC;	
 }

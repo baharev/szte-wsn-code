@@ -53,9 +53,29 @@ public:
 
 		init_vars(x);
 
+		return gyro_regression(x);
+	}
+
+private:
+
+	const T minimize_rotation() {
+
 		fix_A();
 		fix_b();
 		fix_C();
+		//fix_d();
+		fix_Euler();
+		fix_v0();
+
+		//Vector<T> angle = angular_rate(i)*time_step(i);
+	}
+
+	const T gyro_regression(const T* const x) {
+
+		fix_A();
+		fix_b();
+		//fix_C();
+		fix_C_but_diagonal(x);
 		//fix_d();
 		fix_Euler();
 		fix_v0();
@@ -73,8 +93,6 @@ public:
 
 		return objective();
 	}
-
-private:
 
 	void init_vars(const T* const x) {
 
@@ -187,6 +205,19 @@ private:
 	void fix_C() {
 
 		C = Matrix<T>(estimates.initial_point(C11));
+	}
+
+	void fix_C_but_diagonal(const T* const x) {
+
+		const double* const x0 = estimates.initial_point();
+
+		T tmp[9] = {
+				 x[C11], x0[C12], x0[C13],
+				x0[C21],  x[C22], x0[C23],
+				x0[C31], x0[C32],  x[C33]
+		};
+
+		C = Matrix<T>(tmp);
 	}
 
 	void fix_d() {

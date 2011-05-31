@@ -125,7 +125,7 @@ void VarEstimates::set_bounds() {
 
 	set_bounds_by_abs_inflation(C11, C33, 0.003);
 
-	set_bounds_by_abs_inflation(D1, D3, 20.0);
+	set_bounds_by_abs_inflation(D1, D3, 30.0);
 
 	set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 

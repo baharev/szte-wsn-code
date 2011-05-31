@@ -37,6 +37,7 @@
 #include "Optimizer.hpp"
 #include "Sample.hpp"
 #include "VarEnum.hpp"
+#include "VarEstimates.hpp"
 
 using namespace std;
 using namespace gyro;
@@ -56,11 +57,15 @@ void real_main(const char* input, const char* output) {
 
 	Optimizer opt(samples);
 
+	VarEstimates estimates;
+
+	const double* const xL = estimates.lower_bounds();
+	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
 	for (int i=D1; i<=D3; ++i) {
 
-		cout << x[i] << endl;
+		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
 }
 

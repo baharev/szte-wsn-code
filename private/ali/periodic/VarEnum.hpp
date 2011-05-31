@@ -71,9 +71,9 @@ enum {
 	D3,
 
 	// Initial orientation
-	ROLL,
-	PITCH,
-	YAW,
+	Euler_X,
+	Euler_Y,
+	Euler_Z,
 
 	// Intial velocity
 	VX,

@@ -35,7 +35,10 @@
 #define OBJECTIVE_HPP_
 
 #include <vector>
+#include "CompileTimeConstants.hpp"
+#include "MatrixVector.hpp"
 #include "Sample.hpp"
+#include "VarEstimates.hpp"
 
 namespace gyro {
 
@@ -44,13 +47,63 @@ class Objective {
 
 public:
 
-	Objective(const std::vector<Sample>& samples) {
-
-	}
+	Objective(const std::vector<Sample>& samples) : samples(samples) { }
 
 	T f(const T* const x)  {
 
+		init_vars(x);
+
 	}
+
+private:
+
+	void init_vars(const T* const x) {
+
+		A = Matrix<T>(x+A11);
+		b = Vector<T>(x+B1);
+
+		C = Matrix<T>(x+C11);
+		d = Vector<T>(x+D1);
+
+		Euler_XYZ = Vector<T>(x+Euler_X);
+
+		v0 = Vector<T>(x+VX);
+	}
+
+	void set_initial_orientation() {
+
+		R = euler2rotmat(Euler_XYZ);
+	}
+
+	const vector3& raw_gyro(int i) const {
+
+		return samples.at(i).gyro;
+	}
+
+	const double time_step(int i) const {
+
+		unsigned int t2 = samples.at(i  ).timestamp;
+		unsigned int t1 = samples.at(i-1).timestamp;
+
+		return (t2-t1)/TICKS_PER_SEC;
+	}
+
+	const std::vector<Sample>& samples;
+
+	Matrix<T> A;
+	Vector<T> b;
+
+	Matrix<T> C;
+	Vector<T> d;
+
+	Vector<T> Euler_XYZ;
+
+	Vector<T> v0;
+
+	Matrix<T> R;
+	Vector<T> s;
+	Matrix<T> M;
+
 };
 
 }

@@ -177,21 +177,22 @@ const Matrix<T> euler2rotmat(const Vector<T>& euler) {
 }
 
 template <typename T>
-void Matrix<T>::copy_to(T array[9]) const {
-
-	for (int i=0, k=0; i<3; ++i) {
-		for (int j=0; j<3; ++j) {
-			array[k++] = m[i][j];
-		}
-	}
-}
-
-template <typename T>
 Matrix<T>::Matrix() {
 
 	for (int i=0; i<3; ++i) {
 		for (int j=0; j<3; ++j) {
 			m[i][j] = T(0.0);
+		}
+	}
+}
+
+template <typename T>
+template <typename U>
+Matrix<T>::Matrix(const U array[9]) {
+
+	for (int i=0, k=0; i<3; ++i) {
+		for (int j=0; j<3; ++j) {
+			m[i][j] = T(array[k++]);
 		}
 	}
 }
@@ -224,6 +225,16 @@ const Matrix<T> Matrix<T>::identity() {
 	}
 
 	return I;
+}
+
+template <typename T>
+void Matrix<T>::copy_to(T array[9]) const {
+
+	for (int i=0, k=0; i<3; ++i) {
+		for (int j=0; j<3; ++j) {
+			array[k++] = m[i][j];
+		}
+	}
 }
 
 template <typename T>

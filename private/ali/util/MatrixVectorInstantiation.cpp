@@ -132,4 +132,8 @@ template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
 template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
 template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3& v);
 
+template Matrix<double>::Matrix(const double array[9]);
+template Matrix<adouble>::Matrix(const adouble array[9]);
+template Matrix<adouble>::Matrix(const double array[9]);
+
 }

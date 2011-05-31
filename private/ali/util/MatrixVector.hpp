@@ -112,15 +112,8 @@ public:
 
 	Matrix();
 
-	// FIXME Make it out-of-line
 	template <typename U>
-	explicit Matrix(const U array[9]) {
-		for (int i=0, k=0; i<3; ++i) {
-			for (int j=0; j<3; ++j) {
-				m[i][j] = T(array[k++]);
-			}
-		}
-	}
+	explicit Matrix(const U array[9]);
 
 	Matrix(const T& x1, const T& x2, const T& x3,
 		   const T& x4, const T& x5, const T& x6,

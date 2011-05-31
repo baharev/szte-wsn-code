@@ -65,7 +65,8 @@ public:
 
 	Vector(const T& x, const T& y, const T& z) { v[X] = x; v[Y] = y; v[Z] = z; }
 
-	explicit Vector(const T x[3]) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
+	template <typename U>
+	explicit Vector(const U x[3]) { v[X] = T(x[X]); v[Y] = T(x[Y]); v[Z] = T(x[Z]); }
 
 	template <typename U>
 	explicit Vector(const Vector<U> x) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
@@ -111,7 +112,15 @@ public:
 
 	Matrix();
 
-	explicit Matrix(const T array[9]);
+	// FIXME Make it out-of-line
+	template <typename U>
+	explicit Matrix(const U array[9]) {
+		for (int i=0, k=0; i<3; ++i) {
+			for (int j=0; j<3; ++j) {
+				m[i][j] = T(array[k++]);
+			}
+		}
+	}
 
 	Matrix(const T& x1, const T& x2, const T& x3,
 		   const T& x4, const T& x5, const T& x6,

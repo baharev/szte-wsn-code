@@ -36,6 +36,7 @@
 #include <vector>
 #include "Optimizer.hpp"
 #include "Sample.hpp"
+#include "VarEnum.hpp"
 
 using namespace std;
 using namespace gyro;
@@ -51,8 +52,16 @@ void real_main(const char* input, const char* output) {
 
 	SampleReader read(input, samples);
 
+	cout << "Read " << samples.size() << " samples" << endl;
+
 	Optimizer opt(samples);
 
+	const double* const x = opt.solution();
+
+	for (int i=D1; i<=D3; ++i) {
+
+		cout << x[i] << endl;
+	}
 }
 
 int main(int argc, char* argv[]) {

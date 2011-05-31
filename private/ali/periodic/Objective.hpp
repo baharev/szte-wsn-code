@@ -47,13 +47,20 @@ class Objective {
 
 public:
 
-	Objective(const std::vector<Sample>& samples) : samples(samples) { }
+	Objective(const std::vector<Sample>& samples) : samples(samples), estimates(VarEstimates()) { }
 
 	T f(const T* const x)  {
 
 		init_vars(x);
 
-		// fix variables
+		fix_A();
+		fix_b();
+		fix_C();
+		//fix_d();
+		fix_Euler();
+		fix_v0();
+
+		set_initial_orientation();
 
 		s = rotated_accel(0);
 
@@ -79,7 +86,7 @@ private:
 		C = Matrix<T>(x+C11);
 		d = Vector<T>(x+D1);
 
-		Euler_XYZ = Vector<T>(x+Euler_X);
+		Euler_XYZ = Vector<T>(x+EULER_X);
 
 		v0 = Vector<T>(x+VX);
 	}
@@ -167,7 +174,39 @@ private:
 		return -((s[X]/N)*(s[X]/N) + (s[Y]/N)*(s[Y]/N) + (s[Z]/N)*(s[Z]/N));
 	}
 
+	void fix_A() {
+
+		A = Matrix<T>(estimates.initial_point(A11));
+	}
+
+	void fix_b() {
+
+		b = Vector<T>(estimates.initial_point(B1));
+	}
+
+	void fix_C() {
+
+		C = Matrix<T>(estimates.initial_point(C11));
+	}
+
+	void fix_d() {
+
+		d = Vector<T>(estimates.initial_point(D1));
+	}
+
+	void fix_Euler() {
+
+		Euler_XYZ = Vector<T>(estimates.initial_point(EULER_X));
+	}
+
+	void fix_v0() {
+
+		v0 = Vector<T>(estimates.initial_point(VX));
+	}
+
 	const std::vector<Sample>& samples;
+
+	const VarEstimates estimates;
 
 	int N;
 

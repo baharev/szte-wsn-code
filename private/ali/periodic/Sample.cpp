@@ -82,7 +82,7 @@ void SampleReader::read_all() {
 
 		getline(in, buffer);
 
-		parse_buffer();
+		push_back_sample();
 
 		++line;
 	}
@@ -104,20 +104,20 @@ const Sample SampleReader::parse_buffer() const {
 
 	istringstream is(buffer);
 
+	is.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
+
 	unsigned int timestamp, accel[3], gyro[3];
 
-	char separator;
-
-	is >> timestamp >> separator;
+	is >> timestamp;
 
 	for (int i=0; i<3; ++i) {
 
-		is >> accel[i] >> separator;
+		is >> accel[i];
 	}
 
 	for (int i=0; i<3; ++i) {
 
-		is >> gyro[i] >> separator;
+		is >> gyro[i];
 	}
 
 	Sample s = { timestamp, vector3(accel[X], accel[Y], accel[Z]),

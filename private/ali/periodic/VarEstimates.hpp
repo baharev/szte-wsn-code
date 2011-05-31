@@ -48,11 +48,21 @@ public:
 	const double* upper_bounds()  const { return x_U; }
 	const double* initial_point() const { return x_0; }
 
+	const double* lower_bounds(VarEnum i)  const { return x_L+i; }
+	const double* upper_bounds(VarEnum i)  const { return x_U+i; }
+	const double* initial_point(VarEnum i) const { return x_0+i; }
+
 private:
+
+	void set_everything_incorrect();
+
+	void set_intial_points();
+
+	void copy_to_initial_point(const double array[], const VarEnum first, const VarEnum last_inclusive);
 
 	void set_bounds();
 
-	void set_intial_points();
+	void set_bounds_by_abs_inflation(const VarEnum first, const VarEnum last_inclusive, double amount);
 
 	void check_feasibility();
 

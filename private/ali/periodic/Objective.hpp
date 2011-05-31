@@ -53,11 +53,25 @@ public:
 
 		init_vars(x);
 
+		// fix variables
+
+		s = rotated_accel(0);
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			s += rotated_accel(i);
+		}
+
+		return objective();
 	}
 
 private:
 
 	void init_vars(const T* const x) {
+
+		N = static_cast<int>( samples.size() );
 
 		A = Matrix<T>(x+A11);
 		b = Vector<T>(x+B1);
@@ -80,6 +94,23 @@ private:
 		return samples.at(i).gyro;
 	}
 
+	const Vector<T> angular_rate(int i) const {
+
+		const vector3 raw_gyro_avg = (raw_gyro(i-1)+raw_gyro(i))/2;
+
+		return C*raw_gyro_avg+d;
+	}
+
+	const vector3& raw_accel(int i) const {
+
+		return samples.at(i).accel;
+	}
+
+	const Vector<T> accel(int i) const {
+
+		return A*raw_accel(i)+b;
+	}
+
 	const double time_step(int i) const {
 
 		unsigned int t2 = samples.at(i  ).timestamp;
@@ -88,7 +119,57 @@ private:
 		return (t2-t1)/TICKS_PER_SEC;
 	}
 
+	void update_R(const int i) {
+
+		Vector<T> angle = angular_rate(i)*time_step(i);
+
+		T tmp[] = {    T(1.0), -angle[Z],  angle[Y],
+				     angle[Z],    T(1.0), -angle[X],
+				    -angle[Y],  angle[X],    T(1.0)
+		};
+
+		const Matrix<T> G(tmp);
+
+		R = R*G;
+
+		normalize_R();
+	}
+
+	const T correction(const Vector<T>& v) const {
+
+		return (3-v*v)/2;
+	}
+
+	void normalize_R() {
+
+		const Vector<T> Rx = R[X];
+		const Vector<T> Ry = R[Y];
+
+		T half_error = (Rx*Ry)/2;
+
+		const Vector<T> Rx_new = Rx-half_error*Ry;
+		const Vector<T> Ry_new = Ry-half_error*Rx;
+		const Vector<T> Rz_new = cross_product(Rx_new, Ry_new);
+
+		T Cx = correction(Rx_new); // TODO Write *= with arg T, not double
+		T Cy = correction(Ry_new);
+		T Cz = correction(Rz_new);
+
+		R = Matrix<T> (Cx*Rx_new, Cy*Ry_new, Cz*Rz_new);
+	}
+
+	const Vector<T> rotated_accel(int i) {
+
+		return R*accel(i);
+	}
+
+	T objective() {
+		return -((s[X]/N)*(s[X]/N) + (s[Y]/N)*(s[Y]/N) + (s[Z]/N)*(s[Z]/N));
+	}
+
 	const std::vector<Sample>& samples;
+
+	int N;
 
 	Matrix<T> A;
 	Vector<T> b;
@@ -102,7 +183,6 @@ private:
 
 	Matrix<T> R;
 	Vector<T> s;
-	Matrix<T> M;
 
 };
 

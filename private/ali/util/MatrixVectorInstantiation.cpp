@@ -76,6 +76,7 @@ template std::ostream& operator<<(std::ostream& os, const vector3& x);
 template const double  operator*(const vector3& x, const vector3& y);
 template const vector3 operator*(const double& c, const vector3& x);
 template const vector3 cross_product(const vector3& x, const vector3& y);
+template const matrix3 euler2rotmat(const vector3& Euler_XYZ);
 
 template const vector3 operator*(const matrix3& M, const vector3& v);
 
@@ -126,6 +127,7 @@ template std::ostream& operator<<(std::ostream& os, const Vector<adouble>& x);
 template const adouble operator*(const Vector<adouble>& x, const Vector<adouble>& y);
 template const Vector<adouble> operator*(const adouble& c, const Vector<adouble>& x);
 template const Vector<adouble> cross_product(const Vector<adouble>& x, const Vector<adouble>& y);
+template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
 
 template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
 template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3& v);

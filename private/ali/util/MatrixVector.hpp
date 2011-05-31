@@ -54,6 +54,8 @@ template <typename T> const T operator*(const Vector<T>& x, const Vector<T>& y);
 template <typename T> const Vector<T> operator*(const T& c, const Vector<T>& x);
 template <typename T> const Vector<T> cross_product(const Vector<T>& x, const Vector<T>& y);
 
+template <typename T> const Matrix<T> euler2rotmat(const Vector<T>& euler_XYZ);
+
 template <typename T>
 class Vector {
 

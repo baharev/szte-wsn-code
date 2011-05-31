@@ -53,21 +53,65 @@ public:
 
 		init_vars(x);
 
-		return gyro_regression(x);
+		return minimize_rotation();
+	}
+
+	const Vector<T> get_sum(const T* const x) {
+
+		init_vars(x);
+
+		fix_all_but_gyro_offset();
+
+		rotate_back();
+
+		R = Matrix<T>::identity();
+
+		//return get_delta_v();
+
+		s = M*rotated_accel(0);
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			s += M*rotated_accel(i);
+		}
+
+		return s/N;
+	}
+
+	const Vector<T> get_delta_v() {
+
+		const Vector<T> gravity(0, 0, -9.74416);
+
+		R = Matrix<T>::identity();
+
+		Vector<T> dv; // = M*rotated_accel(0) - gravity;
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			dv += (M*rotated_accel(i) - gravity)*time_step(i);
+		}
+
+		return dv/N;
 	}
 
 private:
 
 	const T minimize_rotation() {
 
-		fix_A();
-		fix_b();
-		fix_C();
-		//fix_d();
-		fix_Euler();
-		fix_v0();
+		fix_all_but_gyro_offset();
 
-		//Vector<T> angle = angular_rate(i)*time_step(i);
+		Vector<T> sum;
+
+		for (int i=1; i<N; ++i) {
+
+			sum += angular_rate(i)*time_step(i);
+		}
+
+		return sum[X]*sum[X] + sum[Y]*sum[Y] + sum[Z]*sum[Z];
 	}
 
 	const T gyro_regression(const T* const x) {
@@ -80,7 +124,14 @@ private:
 		fix_Euler();
 		fix_v0();
 
-		set_initial_orientation();
+		R = Matrix<T>::identity();
+
+		sum_rotated_accel();
+
+		return objective();
+	}
+
+	void sum_rotated_accel() {
 
 		s = rotated_accel(0);
 
@@ -90,8 +141,25 @@ private:
 
 			s += rotated_accel(i);
 		}
+	}
 
-		return objective();
+	void rotate_back() {
+
+		R = Matrix<T>::identity();
+
+		sum_rotated_accel();
+
+		Vector<T> u = s;
+
+		u /= u.length();
+
+		Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
+
+		v /= v.length();
+
+		Vector<T> w = cross_product(v, u);
+
+		M = Matrix<T>(v, w, u*(-1));
 	}
 
 	void init_vars(const T* const x) {
@@ -235,6 +303,16 @@ private:
 		v0 = Vector<T>(estimates.initial_point(VX));
 	}
 
+	void fix_all_but_gyro_offset() {
+
+		fix_A();
+		fix_b();
+		fix_C();
+		//fix_d();
+		fix_Euler();
+		fix_v0();
+	}
+
 	const std::vector<Sample>& samples;
 
 	const VarEstimates estimates;
@@ -254,6 +332,7 @@ private:
 	Matrix<T> R;
 	Vector<T> s;
 
+	Matrix<T> M;
 };
 
 }

@@ -34,6 +34,7 @@
 #include <exception>
 #include <iostream>
 #include <vector>
+#include "Objective.hpp"
 #include "Optimizer.hpp"
 #include "Sample.hpp"
 #include "VarEnum.hpp"
@@ -67,6 +68,10 @@ void real_main(const char* input, const char* output) {
 
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
+
+	vector3 sum = Objective<double>(samples).get_sum(x);
+
+	cout << "Rotated back: " << sum << endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -97,5 +102,5 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	return SUCCESS;
+	return ::SUCCESS;
 }

@@ -100,7 +100,7 @@ implementation
 			call DiagMsg.send();
 		}		
 	}
-
+/*
 	// TODO Implement these two with memset and memcpy?
 	event void SimpleFile.booted(uint32_t starting_at_block) {
 		
@@ -110,7 +110,7 @@ implementation
 		timesync_info.remote_start = 0;
 		timesync_info.remote_time  = 0;
 	}
-	
+*/
 	command void BufferedFlash.updateTimeSyncInfo(timesync_info_t* data) {
 		
 		timesync_info.local_time   = data->local_time;

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2010, University of Szeged
+* Copyright (c) 2010, 2011 University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,6 @@
 * Author: Miklos Maroti, Ali Baharev
 */
 
-// TODO Introduce a function to read from a position, it is in RadioHandler now 
-
-// TODO Make it possible to start everything from sector N
 #include "Assert.h"
 
 module SimpleFileP
@@ -45,10 +42,8 @@ module SimpleFileP
 		interface SD;
 		interface StdControl as SDControl;
 		interface ShimmerAdc as ADC;
-		interface StdControl as SyncMsgControl;
 	}
 
-	// TODO A deep format functionality?
 	provides
 	{
 		interface SplitControl;
@@ -100,18 +95,12 @@ implementation
 		//available = TRUE;
 		//post executeCommand();
 	}
-	
-	task void stopSendingSyncMsg() {
-	 
-		call SyncMsgControl.stop();
-	}
 
 	async event void SD.unavailable()
 	{
 		available = FALSE;
 		call ADC.forceStopSampling();
 		call LedHandler.error();
-		post stopSendingSyncMsg();
 	}
 	
 	// TODO These indicate a need for a new / different interface
@@ -138,11 +127,9 @@ implementation
 
 		state = STATE_READY;
 		
-		signal SimpleFile.booted(writePos); // Messy workaround
-		
 		signal SplitControl.startDone(SUCCESS);
 	}
-
+	      
 	// FIXME Assumes a deep formatted card
 	void findLastSector()
 	{				
@@ -186,7 +173,7 @@ implementation
 			}
 			
 			if ((formID != buffer.formatID) || (buffer.length == 0)) {
-				
+		
 				high = mid;
 			}
 			else {

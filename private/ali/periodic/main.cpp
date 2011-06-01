@@ -64,14 +64,24 @@ void real_main(const char* input, const char* output) {
 	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
-	for (int i=D1; i<=D3; ++i) {
+	for (int i=VX; i<=VZ; ++i) {
 
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
 
-	vector3 sum = Objective<double>(samples).get_sum(x);
+	Objective<double> obj(samples);
 
-	cout << "Rotated back: " << sum << endl;
+	obj.rotate_sum_downwards(x);
+
+	obj.set_v0(x+VX);
+
+	vector3 sum = obj.get_delta_r();
+
+	cout << "Delta r: " << sum << endl;
+
+	//ofstream outfile("path.csv");
+
+	//obj.dump_path(outfile);
 }
 
 int main(int argc, char* argv[]) {

@@ -53,20 +53,21 @@ public:
 
 		init_vars(x);
 
-		return minimize_rotation();
+		return minimize_delta_r();
 	}
 
-	const Vector<T> get_sum(const T* const x) {
+	void rotate_sum_downwards(const T* const x) {
 
 		init_vars(x);
 
 		fix_all_but_gyro_offset();
 
 		rotate_back();
+	}
+
+	const Vector<T> get_rotated_sum() {
 
 		R = Matrix<T>::identity();
-
-		//return get_delta_v();
 
 		s = M*rotated_accel(0);
 
@@ -82,8 +83,6 @@ public:
 
 	const Vector<T> get_delta_v() {
 
-		const Vector<T> gravity(0, 0, -9.74416);
-
 		R = Matrix<T>::identity();
 
 		Vector<T> dv; // = M*rotated_accel(0) - gravity;
@@ -92,13 +91,82 @@ public:
 
 			update_R(i);
 
-			dv += (M*rotated_accel(i) - gravity)*time_step(i);
+			dv += velocity(i);
 		}
 
-		return dv/N;
+		return dv;
+	}
+
+	const Vector<T> velocity(int i) const {
+
+		const Vector<T> gravity(0, 0, -9.74416);
+
+		const Vector<T> acc2 = M*rotated_accel(i  ) - gravity;
+
+		const Vector<T> acc1 = M*rotated_accel(i-1) - gravity;
+
+		return ((acc1 + acc2)/2)*time_step(i);
+	}
+
+	const Vector<T> get_delta_r() {
+
+		Vector<T> r, v;
+
+		v = v0;
+
+		R = Matrix<T>::identity();
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			v += velocity(i);
+
+			r += v*time_step(i);
+		}
+
+		return r;
+	}
+
+	void set_v0(const double* v) {
+
+		v0 = Vector<T>(v);
+	}
+
+	void dump_path(std::ostream& out) {
+
+		Vector<T> r, v;
+
+		v = v0;
+
+		R = Matrix<T>::identity();
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			v += velocity(i);
+
+			r += v*time_step(i);
+
+			out << i << '\t' << v << '\t' << r << '\n';
+		}
+
+		out << std::flush;
 	}
 
 private:
+
+	const T minimize_delta_r() {
+
+		fix_all_but_v();
+
+		rotate_back();
+
+		Vector<T> r = get_delta_r();
+
+		return r[X]*r[X] + r[Y]*r[Y] + r[Z]*r[Z];
+	}
 
 	const T minimize_rotation() {
 
@@ -251,12 +319,12 @@ private:
 		R = Matrix<T> (Cx*Rx_new, Cy*Ry_new, Cz*Rz_new);
 	}
 
-	const Vector<T> rotated_accel(int i) {
+	const Vector<T> rotated_accel(int i) const {
 
 		return R*accel(i);
 	}
 
-	T objective() {
+	T objective() const {
 		return -((s[X]/N)*(s[X]/N) + (s[Y]/N)*(s[Y]/N) + (s[Z]/N)*(s[Z]/N));
 	}
 
@@ -311,6 +379,16 @@ private:
 		//fix_d();
 		fix_Euler();
 		fix_v0();
+	}
+
+	void fix_all_but_v() {
+
+		fix_A();
+		fix_b();
+		fix_C();
+		fix_d();
+		fix_Euler();
+		//fix_v0();
 	}
 
 	const std::vector<Sample>& samples;

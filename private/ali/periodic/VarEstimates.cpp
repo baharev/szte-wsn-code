@@ -53,7 +53,7 @@ double gyro_gain[] = {
 };
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
-double gyro_offset[] = {-13.2952, 17.8362, -14.1019 };
+double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
 double initial_orientation[] = { 0.0, 0.0, 0.0 };
 
@@ -129,7 +129,7 @@ void VarEstimates::set_bounds() {
 
 	set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 
-	set_bounds_by_abs_inflation(VX, VZ, 1.0);
+	set_bounds_by_abs_inflation(VX, VZ, 20.0);
 }
 
 void VarEstimates::check_feasibility() {

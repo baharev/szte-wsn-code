@@ -99,7 +99,7 @@ public:
 
 	const Vector<T> velocity(int i) const {
 
-		const Vector<T> gravity(0, 0, -9.74416);
+		const Vector<T> gravity(0, 0, -9.74783);
 
 		const Vector<T> acc2 = M*rotated_accel(i  ) - gravity;
 
@@ -172,14 +172,18 @@ private:
 
 		fix_all_but_gyro_offset();
 
-		Vector<T> sum;
+		R = Matrix<T>::identity();
 
 		for (int i=1; i<N; ++i) {
 
-			sum += angular_rate(i)*time_step(i);
+			update_R(i);
 		}
 
-		return sum[X]*sum[X] + sum[Y]*sum[Y] + sum[Z]*sum[Z];
+		const T R11_err = R[X][X] - 1.0;
+		const T R22_err = R[Y][Y] - 1.0;
+		const T R33_err = R[Z][Z] - 1.0;
+
+		return R11_err*R11_err + R22_err*R22_err + R33_err*R33_err;
 	}
 
 	const T gyro_regression(const T* const x) {

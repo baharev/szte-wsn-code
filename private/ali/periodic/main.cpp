@@ -73,15 +73,19 @@ void real_main(const char* input, const char* output) {
 
 	obj.rotate_sum_downwards(x);
 
+	vector3 sum = obj.get_rotated_sum();
+
+	cout << "Sum as rotated back: " << sum << endl;
+
 	obj.set_v0(x+VX);
 
-	vector3 sum = obj.get_delta_r();
+	vector3 delta_r = obj.get_delta_r();
 
-	cout << "Delta r: " << sum << endl;
+	cout << "Delta r: " << delta_r << endl;
 
-	//ofstream outfile("path.csv");
+	ofstream outfile("path.csv");
 
-	//obj.dump_path(outfile);
+	obj.dump_path(outfile);
 }
 
 int main(int argc, char* argv[]) {

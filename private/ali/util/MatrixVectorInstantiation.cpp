@@ -135,5 +135,6 @@ template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3
 template Matrix<double>::Matrix(const double array[9]);
 template Matrix<adouble>::Matrix(const adouble array[9]);
 template Matrix<adouble>::Matrix(const double array[9]);
+template Vector<adouble>& Vector<adouble>::operator/=(const adouble& );
 
 }

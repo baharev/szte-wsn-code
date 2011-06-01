@@ -123,7 +123,8 @@ const Vector<T> operator*(const Vector<T>& x, double y) {
 }
 
 template <typename T>
-Vector<T>& Vector<T>::operator/=(double x) {
+template <typename U>
+Vector<T>& Vector<T>::operator/=(const U& x) {
 
 	for (int i=0; i<3; ++i) {
 		v[i] /= x;

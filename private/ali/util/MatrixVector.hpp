@@ -81,7 +81,8 @@ public:
 
 	Vector& operator*=(double x);
 
-	Vector& operator/=(double x);
+	template <typename U>
+	Vector& operator/=(const U& x);
 
 	const T& operator[] (coordinate i) const { return v[i]; }
 

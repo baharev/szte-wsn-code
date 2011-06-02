@@ -64,30 +64,30 @@ void real_main(const char* input, const char* output) {
 	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
-	for (int i=VX; i<=VZ; ++i) {
+	for (int i=B1; i<=B3; ++i) {
 
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
 
 	Objective<double> obj(samples);
 
-	obj.rotate_sum_downwards(x);
+	//obj.rotate_sum_downwards(x);
 
-	vector3 sum = obj.get_rotated_sum();
+	//vector3 sum = obj.get_rotated_sum();
 
-	cout << "Sum as rotated back: " << sum << endl;
+	//cout << "Sum as rotated back: " << sum << endl;
 
-	obj.set_v0(x+VX);
+	//obj.set_v0(x+VX);
 
-	vector3 delta_r = obj.get_delta_r();
+	//vector3 delta_r = obj.get_delta_r();
 
-	cout << "Delta r: " << delta_r << endl;
+	//cout << "Delta r: " << delta_r << endl;
 
 	ofstream outfile("path.csv");
 
-	obj.dump_path(outfile);
+	obj.dump_path(x, outfile);
 
-	obj.minimize_bumps(x);
+	//obj.minimize_bumps(x);
 }
 
 int main(int argc, char* argv[]) {
@@ -100,23 +100,22 @@ int main(int argc, char* argv[]) {
 		return FAILURE;
 	}
 
-	try {
+//	try {
 
 		real_main(argv[1], argv[2]);
-	}
-	catch (exception& e) {
-
-		cerr << "Runtime error: " << e.what() << endl;
-
-		return FAILURE;
-	}
-	catch (...) {
-
-		cerr << "Unknown exception type (IPOPT?)" << endl;
-
-		return FAILURE;
-	}
-
+//	}
+//	catch (exception& e) {
+//
+//		cerr << "Runtime error: " << e.what() << endl;
+//
+//		return FAILURE;
+//	}
+//	catch (...) {
+//
+//		cerr << "Unknown exception type (IPOPT?)" << endl;
+//
+//		return FAILURE;
+//	}
 
 	return ::SUCCESS;
 }

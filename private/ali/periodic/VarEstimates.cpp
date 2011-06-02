@@ -55,9 +55,7 @@ double gyro_gain[] = {
 // Gyro is left-handed: y -> -y to make it right handed!!!
 double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
-double initial_orientation[] = { 0.0, 0.0, 0.0 };
-
-double v0[] = { 0.0, 0.0, 0.0 };
+double v0[] = { 0.025019, 0.0388529, -0.138551 };
 
 }
 
@@ -95,15 +93,15 @@ void VarEstimates::copy_to_initial_point(const double array[], const VarEnum beg
 
 void VarEstimates::set_intial_points() {
 
-	copy_to_initial_point(accel_gain, A11, A33);
+	//copy_to_initial_point(accel_gain, A11, A33);
 
 	copy_to_initial_point(accel_offset, B1, B3);
 
-	copy_to_initial_point(gyro_gain, C11, C33);
+	//copy_to_initial_point(gyro_gain, C11, C33);
 
 	copy_to_initial_point(gyro_offset, D1, D3);
 
-	copy_to_initial_point(initial_orientation, EULER_X, EULER_Z);
+	//copy_to_initial_point(initial_orientation, EULER_X, EULER_Z);
 
 	copy_to_initial_point(v0, VX, VZ);
 }
@@ -119,15 +117,15 @@ void VarEstimates::set_bounds_by_abs_inflation(const VarEnum begin, const VarEnu
 
 void VarEstimates::set_bounds() {
 
-	set_bounds_by_abs_inflation(A11, A33, 0.01);
+	//set_bounds_by_abs_inflation(A11, A33, 0.01);
 
 	set_bounds_by_abs_inflation(B1, B3, 20.0);
 
-	set_bounds_by_abs_inflation(C11, C33, 0.003);
+	//set_bounds_by_abs_inflation(C11, C33, 0.003);
 
 	set_bounds_by_abs_inflation(D1, D3, 30.0);
 
-	set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
+	//set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 
 	set_bounds_by_abs_inflation(VX, VZ, 20.0);
 }
@@ -146,6 +144,16 @@ void VarEstimates::check_feasibility() {
 			throw std::logic_error("initial estimate is out of range");
 		}
 	}
+}
+
+const matrix3 VarEstimates::accel_gain() const {
+
+	return matrix3(::accel_gain);
+}
+
+const matrix3 VarEstimates::gyro_gain() const {
+
+	return matrix3(::gyro_gain);
 }
 
 }

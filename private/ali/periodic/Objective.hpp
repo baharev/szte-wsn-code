@@ -48,13 +48,21 @@ class Objective {
 public:
 
 	Objective(const std::vector<Sample>& samples) :
-	samples(samples), position(std::vector<Vector<T> >()), estimates(VarEstimates()) { }
+	samples(samples), N(static_cast<int>(samples.size())), estimates(VarEstimates())
+	{
+		// FIXME Only for bump minimization
+		fix_A();
+		fix_C();
+		fix_d();
+
+		store_rotmat(); // FIXME Not appropriate for gyro regression plus C, d fixed!
+	}
 
 	T f(const T* const x)  {
 
-		init_vars(x);
+		//init_vars(x);
 
-		return minimize_delta_r();
+		return minimize_bumps(x);
 	}
 
 	void rotate_sum_downwards(const T* const x) {
@@ -120,7 +128,13 @@ public:
 		v0 = Vector<T>(v);
 	}
 
-	void dump_path(std::ostream& out) {
+	void dump_path(const T* const x, std::ostream& out) {
+
+		b  = Vector<T>(x+B1);
+
+		v0 = Vector<T>(x+VX);
+
+		rotate_back();
 
 		Vector<T> r, v;
 
@@ -140,9 +154,11 @@ public:
 
 	const T minimize_bumps(const T* const x) {
 
-		// TODO Use v0 and b
+		// FIXME Check ctor, fixed others there
 
-		store_rotmat(); // FIXME Only do once, perhaps in the ctor?
+		b  = Vector<T>(x+B1);
+
+		v0 = Vector<T>(x+VX);
 
 		rotate_back();
 
@@ -171,6 +187,10 @@ public:
 
 	void store_path() {
 
+		position.clear();
+
+		position.resize(N);
+
 		Vector<T> r, v;
 
 		v = v0;
@@ -189,7 +209,31 @@ public:
 
 	const T integrate_bumps() const {
 
-		// TODO Continue from here with the low-pass filter then sum the square error
+		const int MOVING_AVG_WINDOW_SIZE = 193;
+
+		const int HALF_WINDOW = (MOVING_AVG_WINDOW_SIZE+1)/2;
+
+		Vector<T> average;
+
+		for (int i=0; i<MOVING_AVG_WINDOW_SIZE; ++i) {
+
+			average += position.at(i);
+		}
+
+		average /= static_cast<double>(MOVING_AVG_WINDOW_SIZE);
+
+		T sum = sqr(position.at(HALF_WINDOW-1) - average);
+
+		for (int i=HALF_WINDOW; i<N-HALF_WINDOW; ++i) {
+
+			average -= (position.at(i-HALF_WINDOW)/MOVING_AVG_WINDOW_SIZE);
+
+			average += (position.at(i            )/MOVING_AVG_WINDOW_SIZE);
+
+			sum += sqr(position.at(i) - average);
+		}
+
+		return sum;
 	}
 
 private:
@@ -230,7 +274,6 @@ private:
 		//fix_C();
 		fix_C_but_diagonal(x);
 		//fix_d();
-		fix_Euler();
 		fix_v0();
 
 		store_rotmat();
@@ -272,15 +315,9 @@ private:
 
 	void init_vars(const T* const x) {
 
-		N = static_cast<int>( samples.size() );
-
-		A = Matrix<T>(x+A11);
 		b = Vector<T>(x+B1);
 
-		C = Matrix<T>(x+C11);
 		d = Vector<T>(x+D1);
-
-		Euler_XYZ = Vector<T>(x+EULER_X);
 
 		v0 = Vector<T>(x+VX);
 	}
@@ -365,7 +402,7 @@ private:
 
 	void fix_A() {
 
-		A = Matrix<T>(estimates.initial_point(A11));
+		A = Matrix<T>(estimates.accel_gain());
 	}
 
 	void fix_b() {
@@ -375,30 +412,12 @@ private:
 
 	void fix_C() {
 
-		C = Matrix<T>(estimates.initial_point(C11));
-	}
-
-	void fix_C_but_diagonal(const T* const x) {
-
-		const double* const x0 = estimates.initial_point();
-
-		T tmp[9] = {
-				 x[C11], x0[C12], x0[C13],
-				x0[C21],  x[C22], x0[C23],
-				x0[C31], x0[C32],  x[C33]
-		};
-
-		C = Matrix<T>(tmp);
+		C = Matrix<T>(estimates.gyro_gain());
 	}
 
 	void fix_d() {
 
 		d = Vector<T>(estimates.initial_point(D1));
-	}
-
-	void fix_Euler() {
-
-		Euler_XYZ = Vector<T>(estimates.initial_point(EULER_X));
 	}
 
 	void fix_v0() {
@@ -412,7 +431,6 @@ private:
 		fix_b();
 		fix_C();
 		//fix_d();
-		fix_Euler();
 		fix_v0();
 	}
 
@@ -422,18 +440,14 @@ private:
 		fix_b();
 		fix_C();
 		fix_d();
-		fix_Euler();
 		//fix_v0();
 	}
 
 	const std::vector<Sample>& samples;
 
-	std::vector<Matrix<T> > rotmat;
-	std::vector<Vector<T> > position;
+	const int N;
 
 	const VarEstimates estimates;
-
-	int N;
 
 	Matrix<T> A;
 	Vector<T> b;
@@ -441,12 +455,13 @@ private:
 	Matrix<T> C;
 	Vector<T> d;
 
-	Vector<T> Euler_XYZ;
-
 	Vector<T> v0;
 
 	Matrix<T> R;
 	Vector<T> s;
+
+	std::vector<Matrix<T> > rotmat;
+	std::vector<Vector<T> > position;
 
 	Matrix<T> M;
 	Vector<T> gravity;

@@ -46,22 +46,6 @@ namespace gyro {
 Optimizer::Optimizer(const std::vector<Sample>& samples)
 : samples(samples), minimizer(new double[N_VARS])
 {
-	try {
-
-		init();
-	}
-	catch (std::exception& ) {
-
-		throw;
-	}
-	catch(...) {
-
-		throw std::runtime_error("unknown error during optimization");
-	}
-}
-
-void Optimizer::init() {
-
 	SmartPtr<IpoptApplication> app = new IpoptApplication();
 
 	SmartPtr<OptionsList> opt = app->Options();

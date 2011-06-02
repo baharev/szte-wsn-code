@@ -54,8 +54,6 @@ private:
 
 	Optimizer& operator=(const Optimizer& );
 
-	void init();
-
 	void check_return_code(int ret_code) const;
 
 	void postprocess_solution(const double* const sol);

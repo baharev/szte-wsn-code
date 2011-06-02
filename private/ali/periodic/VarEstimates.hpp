@@ -34,6 +34,7 @@
 #ifndef VARESTIMATES_HPP_
 #define VARESTIMATES_HPP_
 
+#include "MatrixVector.hpp"
 #include "VarEnum.hpp"
 
 namespace gyro {
@@ -51,6 +52,9 @@ public:
 	const double* lower_bounds(VarEnum i)  const { return x_L+i; }
 	const double* upper_bounds(VarEnum i)  const { return x_U+i; }
 	const double* initial_point(VarEnum i) const { return x_0+i; }
+
+	const matrix3 accel_gain() const;
+	const matrix3 gyro_gain() const;
 
 private:
 

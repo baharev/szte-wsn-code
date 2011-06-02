@@ -38,42 +38,15 @@ namespace gyro {
 
 enum VarEnum {
 
-	// Accelerometer gain
-	A11,
-	A12,
-	A13,
-	A21,
-	A22,
-	A23,
-	A31,
-	A32,
-	A33,
-
 	// Accelerometer offset
 	B1,
 	B2,
 	B3,
 
-	// Gyro gain
-	C11,
-	C12,
-	C13,
-	C21,
-	C22,
-	C23,
-	C31,
-	C32,
-	C33,
-
 	// Gyro offset
 	D1,
 	D2,
 	D3,
-
-	// Initial orientation
-	EULER_X,
-	EULER_Y,
-	EULER_Z,
 
 	// Intial velocity
 	VX,

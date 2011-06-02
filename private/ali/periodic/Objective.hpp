@@ -47,7 +47,8 @@ class Objective {
 
 public:
 
-	Objective(const std::vector<Sample>& samples) : samples(samples), estimates(VarEstimates()) { }
+	Objective(const std::vector<Sample>& samples) :
+	samples(samples), position(std::vector<Vector<T> >()), estimates(VarEstimates()) { }
 
 	T f(const T* const x)  {
 
@@ -67,13 +68,9 @@ public:
 
 	const Vector<T> get_rotated_sum() {
 
-		R = Matrix<T>::identity();
-
 		s = M*rotated_accel(0);
 
 		for (int i=1; i<N; ++i) {
-
-			update_R(i);
 
 			s += M*rotated_accel(i);
 		}
@@ -83,13 +80,9 @@ public:
 
 	const Vector<T> get_delta_v() {
 
-		R = Matrix<T>::identity();
-
 		Vector<T> dv; // = M*rotated_accel(0) - gravity;
 
 		for (int i=1; i<N; ++i) {
-
-			update_R(i);
 
 			dv += velocity(i);
 		}
@@ -98,8 +91,6 @@ public:
 	}
 
 	const Vector<T> velocity(int i) const {
-
-		const Vector<T> gravity(0, 0, -9.74783);
 
 		const Vector<T> acc2 = M*rotated_accel(i  ) - gravity;
 
@@ -114,11 +105,7 @@ public:
 
 		v = v0;
 
-		R = Matrix<T>::identity();
-
 		for (int i=1; i<N; ++i) {
-
-			update_R(i);
 
 			v += velocity(i);
 
@@ -139,11 +126,7 @@ public:
 
 		v = v0;
 
-		R = Matrix<T>::identity();
-
 		for (int i=1; i<N; ++i) {
-
-			update_R(i);
 
 			v += velocity(i);
 
@@ -153,6 +136,60 @@ public:
 		}
 
 		out << std::flush;
+	}
+
+	const T minimize_bumps(const T* const x) {
+
+		// TODO Use v0 and b
+
+		store_rotmat(); // FIXME Only do once, perhaps in the ctor?
+
+		rotate_back();
+
+		store_path();
+
+		return integrate_bumps();
+	}
+
+	void store_rotmat() {
+
+		rotmat.clear();
+
+		rotmat.resize(N);
+
+		R = Matrix<T>::identity();
+
+		rotmat.at(0) = R;
+
+		for (int i=1; i<N; ++i) {
+
+			update_R(i);
+
+			rotmat.at(i) = R;
+		}
+	}
+
+	void store_path() {
+
+		Vector<T> r, v;
+
+		v = v0;
+
+		position.at(0) = r;
+
+		for (int i=1; i<N; ++i) {
+
+			v += velocity(i);
+
+			r += v*time_step(i);
+
+			position.at(i) = r;
+		}
+	}
+
+	const T integrate_bumps() const {
+
+		// TODO Continue from here with the low-pass filter then sum the square error
 	}
 
 private:
@@ -196,7 +233,7 @@ private:
 		fix_Euler();
 		fix_v0();
 
-		R = Matrix<T>::identity();
+		store_rotmat();
 
 		sum_rotated_accel();
 
@@ -209,15 +246,11 @@ private:
 
 		for (int i=1; i<N; ++i) {
 
-			update_R(i);
-
 			s += rotated_accel(i);
 		}
 	}
 
 	void rotate_back() {
-
-		R = Matrix<T>::identity();
 
 		sum_rotated_accel();
 
@@ -225,6 +258,7 @@ private:
 
 		u /= u.length();
 
+		// FIXME If-then-else is not good for optimization
 		Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
 
 		v /= v.length();
@@ -232,6 +266,8 @@ private:
 		Vector<T> w = cross_product(v, u);
 
 		M = Matrix<T>(v, w, u*(-1));
+
+		gravity = s/N;
 	}
 
 	void init_vars(const T* const x) {
@@ -247,11 +283,6 @@ private:
 		Euler_XYZ = Vector<T>(x+EULER_X);
 
 		v0 = Vector<T>(x+VX);
-	}
-
-	void set_initial_orientation() {
-
-		R = euler2rotmat(Euler_XYZ);
 	}
 
 	const vector3& raw_gyro(int i) const {
@@ -325,7 +356,7 @@ private:
 
 	const Vector<T> rotated_accel(int i) const {
 
-		return R*accel(i);
+		return (rotmat.at(i))*accel(i);
 	}
 
 	T objective() const {
@@ -397,6 +428,9 @@ private:
 
 	const std::vector<Sample>& samples;
 
+	std::vector<Matrix<T> > rotmat;
+	std::vector<Vector<T> > position;
+
 	const VarEstimates estimates;
 
 	int N;
@@ -415,6 +449,7 @@ private:
 	Vector<T> s;
 
 	Matrix<T> M;
+	Vector<T> gravity;
 };
 
 }

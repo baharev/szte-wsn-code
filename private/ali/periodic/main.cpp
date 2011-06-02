@@ -86,6 +86,8 @@ void real_main(const char* input, const char* output) {
 	ofstream outfile("path.csv");
 
 	obj.dump_path(outfile);
+
+	obj.minimize_bumps(x);
 }
 
 int main(int argc, char* argv[]) {

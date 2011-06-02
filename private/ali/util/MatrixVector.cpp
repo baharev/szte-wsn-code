@@ -199,6 +199,23 @@ Matrix<T>::Matrix(const U array[9]) {
 }
 
 template <typename T>
+template <typename U>
+Matrix<T>::Matrix(const Matrix<U>& other) {
+
+	// FIXME Hideous work-around
+
+	double array[9];
+
+	other.copy_to(array);
+
+	for (int i=0, k=0; i<3; ++i) {
+		for (int j=0; j<3; ++j) {
+			m[i][j] = array[k++];
+		}
+	}
+}
+
+template <typename T>
 Matrix<T>::Matrix(	const T& x1, const T& x2, const T& x3,
 					const T& x4, const T& x5, const T& x6,
 					const T& x7, const T& x8, const T& x9)

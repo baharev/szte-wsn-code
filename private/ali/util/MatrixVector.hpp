@@ -92,6 +92,8 @@ public:
 
 	friend const T operator* <>(const Vector& x, const Vector& y);
 
+	friend const T sqr(const Vector& x) { return x*x; }
+
 	friend const Vector operator* <>(const T& c, const Vector& x);
 
 	friend const Vector cross_product <>(const Vector& x, const Vector& y);
@@ -115,6 +117,9 @@ public:
 
 	template <typename U>
 	explicit Matrix(const U array[9]);
+
+	template <typename U>
+	explicit Matrix(const Matrix<U>& other);
 
 	Matrix(const T& x1, const T& x2, const T& x3,
 		   const T& x4, const T& x5, const T& x6,

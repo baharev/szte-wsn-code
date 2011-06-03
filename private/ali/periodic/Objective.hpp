@@ -34,6 +34,7 @@
 #ifndef OBJECTIVE_HPP_
 #define OBJECTIVE_HPP_
 
+#include <iomanip>
 #include <vector>
 #include "CompileTimeConstants.hpp"
 #include "MatrixVector.hpp"
@@ -42,6 +43,7 @@
 
 namespace gyro {
 
+// TODO rename objective to problem representation
 template <typename T>
 class Objective {
 
@@ -60,9 +62,8 @@ public:
 
 	T f(const T* const x)  {
 
-		//init_vars(x);
-
-		return minimize_bumps(x);
+		//return minimize_bumps(x);
+		return T(0.0);
 	}
 
 	void rotate_sum_downwards(const T* const x) {
@@ -128,6 +129,7 @@ public:
 		v0 = Vector<T>(v);
 	}
 
+	// TODO dump stored positions not computed ones
 	void dump_path(const T* const x, std::ostream& out) {
 
 		b  = Vector<T>(x+B1);
@@ -142,6 +144,10 @@ public:
 
 		v = v0;
 
+		out << std::setprecision(16) << std::scientific;
+
+		out << 0 << '\t' << v << '\t' << r << '\n';
+
 		for (int i=1; i<N; ++i) {
 
 			v += velocity(i);
@@ -150,8 +156,6 @@ public:
 
 			out << i << '\t' << v << '\t' << r << '\n';
 		}
-
-		out << "Integral: " << integrate_bumps() << '\n';
 
 		out << std::flush;
 	}
@@ -169,6 +173,20 @@ public:
 		store_path();
 
 		return integrate_bumps();
+	}
+
+	const Vector<T> g(const T* const x) {
+
+		//b  = Vector<T>(x+B1);
+		fix_b();
+
+		v0 = Vector<T>(x+VX);
+
+		rotate_back();
+
+		store_path();
+
+		return position.at(N-1);
 	}
 
 	void store_rotmat() {
@@ -211,28 +229,29 @@ public:
 		}
 	}
 
-	const T integrate_bumps() const {
-
-		const int MOVING_AVG_WINDOW_SIZE = 193;
-
-		const int HALF_WINDOW = (MOVING_AVG_WINDOW_SIZE+1)/2;
+	const Vector<T> average_in_window(const int from, const int win_size) const {
 
 		Vector<T> average;
 
-		for (int i=0; i<MOVING_AVG_WINDOW_SIZE; ++i) {
+		for (int i=from; i<from+win_size; ++i) {
 
 			average += position.at(i);
 		}
 
-		average /= static_cast<double>(MOVING_AVG_WINDOW_SIZE);
+		average /= static_cast<double>(win_size);
 
-		T sum = sqr(position.at(HALF_WINDOW-1) - average);
+		return average;
+	}
 
-		for (int i=HALF_WINDOW; i<N-HALF_WINDOW; ++i) {
+	const T integrate_bumps() const {
 
-			average -= (position.at(i-HALF_WINDOW)/MOVING_AVG_WINDOW_SIZE);
+		const int MOVING_AVG_WINDOW_SIZE = 193;
 
-			average += (position.at(i            )/MOVING_AVG_WINDOW_SIZE);
+		T sum;
+
+		for (int i=0; i<N-MOVING_AVG_WINDOW_SIZE; ++i) {
+
+			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
 
 			sum += sqr(average);
 		}
@@ -240,11 +259,36 @@ public:
 		return sum;
 	}
 
+	void dump_moving_averages(std::ostream& out) {
+
+		out << std::setprecision(16) << std::scientific;
+
+		const int MOVING_AVG_WINDOW_SIZE = 193;
+
+		T sum;
+
+		for (int i=0; i<N-MOVING_AVG_WINDOW_SIZE; ++i) {
+
+			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
+
+			sum += sqr(average);
+
+			out << i << '\t' << average << '\n';
+		}
+
+		out << "Integral: " << sum << '\n';
+		out << "gravity: " << gravity << '\n';
+
+		out << std::flush;
+	}
+
 private:
 
 	const T minimize_delta_r() {
 
 		fix_all_but_v();
+
+		store_rotmat();
 
 		rotate_back();
 
@@ -306,7 +350,8 @@ private:
 		u /= u.length();
 
 		// FIXME If-then-else is not good for optimization
-		Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
+		//Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
+		Vector<T> v = Vector<T>(-u[Z],0,u[X]);
 
 		v /= v.length();
 
@@ -314,7 +359,8 @@ private:
 
 		M = Matrix<T>(v, w, u*(-1));
 
-		gravity = s/N;
+		//gravity = M*(s/N); -9.747827
+		gravity = Vector<T>(0.020, 0, -9.748); // TODO Check gravity
 	}
 
 	void init_vars(const T* const x) {

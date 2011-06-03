@@ -87,6 +87,12 @@ void real_main(const char* input, const char* output) {
 
 	obj.dump_path(x, outfile);
 
+	outfile.close();
+
+	outfile.open("avg.csv");
+
+	obj.dump_moving_averages(outfile);
+
 	//obj.minimize_bumps(x);
 }
 

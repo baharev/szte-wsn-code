@@ -104,10 +104,9 @@ private:
 
 	bool eval_obj(Index n, const adouble *x, adouble& obj_value);
 
-	// We have no constraints
-	bool eval_constraints(Index n, const double *x, Index m, double* g) {	return true; }
+	bool eval_constraints(Index n, const double *x, Index m, double* g);
 
-	bool eval_constraints(Index n, const adouble *x, Index m, adouble* g) {	return true; }
+	bool eval_constraints(Index n, const adouble *x, Index m, adouble* g);
 
 	double* const minimizer;
 

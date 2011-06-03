@@ -55,7 +55,9 @@ double gyro_gain[] = {
 // Gyro is left-handed: y -> -y to make it right handed!!!
 double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
-double v0[] = { 0.025019, 0.0388529, -0.138551 };
+//double v0[] = { 0.025019, 0.0388529, -0.138551 };
+double v0[] = { 0.0, 0.0, 0.0 };
+//double v0[] = { 3.5020927245790132e-02,4.7663320606355371e-02,-1.4756210924809038e-01 };
 
 }
 
@@ -127,7 +129,7 @@ void VarEstimates::set_bounds() {
 
 	//set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 
-	set_bounds_by_abs_inflation(VX, VZ, 20.0);
+	set_bounds_by_abs_inflation(VX, VZ, 2.0);
 }
 
 void VarEstimates::check_feasibility() {

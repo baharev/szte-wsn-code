@@ -44,7 +44,7 @@
 
 namespace gyro {
 
-const int N_CONS(0);
+const int N_CONS(3);
 
 class ObjDouble {
 
@@ -55,6 +55,8 @@ public:
 	{ }
 
 	double evaluate(const double* x) { return obj.f(x); }
+
+	const vector3 constraints(const double* x) { return obj.g(x); }
 
 private:
 
@@ -72,6 +74,9 @@ public:
 	}
 
 	adouble evaluate(const adouble* x) { return obj.f(x); }
+
+
+	const Vector<adouble> constraints(const adouble* x) { return obj.g(x); }
 
 private:
 
@@ -110,10 +115,39 @@ bool PeriodicNLP::eval_obj(Index n, const adouble *x, adouble& obj_value) {
 	return true;
 }
 
+bool PeriodicNLP::eval_constraints(Index n, const double *x, Index m, double* g) {
+
+	assert(m==N_CONS);
+
+	if (N_CONS) {
+
+		vector3 con = obj->constraints(x);
+
+		con.copy_to(g);
+	}
+
+	return true;
+}
+
+bool PeriodicNLP::eval_constraints(Index n, const adouble *x, Index m, adouble* g) {
+
+	assert(m==N_CONS);
+
+	if (N_CONS) {
+
+		Vector<adouble> con = ad->constraints(x);
+
+		con.copy_to(g);
+	}
+
+	return true;
+}
+
 bool PeriodicNLP::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		Index m, Number* g_l, Number* g_u)
 {
 	assert(n==N_VARS);
+	assert(m==N_CONS);
 
 	const double* xL = estimates->lower_bounds();
 	const double* xU = estimates->upper_bounds();

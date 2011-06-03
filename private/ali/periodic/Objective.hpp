@@ -136,6 +136,8 @@ public:
 
 		rotate_back();
 
+		store_path();
+
 		Vector<T> r, v;
 
 		v = v0;
@@ -148,6 +150,8 @@ public:
 
 			out << i << '\t' << v << '\t' << r << '\n';
 		}
+
+		out << "Integral: " << integrate_bumps() << '\n';
 
 		out << std::flush;
 	}
@@ -230,7 +234,7 @@ public:
 
 			average += (position.at(i            )/MOVING_AVG_WINDOW_SIZE);
 
-			sum += sqr(position.at(i) - average);
+			sum += sqr(average);
 		}
 
 		return sum;

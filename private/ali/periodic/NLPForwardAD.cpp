@@ -97,48 +97,6 @@ NLPForwardAD::~NLPForwardAD(){
 	delete estimates;
 }
 
-bool NLPForwardAD::eval_obj(Index n, const double *x, double& obj_value) {
-
-	obj_value = obj->evaluate(x);
-
-	return true;
-}
-
-bool NLPForwardAD::eval_obj(Index n, const adouble *x, adouble& obj_value) {
-
-	obj_value = ad->evaluate(x);
-
-	return true;
-}
-
-bool NLPForwardAD::eval_constraints(Index n, const double *x, Index m, double* g) {
-
-	assert(m==N_CONS);
-
-	if (N_CONS) {
-
-		vector3 con = obj->constraints(x);
-
-		con.copy_to(g);
-	}
-
-	return true;
-}
-
-bool NLPForwardAD::eval_constraints(Index n, const adouble *x, Index m, adouble* g) {
-
-	assert(m==N_CONS);
-
-	if (N_CONS) {
-
-		Vector<adouble> con = ad->constraints(x);
-
-		con.copy_to(g);
-	}
-
-	return true;
-}
-
 bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		Index m, Number* g_l, Number* g_u)
 {
@@ -197,7 +155,7 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	// only need the lower left corner (since it is symmetric)
 	nnz_h_lag = n*(n-1)/2+n;
 
-	// These are pretty much misplaced in generate_tapes
+	// These were pretty much misplaced in generate_tapes
 	Jac = new double*[m];
 	for(Index i=0;i<m;i++)
 		Jac[i] = new double[n];
@@ -214,25 +172,68 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	return true;
 }
 
-bool NLPForwardAD::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
-{
-	eval_obj(n,x,obj_value);
+bool NLPForwardAD::eval_constraints(Index n, const adouble *x, Index m, adouble* g) {
+
+	assert(m==N_CONS);
+
+	if (N_CONS) {
+
+		Vector<adouble> con = ad->constraints(x);
+
+		con.copy_to(g);
+	}
 
 	return true;
 }
 
-bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
-{
+bool NLPForwardAD::eval_f(Index n, const Number* x, bool new_x, Number& obj_value) {
 
-	//gradient(tag_f,n,x,grad_f);
+	obj_value = obj->evaluate(x);
 
 	return true;
 }
 
-bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
-{
+bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f) {
 
-	eval_constraints(n,x,m,g);
+	adouble vars[N_VARS];
+
+	set_variable_vector(x, vars);
+
+	const adouble objective_value = ad->evaluate(vars);
+
+	copy_derivatives(objective_value, grad_f);
+
+	return true;
+}
+
+void NLPForwardAD::set_variable_vector(const double* x, adouble* vars) const {
+
+	for (int i=0; i<N_VARS; ++i) {
+
+		vars[i] = x[i];
+
+		vars[i].setADValue(i, 1);
+	}
+}
+
+void NLPForwardAD::copy_derivatives(const adouble& x, double* derivatives) const {
+
+	for (int i=0; i<N_VARS; ++i) {
+
+		derivatives[i] = x.getADValue(i);
+	}
+}
+
+bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
+
+	assert(m==N_CONS);
+
+	if (N_CONS) {
+
+		vector3 con = obj->constraints(x);
+
+		con.copy_to(g);
+	}
 
 	return true;
 }
@@ -241,31 +242,66 @@ bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
 		Index m, Index nele_jac, Index* iRow, Index *jCol,
 		Number* values)
 {
+	assert(n==N_VARS && m==N_CONS);
+
 	if (values == NULL) {
-		// return the structure of the jacobian,
-		// assuming that the Jacobian is dense
 
-		Index idx = 0;
-		for(Index i=0; i<m; i++)
-			for(Index j=0; j<n; j++)
-			{
-				iRow[idx] = i;
-				jCol[idx++] = j;
-			}
+		fill_Jacobian_sparsity_as_dense(iRow, jCol);
+
+		return true;
 	}
-	else {
-		// return the values of the jacobian of the constraints
 
-		//jacobian(tag_g,m,n,x,Jac);
+	if (!N_CONS) {
 
-		Index idx = 0;
-		for(Index i=0; i<m; i++)
-			for(Index j=0; j<n; j++)
-				values[idx++] = Jac[i][j];
+		return true;
+	}
 
+	compute_Jacobian(x);
+
+	Index idx = 0;
+
+	for(Index i=0; i<m; i++) {
+
+		for(Index j=0; j<n; j++) {
+
+			values[idx++] = Jac[i][j];
+		}
 	}
 
 	return true;
+}
+
+void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) const {
+
+	Index idx = 0;
+
+	for(Index i=0; i<N_CONS; i++) {
+
+		for(Index j=0; j<N_VARS; j++) {
+
+			iRow[idx] = i;
+
+			jCol[idx++] = j;
+		}
+	}
+}
+
+void NLPForwardAD::compute_Jacobian(const double* x) {
+
+	adouble vars[N_VARS];
+
+	set_variable_vector(x, vars);
+
+	Vector<adouble> con = ad->constraints(vars);
+
+	adouble constraint[N_CONS];
+
+	con.copy_to(constraint);
+
+	for(int i=0; i<N_CONS; i++) {
+
+		copy_derivatives(constraint[i], Jac[i]);
+	}
 }
 
 bool NLPForwardAD::eval_h(Index n, const Number* x, bool new_x,

@@ -103,11 +103,13 @@ private:
 	NLPForwardAD(const NLPForwardAD& );
 	NLPForwardAD& operator=(const NLPForwardAD& );
 
-	bool eval_obj(Index n, const double *x, double& obj_value);
+	void set_variable_vector(const double* x, adouble* vars) const;
 
-	bool eval_obj(Index n, const adouble *x, adouble& obj_value);
+	void copy_derivatives(const adouble& x, double* derivatives) const;
 
-	bool eval_constraints(Index n, const double *x, Index m, double* g);
+	void fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) const;
+
+	void compute_Jacobian(const double* x);
 
 	bool eval_constraints(Index n, const adouble *x, Index m, adouble* g);
 

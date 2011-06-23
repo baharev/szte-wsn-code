@@ -36,7 +36,7 @@
 #include "IpSolveStatistics.hpp"
 #include "Optimizer.hpp"
 #include "Objective.hpp"
-#include "PeriodicNLP.hpp"
+#include "NLPForwardAD.hpp"
 #include "VarEnum.hpp"
 
 using namespace Ipopt;
@@ -64,7 +64,7 @@ Optimizer::Optimizer(const std::vector<Sample>& samples)
 		throw std::runtime_error("initialization of IPOPT failed");
 	}
 
-	PeriodicNLP* const nlp = new PeriodicNLP(samples);
+	NLPForwardAD* const nlp = new NLPForwardAD(samples);
 
 	SmartPtr<TNLP> NLP(nlp);
 

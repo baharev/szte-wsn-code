@@ -34,7 +34,6 @@
 #include <cmath>
 #include <ostream>
 #include "GradType.hpp"
-#include "adolc.h"
 #include "MatrixVector.cpp"
 
 namespace gyro {
@@ -113,31 +112,5 @@ template const Vector<GradType<9> > cross_product(const Vector<GradType<9> >& x,
 
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const Vector<GradType<9> >& v);
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const vector3& v);
-
-template class Vector<adouble>;
-template class Matrix<adouble>;
-
-template const Vector<adouble> operator+(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator-(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator*(const Vector<adouble>& x, double y);
-template const Vector<adouble> operator/(const Vector<adouble>& x, double y);
-template const Matrix<adouble> operator+(const Matrix<adouble>& A, const Matrix<adouble>& B);
-
-template std::ostream& operator<<(std::ostream& os, const Vector<adouble>& x);
-template const adouble operator*(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator*(const adouble& c, const Vector<adouble>& x);
-template const Vector<adouble> cross_product(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
-
-template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
-template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3& v);
-
-template Matrix<double>::Matrix(const double array[9]);
-template Matrix<adouble>::Matrix(const adouble array[9]);
-template Matrix<adouble>::Matrix(const double array[9]);
-template Matrix<adouble>::Matrix(const Matrix<double>& other);
-
-template Vector<adouble>& Vector<adouble>::operator/=(const adouble& );
-template Vector<adouble>& Vector<adouble>::operator/=(const double& );
 
 }

@@ -33,6 +33,7 @@
 
 #include <cmath>
 #include <ostream>
+#include "HessType.hpp"
 #include "VarEnum.hpp"
 
 // Only in tapeless forward mode, otherwise use adouble
@@ -70,5 +71,33 @@ template Matrix<adouble>::Matrix(const Matrix<double>& other);
 
 template Vector<adouble>& Vector<adouble>::operator/=(const adouble& );
 template Vector<adouble>& Vector<adouble>::operator/=(const double& );
+
+template <>
+const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& );
+
+template class Vector<HessType<N_VARS> >;
+template class Matrix<HessType<N_VARS> >;
+
+template const Vector<HessType<N_VARS> > operator+(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
+template const Vector<HessType<N_VARS> > operator-(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
+template const Vector<HessType<N_VARS> > operator*(const Vector<HessType<N_VARS> >& x, double y);
+template const Vector<HessType<N_VARS> > operator/(const Vector<HessType<N_VARS> >& x, double y);
+template const Matrix<HessType<N_VARS> > operator+(const Matrix<HessType<N_VARS> >& A, const Matrix<HessType<N_VARS> >& B);
+
+template std::ostream& operator<<(std::ostream& os, const Vector<HessType<N_VARS> >& x);
+template const HessType<N_VARS>  operator*(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
+template const Vector<HessType<N_VARS> > operator*(const HessType<N_VARS> & c, const Vector<HessType<N_VARS> >& x);
+template const Vector<HessType<N_VARS> > cross_product(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
+template const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& Euler_XYZ);
+
+template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const Vector<HessType<N_VARS> >& v);
+template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const vector3& v);
+
+template Matrix<HessType<N_VARS> >::Matrix(const HessType<N_VARS>  array[9]);
+template Matrix<HessType<N_VARS> >::Matrix(const double array[9]);
+template Matrix<HessType<N_VARS> >::Matrix(const Matrix<double>& other);
+
+template Vector<HessType<N_VARS> >& Vector<HessType<N_VARS> >::operator/=(const HessType<N_VARS> & );
+template Vector<HessType<N_VARS> >& Vector<HessType<N_VARS> >::operator/=(const double& );
 
 }

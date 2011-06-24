@@ -37,119 +37,6 @@
 namespace gyro {
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const Vector<T>& x) {
-
-	return x.print(os);
-}
-
-template <typename T>
-const T Vector<T>::length() const {
-
-	return sqrt(sqr(v[X])+sqr(v[Y])+sqr(v[Z]));
-}
-
-template <typename T>
-void Vector<T>::copy_to(T array[3]) const {
-
-	for (int i=0; i<3; ++i) {
-		array[i] = v[i];
-	}
-}
-
-template <typename T>
-Vector<T>& Vector<T>::operator+=(const Vector& x) {
-
-	for (int i=0; i<3; ++i) {
-		v[i] += x.v[i];
-	}
-
-	return *this;
-}
-
-template <typename T>
-const Vector<T> operator+(const Vector<T>& x, const Vector<T>& y) {
-
-	Vector<T> z(x);
-
-	return z += y;
-}
-
-template <typename T>
-Vector<T>& Vector<T>::operator-=(const Vector& x) {
-
-	for (int i=0; i<3; ++i) {
-		v[i] -= x.v[i];
-	}
-
-	return *this;
-}
-
-template <typename T>
-const Vector<T> operator-(const Vector<T>& x, const Vector<T>& y) {
-
-	Vector<T> z(x);
-
-	return z -= y;
-}
-
-template <typename T>
-const T operator*(const Vector<T>& x, const Vector<T>& y) {
-
-	return x.v[X]*y.v[X]+x.v[Y]*y.v[Y]+x.v[Z]*y.v[Z];
-}
-
-template <typename T>
-const Vector<T> operator*(const T& c, const Vector<T>& y) {
-
-	return Vector<T> (c*y.v[X], c*y.v[Y], c*y.v[Z]);
-}
-
-template <typename T>
-Vector<T>& Vector<T>::operator*=(double x) {
-
-	for (int i=0; i<3; ++i) {
-		v[i] *= x;
-	}
-
-	return *this;
-}
-
-template <typename T>
-const Vector<T> operator*(const Vector<T>& x, double y) {
-
-	Vector<T> z(x);
-
-	return z*=y;
-}
-
-template <typename T>
-template <typename U>
-Vector<T>& Vector<T>::operator/=(const U& x) {
-
-	for (int i=0; i<3; ++i) {
-		v[i] /= x;
-	}
-
-	return *this;
-}
-
-template <typename T>
-const Vector<T> operator/(const Vector<T>& x, double y) {
-
-	Vector<T> z(x);
-
-	return z/=y;
-}
-
-template <typename T>
-const Vector<T> cross_product(const Vector<T>& x, const Vector<T>& y) {
-	const T* const a = x.v;
-	const T* const b = y.v;
-
-	return Vector<T>(a[Y]*b[Z]-a[Z]*b[Y], a[Z]*b[X]-a[X]*b[Z], a[X]*b[Y]-a[Y]*b[X]);
-}
-
-template <typename T>
 const Matrix<T> euler2rotmat(const Vector<T>& euler) {
 
 	const T sin_x = sin(euler[X]);
@@ -261,12 +148,6 @@ std::ostream& Matrix<T>::print(std::ostream& os) const {
 	return os;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const Matrix<T>& x) {
-
-	return x.print(os);
-}
-
 template <typename U, typename V>
 const Vector<U> operator*(const Matrix<U>& A, const Vector<V>& x) {
 
@@ -307,14 +188,6 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
 	}
 
 	return *this;
-}
-
-template <typename T>
-const Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B) {
-
-	Matrix<T> C(A);
-
-	return C+=B;
 }
 
 }

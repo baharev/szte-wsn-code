@@ -58,16 +58,6 @@ void Vector<double>::enforce_range_minus_pi_plus_pi() {
 template class Vector<double>;
 template class Matrix<double>;
 
-template const vector3 operator+(const vector3& x, const vector3& y);
-template const vector3 operator-(const vector3& x, const vector3& y);
-template const vector3 operator*(const vector3& x, double y);
-template const vector3 operator/(const vector3& x, double y);
-template const matrix3 operator+(const matrix3& A, const matrix3& B);
-
-template std::ostream& operator<<(std::ostream& os, const vector3& x);
-template const double  operator*(const vector3& x, const vector3& y);
-template const vector3 operator*(const double& c, const vector3& x);
-template const vector3 cross_product(const vector3& x, const vector3& y);
 template const matrix3 euler2rotmat(const vector3& Euler_XYZ);
 
 template const vector3 operator*(const matrix3& M, const vector3& v);
@@ -82,9 +72,6 @@ template const Vector<GradType<12> > operator/(const Vector<GradType<12> >& x, d
 template const Matrix<GradType<12> > operator+(const Matrix<GradType<12> >& A, const Matrix<GradType<12> >& B);
 
 template std::ostream& operator<<(std::ostream& os, const Vector<GradType<12> >& x);
-template const GradType<12>  operator*(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
-template const Vector<GradType<12> > operator*(const GradType<12> & c, const Vector<GradType<12> >& x);
-template const Vector<GradType<12> > cross_product(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
 
 template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const Vector<GradType<12> >& v);
 template const Vector<GradType<12> > operator*(const Matrix<GradType<12> >& M, const vector3& v);
@@ -99,9 +86,6 @@ template const Vector<GradType<9> > operator/(const Vector<GradType<9> >& x, dou
 template const Matrix<GradType<9> > operator+(const Matrix<GradType<9> >& A, const Matrix<GradType<9> >& B);
 
 template std::ostream& operator<<(std::ostream& os, const Vector<GradType<9> >& x);
-template const GradType<9>  operator*(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
-template const Vector<GradType<9> > operator*(const GradType<9> & c, const Vector<GradType<9> >& x);
-template const Vector<GradType<9> > cross_product(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
 
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const Vector<GradType<9> >& v);
 template const Vector<GradType<9> > operator*(const Matrix<GradType<9> >& M, const vector3& v);

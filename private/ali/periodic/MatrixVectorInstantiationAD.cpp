@@ -49,16 +49,6 @@ namespace gyro {
 template class Vector<adouble>;
 template class Matrix<adouble>;
 
-template const Vector<adouble> operator+(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator-(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator*(const Vector<adouble>& x, double y);
-template const Vector<adouble> operator/(const Vector<adouble>& x, double y);
-template const Matrix<adouble> operator+(const Matrix<adouble>& A, const Matrix<adouble>& B);
-
-template std::ostream& operator<<(std::ostream& os, const Vector<adouble>& x);
-template const adouble operator*(const Vector<adouble>& x, const Vector<adouble>& y);
-template const Vector<adouble> operator*(const adouble& c, const Vector<adouble>& x);
-template const Vector<adouble> cross_product(const Vector<adouble>& x, const Vector<adouble>& y);
 template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
 
 template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
@@ -67,7 +57,7 @@ template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3
 template Matrix<double>::Matrix(const double array[9]);
 template Matrix<adouble>::Matrix(const adouble array[9]);
 template Matrix<adouble>::Matrix(const double array[9]);
-template Matrix<adouble>::Matrix(const Matrix<double>& other);
+template Matrix<adouble>::Matrix(const matrix3& other);
 
 template Vector<adouble>& Vector<adouble>::operator/=(const adouble& );
 template Vector<adouble>& Vector<adouble>::operator/=(const double& );
@@ -77,18 +67,6 @@ const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& );
 
 template class Vector<HessType<N_VARS> >;
 template class Matrix<HessType<N_VARS> >;
-
-template const Vector<HessType<N_VARS> > operator+(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
-template const Vector<HessType<N_VARS> > operator-(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
-template const Vector<HessType<N_VARS> > operator*(const Vector<HessType<N_VARS> >& x, double y);
-template const Vector<HessType<N_VARS> > operator/(const Vector<HessType<N_VARS> >& x, double y);
-template const Matrix<HessType<N_VARS> > operator+(const Matrix<HessType<N_VARS> >& A, const Matrix<HessType<N_VARS> >& B);
-
-template std::ostream& operator<<(std::ostream& os, const Vector<HessType<N_VARS> >& x);
-template const HessType<N_VARS>  operator*(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
-template const Vector<HessType<N_VARS> > operator*(const HessType<N_VARS> & c, const Vector<HessType<N_VARS> >& x);
-template const Vector<HessType<N_VARS> > cross_product(const Vector<HessType<N_VARS> >& x, const Vector<HessType<N_VARS> >& y);
-template const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& Euler_XYZ);
 
 template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const Vector<HessType<N_VARS> >& v);
 template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const vector3& v);

@@ -41,24 +41,15 @@ namespace gyro {
 
 enum coordinate { X, Y, Z };
 
-inline double sqrt(double x) { return std::sqrt(x); }
-inline double sqr(double x) { return std::pow(x, 2); }
-
 template <typename> class Vector;
 template <typename> class Matrix;
 
-template <typename T> const Vector<T> operator+(const Vector<T>& x, const Vector<T>& y);
-template <typename T> const Vector<T> operator-(const Vector<T>& x, const Vector<T>& y);
-template <typename T> const Vector<T> operator*(const Vector<T>& x, double y);
-template <typename T> const Vector<T> operator/(const Vector<T>& x, double y);
-template <typename T> const Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B);
+typedef Vector<double> vector3;
+typedef Matrix<double> matrix3;
 
-template <typename T> std::ostream& operator<<(std::ostream& os, const Vector<T>& v);
-template <typename T> const T operator*(const Vector<T>& x, const Vector<T>& y);
-template <typename T> const Vector<T> operator*(const T& c, const Vector<T>& x);
-template <typename T> const Vector<T> cross_product(const Vector<T>& x, const Vector<T>& y);
-
-template <typename T> const Matrix<T> euler2rotmat(const Vector<T>& euler_XYZ);
+inline double sqrt(double x) { return std::sqrt(x); }
+inline double sqr(double x) { return std::pow(x, 2); }
+template <typename T> const T sqr(const T& x) { return pow(x, 2); } // ADOL-C adouble needs this
 
 template <typename T>
 class Vector {
@@ -75,42 +66,61 @@ public:
 	template <typename U>
 	explicit Vector(const Vector<U> x) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
 
-	void copy_to(T array[3]) const;
+	void copy_to(T array[3]) const { for (int i=0; i<3; ++i) array[i] = v[i]; }
 
-	const T length() const;
+	const T length() const { return sqrt(sqr(v[X])+sqr(v[Y])+sqr(v[Z])); }
 
-	Vector& operator+=(const Vector& x);
+	Vector& operator+=(const Vector& x) { for (int i=0; i<3; ++i) v[i] += x.v[i]; return *this; }
 
-	Vector& operator-=(const Vector& x);
+	Vector& operator-=(const Vector& x) { for (int i=0; i<3; ++i) v[i] -= x.v[i]; return *this; }
 
-	Vector& operator*=(double x);
+	Vector& operator*=(double c) { for (int i=0; i<3; ++i) v[i] *= c; return *this; }
 
 	template <typename U>
-	Vector& operator/=(const U& x);
+	Vector& operator/=(const U& x) { for (int i=0; i<3; ++i) v[i] /= x; return *this; }
 
 	const T& operator[] (coordinate i) const { return v[i]; }
 
-	void enforce_range_minus_pi_plus_pi(); // only for T = double
+	friend const T operator*(const Vector& x, const Vector& y) { return x.v[X]*y.v[X]+x.v[Y]*y.v[Y]+x.v[Z]*y.v[Z]; }
 
-	std::ostream& print(std::ostream& os) const  { return os<<v[X]<<'\t'<<v[Y]<<'\t'<<v[Z]; }
-
-	friend const T operator* <>(const Vector& x, const Vector& y);
+	friend const Vector operator*(const T& c, const Vector& y) { return Vector<T> (c*y.v[X], c*y.v[Y], c*y.v[Z]); }
 
 	friend const T sqr(const Vector& x) { return sqr(x.v[X])+sqr(x.v[Y])+sqr(x.v[Z]); }
 
-	friend const Vector operator* <>(const T& c, const Vector& x);
-
-	friend const Vector cross_product <>(const Vector& x, const Vector& y);
-
-	template <typename>	friend class Matrix;
+	friend const Vector cross_product(const Vector& x, const Vector& y) {
+		const T* const a = x.v;
+		const T* const b = y.v;
+		return Vector<T>(a[Y]*b[Z]-a[Z]*b[Y], a[Z]*b[X]-a[X]*b[Z], a[X]*b[Y]-a[Y]*b[X]);
+	}
 
 	template <typename U, typename V>
 	friend const Vector<U> operator*(const Matrix<U>& M, const Vector<V>& v);
+
+	template <typename>	friend class Matrix;
+
+	void enforce_range_minus_pi_plus_pi(); // only for T = double
+
+	std::ostream& print(std::ostream& os) const  { return os << v[X] << '\t' << v[Y] << '\t' <<v[Z]; }
 
 private:
 
 	T v[3];
 };
+
+template <typename T>
+const Vector<T> operator+(const Vector<T>& x, const Vector<T>& y) { Vector<T> z(x); return z += y; }
+
+template <typename T>
+const Vector<T> operator-(const Vector<T>& x, const Vector<T>& y) { Vector<T> z(x); return z -= y; }
+
+template <typename T>
+const Vector<T> operator*(const Vector<T>& x, double y) { Vector<T> z(x); return z*=y; }
+
+template <typename T>
+const Vector<T> operator/(const Vector<T>& x, double y) { Vector<T> z(x); return z/=y; }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Vector<T>& x) { return x.print(os); }
 
 template <typename T>
 class Matrix {
@@ -131,30 +141,35 @@ public:
 
 	Matrix(const Vector<T>& row_x, const Vector<T>& row_y, const Vector<T>& row_z);
 
-	void copy_to(T array[9]) const;
+	static const Matrix identity();
 
-	const Matrix operator*(const Matrix& M) const;
+	void copy_to(T array[9]) const;
 
 	const Vector<T> operator[] (coordinate i) const { return Vector<T> (m[i][X], m[i][Y], m[i][Z]); }
 
-	std::ostream& print(std::ostream& os) const;
-
-	static const Matrix identity();
-
 	Matrix& operator+=(const Matrix& M);
+
+	const Matrix operator*(const Matrix& M) const;
 
 	template <typename U, typename V>
 	friend const Vector<U> operator*(const Matrix<U>& M, const Vector<V>& v);
 
 	template <typename>	friend class Matrix;
 
+	std::ostream& print(std::ostream& os) const;
+
 private:
 
 	T m[3][3];
 };
 
-typedef Vector<double> vector3;
-typedef Matrix<double> matrix3;
+template <typename T>
+const Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B) { Matrix<T> C(A); return C+=B; }
+
+template <typename T> const Matrix<T> euler2rotmat(const Vector<T>& euler_XYZ);
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Matrix<T>& x) { return x.print(os); }
 
 }
 

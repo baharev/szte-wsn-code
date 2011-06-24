@@ -45,21 +45,25 @@ public:
 
 	HessType() { }
 
-	HessType(double constant);
+	HessType(double x) { init(x); }
 
-	HessType(const HessType& other);
-
-	HessType& operator=(const HessType& rhs);
-
-	HessType& operator=(double rhs);
+	HessType& operator=(double rhs) { init(rhs); return *this; }
 
 	HessType& operator+=(const HessType& x);
 
+	HessType& operator+=(double x) { f += x; return *this; }
+
 	HessType& operator-=(const HessType& x);
 
-	HessType& operator*=(const HessType& x);
+	HessType& operator-=(double x) { f -= x; return *this; }
 
-	HessType& operator/=(const HessType& x);
+	// just a workaround, it would be messy otherwise
+	HessType& operator*=(const HessType& x) { *this = (*this)*x; return *this; }
+
+	HessType& operator*=(double x);
+
+	// just a workaround
+	HessType& operator/=(const HessType& x) { *this = (*this)/x; return *this; };
 
 	template <int N_VAR>
 	friend void init_vars(HessType<N_VAR> var[N_VAR], const double* const x);
@@ -68,31 +72,7 @@ public:
 	friend const HessType<N_VAR> operator-(const HessType<N_VAR>& x);
 
 	template <int N_VAR>
-	friend const HessType<N_VAR> operator+(const HessType<N_VAR>& x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator+(const double x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator+(const HessType<N_VAR>& x, const double y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator-(const HessType<N_VAR>& x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator-(const double x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator-(const HessType<N_VAR>& x, const double y);
-
-	template <int N_VAR>
 	friend const HessType<N_VAR> operator*(const HessType<N_VAR>& x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator*(const double x, const HessType<N_VAR>& y);
-
-	template <int N_VAR>
-	friend const HessType<N_VAR> operator*(const HessType<N_VAR>& x, const double y);
 
 	template <int N_VAR>
 	friend const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const HessType<N_VAR>& y);
@@ -101,20 +81,16 @@ public:
 	friend const HessType<N_VAR> operator/(const double x, const HessType<N_VAR>& y);
 
 	template <int N_VAR>
-	friend const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const double y);
-
-	template <int N_VAR>
 	friend const HessType<N_VAR> sqrt(const HessType<N_VAR>& x);
 
 	template <int N_VAR>
-	friend const HessType<N_VAR> pow(const HessType<N_VAR>& x, int i);
+	friend const HessType<N_VAR> sqr(const HessType<N_VAR>& x);
 
-	std::ostream& print(std::ostream& os) const;
+	std::ostream& print(std::ostream& os) const { os << this->f << std::flush; return os; }
 
 private:
 
-	void copy(const HessType& other);
-	void init(double value);
+	void init(double x);
 
 	double f;
 	double g[N];
@@ -122,8 +98,8 @@ private:
 };
 
 template <int N>
-void HessType<N>::init(double value) {
-	f = value;
+void HessType<N>::init(double x) {
+	f = x;
 	for (int i=0; i<N; ++i) {
 		g[i] = 0.0;
 		for (int j=0; j<=i; ++j) {
@@ -133,94 +109,59 @@ void HessType<N>::init(double value) {
 }
 
 template <int N>
-void HessType<N>::copy(const HessType& other) {
-	f = other.f;
+void init_vars(HessType<N> var[N], const double* x) {
+
 	for (int i=0; i<N; ++i) {
-		g[i] = other.g[i];
-		for (int j=0; j<=i; ++j) {
-			h[i][j] = other.h[i][j];
-		}
-	}
-}
-
-template <int N>
-HessType<N>::HessType(double constant) {
-	init(constant);
-}
-
-template <int N>
-HessType<N>::HessType(const HessType& other) {
-	copy(other);
-}
-
-template <int N>
-HessType<N>& HessType<N>::operator=(const HessType<N>& rhs) {
-	copy(rhs);
-	return *this;
-}
-
-template <int N>
-HessType<N>& HessType<N>::operator=(double rhs) {
-	init(rhs);
-	return *this;
-}
-
-template <int N_VAR>
-void init_vars(HessType<N_VAR> var[N_VAR], const double* x) {
-
-	for (int i=0; i<N_VAR; ++i) {
-		var[i] = x[i];
+		var[i].init(x[i]);
 		var[i].g[i] = 1.0;
 	}
 }
 
 template <int N>
 HessType<N>& HessType<N>::operator+=(const HessType<N>& x) {
-	// FIXME Finish!
+
+	f += x.f;
+	for (int i=0; i<N; ++i) {
+		g[i] += x.g[i];
+		for (int j=0; j<=i; ++j) {
+			h[i][j] += x.h[i][j];
+		}
+	}
+
 	return *this;
 }
 
 template <int N>
-HessType<N>& HessType<N>::operator-=(const HessType<N>& x) {
-	// FIXME Finish!
-	return *this;
+const HessType<N> operator+(const HessType<N>& x, const HessType<N>& y) {
+
+	HessType<N> z(x);
+
+	return z+=y;
 }
 
 template <int N>
-HessType<N>& HessType<N>::operator*=(const HessType<N>& x) {
-	// FIXME Finish!
-	return *this;
+const HessType<N> operator+(double x, const HessType<N>& y) {
+
+	HessType<N> z(y);
+
+	return z+=x;
 }
 
 template <int N>
-HessType<N>& HessType<N>::operator/=(const HessType<N>& x) {
-	// FIXME Finish!
-	return *this;
+const HessType<N> operator+(const HessType<N>& x, double y) {
+
+	HessType<N> z(x);
+
+	return z+=y;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> sqrt(const HessType<N_VAR>& x) {
+template <int N>
+const HessType<N> operator-(const HessType<N>& x) {
 
-	HessType<N_VAR> z;
-	// FIXME Finish!
-	return z;
-}
-
-template <int N_VAR>
-const HessType<N_VAR> pow(const HessType<N_VAR>& x, int i) {
-
-	HessType<N_VAR> z;
-	// FIXME Finish!
-	return z;
-}
-
-template <int N_VAR>
-const HessType<N_VAR> operator-(const HessType<N_VAR>& x) {
-
-	HessType<N_VAR> z;
+	HessType<N> z;
 
 	z.f = -x.f;
-	for (int i=0; i<N_VAR; ++i) {
+	for (int i=0; i<N; ++i) {
 		z.g[i] = -x.g[i];
 		for (int j=0; j<=i; ++j) {
 			z.h[i][j] = -x.h[i][j];
@@ -230,73 +171,49 @@ const HessType<N_VAR> operator-(const HessType<N_VAR>& x) {
 	return z;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator+(const HessType<N_VAR>& x, const HessType<N_VAR>& y) {
+template <int N>
+HessType<N>& HessType<N>::operator-=(const HessType<N>& x) {
 
-	HessType<N_VAR> z;
-
-	z.f = x.f + y.f;
-	for (int i=0; i<N_VAR; ++i) {
-		z.g[i] = x.g[i] + y.g[i];
+	f -= x.f;
+	for (int i=0; i<N; ++i) {
+		g[i] -= x.g[i];
 		for (int j=0; j<=i; ++j) {
-			z.h[i][j] = x.h[i][j] + y.h[i][j];
+			h[i][j] -= x.h[i][j];
 		}
 	}
 
-	return z;
+	return *this;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator+(const double x, const HessType<N_VAR>& y) {
+template <int N>
+const HessType<N> operator-(const HessType<N>& x, const HessType<N>& y) {
 
-	HessType<N_VAR> z(y);
+	HessType<N> z(x);
 
-	z.f += x;
-
-	return z;
+	return z-=y;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator+(const HessType<N_VAR>& x, const double y) {
-
-	return y+x;
-}
-
-template <int N_VAR>
-const HessType<N_VAR> operator-(const HessType<N_VAR>& x, const HessType<N_VAR>& y) {
-
-	HessType<N_VAR> z;
-
-	z.f = x.f - y.f;
-	for (int i=0; i<N_VAR; ++i) {
-		z.g[i] = x.g[i] - y.g[i];
-		for (int j=0; j<=i; ++j) {
-			z.h[i][j] = x.h[i][j] - y.h[i][j];
-		}
-	}
-
-	return z;
-}
-
-template <int N_VAR>
-const HessType<N_VAR> operator-(const double x, const HessType<N_VAR>& y) {
+template <int N>
+const HessType<N> operator-(double x, const HessType<N>& y) {
 
 	return x+(-y);
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator-(const HessType<N_VAR>& x, const double y) {
+template <int N>
+const HessType<N> operator-(const HessType<N>& x, double y) {
 
-	return x+(-y);
+	HessType<N> z(x);
+
+	return z-=y;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator*(const HessType<N_VAR>& x, const HessType<N_VAR>& y) {
+template <int N>
+const HessType<N> operator*(const HessType<N>& x, const HessType<N>& y) {
 
-	HessType<N_VAR> z;
+	HessType<N> z;
 
 	z.f = x.f*y.f;
-	for (int i=0; i<N_VAR; ++i) {
+	for (int i=0; i<N; ++i) {
 		z.g[i] = y.f*x.g[i] + x.f*y.g[i];
 		for (int j=0; j<=i; ++j) {
 			z.h[i][j] = y.f*x.h[i][j]+x.g[i]*y.g[j]+y.g[i]*x.g[j]+x.f*y.h[i][j];
@@ -306,35 +223,43 @@ const HessType<N_VAR> operator*(const HessType<N_VAR>& x, const HessType<N_VAR>&
 	return z;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator*(const double x, const HessType<N_VAR>& y) {
+template <int N>
+HessType<N>& HessType<N>::operator*=(double x) {
 
-	HessType<N_VAR> z;
-
-	z.f = x*y.f;
-	for (int i=0; i<N_VAR; ++i) {
-		z.g[i] = x*y.g[i];
+	f *= x;
+	for (int i=0; i<N; ++i) {
+		g[i] *= x;
 		for (int j=0; j<=i; ++j) {
-			z.h[i][j] = x*y.h[i][j];
+			h[i][j] *= x;
 		}
 	}
 
-	return z;
+	return *this;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator*(const HessType<N_VAR>& x, const double y) {
+template <int N>
+const HessType<N> operator*(double x, const HessType<N>& y) {
 
-	return y*x;
+	HessType<N> z(y);
+
+	return z*=x;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const HessType<N_VAR>& y) {
+template <int N>
+const HessType<N> operator*(const HessType<N>& x, double y) {
 
-	HessType<N_VAR> z;
+	HessType<N> z(x);
+
+	return z*=y;
+}
+
+template <int N>
+const HessType<N> operator/(const HessType<N>& x, const HessType<N>& y) {
+
+	HessType<N> z;
 
 	z.f = x.f/y.f;
-	for (int i=0; i<N_VAR; ++i) {
+	for (int i=0; i<N; ++i) {
 		z.g[i] = (x.g[i] - z.f*y.g[i]) / y.f;
 		for (int j=0; j<=i; ++j) {
 			z.h[i][j] = (x.h[i][j]-z.g[i]*y.g[j]-y.g[i]*z.g[j]-z.f*y.h[i][j])/y.f;
@@ -344,15 +269,15 @@ const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const HessType<N_VAR>&
 	return z;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator/(const double x, const HessType<N_VAR>& y) {
+template <int N>
+const HessType<N> operator/(const double x, const HessType<N>& y) {
 
-	HessType<N_VAR> z;
+	HessType<N> z;
 
 	z.f = x/y.f;
 	const double p = -z.f/y.f;
 	const double q = (-2.0*p)/y.f;
-	for (int i=0; i<N_VAR; ++i) {
+	for (int i=0; i<N; ++i) {
 		z.g[i] = p*y.g[i];
 		for (int j=0; j<=i; ++j) {
 			z.h[i][j] = p*y.h[i][j] + q*y.g[i]*y.g[j];
@@ -362,20 +287,51 @@ const HessType<N_VAR> operator/(const double x, const HessType<N_VAR>& y) {
 	return z;
 }
 
-template <int N_VAR>
-const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const double y) {
+template <int N>
+const HessType<N> operator/(const HessType<N>& x, const double y) {
 
 	return x*(1.0/y);
 }
 
-template <int N_VAR>
-std::ostream& HessType<N_VAR>::print(std::ostream& os) const {
-	os << this->f << std::flush;
-	return os;
+template <int N>
+const HessType<N> sqrt(const HessType<N>& x) {
+
+	HessType<N> z;
+
+	const double tmp0 =  std::sqrt(x.f);
+	const double tmp1 =  1/(2*tmp0);
+	const double tmp2 = -tmp1/(2*x.f);
+
+	z.f = tmp0;
+	for (int i=0; i<N; ++i) {
+		z.g[i] = tmp1*x.g[i];
+		for (int j=0; j<=i; ++j) {
+			z.h[i][j] = tmp1*x.h[i][j] + tmp2*x.g[i]*x.g[j];
+		}
+	}
+
+	return z;
 }
 
-template <int N_VAR>
-std::ostream& operator<<(std::ostream& os, const HessType<N_VAR>& x) {
+template <int N>
+const HessType<N> sqr(const HessType<N>& x) {
+
+	HessType<N> z;
+
+	z.f = std::pow(x.f, 2);
+	const double tmp = 2*x.f;
+	for (int i=0; i<N; ++i) {
+		z.g[i] = tmp*x.g[i];
+		for (int j=0; j<=i; ++j) {
+			z.h[i][j] = tmp*x.h[i][j] + 2.0*x.g[i]*x.g[j];
+		}
+	}
+
+	return z;
+}
+
+template <int N>
+std::ostream& operator<<(std::ostream& os, const HessType<N>& x) {
 	return x.print(os);
 }
 

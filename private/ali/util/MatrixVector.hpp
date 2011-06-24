@@ -42,7 +42,7 @@ namespace gyro {
 enum coordinate { X, Y, Z };
 
 inline double sqrt(double x) { return std::sqrt(x); }
-inline double pow(double x, int i) { return std::pow(x, i); }
+inline double sqr(double x) { return std::pow(x, 2); }
 
 template <typename> class Vector;
 template <typename> class Matrix;
@@ -96,7 +96,7 @@ public:
 
 	friend const T operator* <>(const Vector& x, const Vector& y);
 
-	friend const T sqr(const Vector& x) { return x*x; }
+	friend const T sqr(const Vector& x) { return sqr(x.v[X])+sqr(x.v[Y])+sqr(x.v[Z]); }
 
 	friend const Vector operator* <>(const T& c, const Vector& x);
 
@@ -135,7 +135,7 @@ public:
 
 	const Matrix operator*(const Matrix& M) const;
 
-	const Vector<T> operator[] (coordinate i) const;
+	const Vector<T> operator[] (coordinate i) const { return Vector<T> (m[i][X], m[i][Y], m[i][Z]); }
 
 	std::ostream& print(std::ostream& os) const;
 
@@ -145,6 +145,8 @@ public:
 
 	template <typename U, typename V>
 	friend const Vector<U> operator*(const Matrix<U>& M, const Vector<V>& v);
+
+	template <typename>	friend class Matrix;
 
 private:
 

@@ -48,15 +48,11 @@ public:
 
 	GradType(double constant) { init(constant); }
 
-	GradType(const GradType& other) { copy(other); }
-
 	template <int N_VAR>
 	friend void init_vars(GradType<N_VAR> var[N_VAR], const double x[N_VAR]);
 
 	template <int N_VAR>
 	friend const GradType<N_VAR> operator-(const GradType<N_VAR>& x);
-
-	GradType& operator=(const GradType& rhs) { copy(rhs); return *this; }
 
 	GradType& operator=(double rhs) { init(rhs); return *this; }
 
@@ -81,7 +77,7 @@ public:
 	friend const GradType<N_VAR> operator/(const double x, const GradType<N_VAR>& y);
 
 	template <int N_VAR>
-	friend const GradType<N_VAR> pow(const GradType<N_VAR>& x, int n);
+	friend const GradType<N_VAR> sqr(const GradType<N_VAR>& x);
 
 	template <int N_VAR>
 	friend const GradType<N_VAR> sqrt(const GradType<N_VAR>& x);
@@ -96,7 +92,6 @@ public:
 
 private:
 
-	void copy(const GradType& other);
 	void init(double value);
 
 	double f;
@@ -127,19 +122,11 @@ void GradType<N>::init(double value) {
 	}
 }
 
-template <int N>
-void GradType<N>::copy(const GradType& other) {
-	f = other.f;
-	for (int i=0; i<N; ++i) {
-		g[i] = other.g[i];
-	}
-}
-
 template <int N_VAR>
 void init_vars(GradType<N_VAR> var[N_VAR], const double x[N_VAR]) {
 
 	for (int i=0; i<N_VAR; ++i) {
-		var[i] = x[i];
+		var[i].init(x[i]);
 		var[i].g[i] = 1.0;
 	}
 }
@@ -319,13 +306,13 @@ const GradType<N_VAR> operator/(const GradType<N_VAR>& x, const double y) {
 }
 
 template <int N_VAR>
-const GradType<N_VAR> pow(const GradType<N_VAR>& x, int n) {
+const GradType<N_VAR> sqr(const GradType<N_VAR>& x) {
 
 	GradType<N_VAR> z;
 
-	z.f = std::pow(x.f, n);
+	z.f = std::pow(x.f, 2);
 
-	const double h = n*std::pow(x.f,n-1);
+	const double h = 2*x.f;
 
 	for (int i=0; i<N_VAR; ++i) {
 		z.g[i] = h*(x.g[i]);

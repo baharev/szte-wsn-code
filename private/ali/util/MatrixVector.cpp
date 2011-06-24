@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<T>& x) {
 template <typename T>
 const T Vector<T>::length() const {
 
-	return sqrt(pow(v[X],2)+pow(v[Y],2)+pow(v[Z],2));
+	return sqrt(sqr(v[X])+sqr(v[Y])+sqr(v[Z]));
 }
 
 template <typename T>
@@ -202,15 +202,9 @@ template <typename T>
 template <typename U>
 Matrix<T>::Matrix(const Matrix<U>& other) {
 
-	// FIXME Hideous work-around
-
-	double array[9];
-
-	other.copy_to(array);
-
-	for (int i=0, k=0; i<3; ++i) {
+	for (int i=0; i<3; ++i) {
 		for (int j=0; j<3; ++j) {
-			m[i][j] = array[k++];
+			m[i][j] = other.m[i][j];
 		}
 	}
 }
@@ -321,12 +315,6 @@ const Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B) {
 	Matrix<T> C(A);
 
 	return C+=B;
-}
-
-template <typename T>
-const Vector<T> Matrix<T>::operator[] (coordinate i) const {
-
-	return Vector<T> (m[i][X], m[i][Y], m[i][Z]);
 }
 
 }

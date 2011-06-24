@@ -31,18 +31,11 @@
 *      Author: Ali Baharev
 */
 
-#include <cmath>
 #include <ostream>
 #include "GradType.hpp"
 #include "MatrixVector.cpp"
 
 namespace gyro {
-
-template <>
-const double Vector<double>::length() const {
-
-	return std::sqrt(std::pow(v[X],2)+std::pow(v[Y],2)+std::pow(v[Z],2));
-}
 
 template <>
 void Vector<double>::enforce_range_minus_pi_plus_pi() {

@@ -34,11 +34,15 @@
 #ifndef MATRIXVECTOR_HPP_
 #define MATRIXVECTOR_HPP_
 
+#include <cmath>
 #include <iosfwd>
 
 namespace gyro {
 
 enum coordinate { X, Y, Z };
+
+inline double sqrt(double x) { return std::sqrt(x); }
+inline double pow(double x, int i) { return std::pow(x, i); }
 
 template <typename> class Vector;
 template <typename> class Matrix;

@@ -53,6 +53,14 @@ public:
 
 	HessType& operator=(double rhs);
 
+	HessType& operator+=(const HessType& x);
+
+	HessType& operator-=(const HessType& x);
+
+	HessType& operator*=(const HessType& x);
+
+	HessType& operator/=(const HessType& x);
+
 	template <int N_VAR>
 	friend void init_vars(HessType<N_VAR> var[N_VAR], const double* const x);
 
@@ -94,6 +102,12 @@ public:
 
 	template <int N_VAR>
 	friend const HessType<N_VAR> operator/(const HessType<N_VAR>& x, const double y);
+
+	template <int N_VAR>
+	friend const HessType<N_VAR> sqrt(const HessType<N_VAR>& x);
+
+	template <int N_VAR>
+	friend const HessType<N_VAR> pow(const HessType<N_VAR>& x, int i);
 
 	std::ostream& print(std::ostream& os) const;
 
@@ -158,6 +172,46 @@ void init_vars(HessType<N_VAR> var[N_VAR], const double* x) {
 		var[i] = x[i];
 		var[i].g[i] = 1.0;
 	}
+}
+
+template <int N>
+HessType<N>& HessType<N>::operator+=(const HessType<N>& x) {
+	// FIXME Finish!
+	return *this;
+}
+
+template <int N>
+HessType<N>& HessType<N>::operator-=(const HessType<N>& x) {
+	// FIXME Finish!
+	return *this;
+}
+
+template <int N>
+HessType<N>& HessType<N>::operator*=(const HessType<N>& x) {
+	// FIXME Finish!
+	return *this;
+}
+
+template <int N>
+HessType<N>& HessType<N>::operator/=(const HessType<N>& x) {
+	// FIXME Finish!
+	return *this;
+}
+
+template <int N_VAR>
+const HessType<N_VAR> sqrt(const HessType<N_VAR>& x) {
+
+	HessType<N_VAR> z;
+	// FIXME Finish!
+	return z;
+}
+
+template <int N_VAR>
+const HessType<N_VAR> pow(const HessType<N_VAR>& x, int i) {
+
+	HessType<N_VAR> z;
+	// FIXME Finish!
+	return z;
 }
 
 template <int N_VAR>

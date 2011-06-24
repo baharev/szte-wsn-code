@@ -93,9 +93,6 @@ public:
 		return Vector<T>(a[Y]*b[Z]-a[Z]*b[Y], a[Z]*b[X]-a[X]*b[Z], a[X]*b[Y]-a[Y]*b[X]);
 	}
 
-	template <typename U, typename V>
-	friend const Vector<U> operator*(const Matrix<U>& M, const Vector<V>& v);
-
 	template <typename>	friend class Matrix;
 
 	void enforce_range_minus_pi_plus_pi(); // only for T = double
@@ -151,10 +148,10 @@ public:
 
 	const Matrix operator*(const Matrix& M) const;
 
-	template <typename U, typename V>
-	friend const Vector<U> operator*(const Matrix<U>& M, const Vector<V>& v);
+	template <typename U>
+	const Vector<T> operator*(const Vector<U>& v) const;
 
-	template <typename>	friend class Matrix;
+	template <typename>	friend class Matrix; // templated copy ctor needs this
 
 	std::ostream& print(std::ostream& os) const;
 

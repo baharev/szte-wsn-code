@@ -51,8 +51,8 @@ template class Matrix<adouble>;
 
 template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
 
-template const Vector<adouble> operator*(const Matrix<adouble>& M, const Vector<adouble>& v);
-template const Vector<adouble> operator*(const Matrix<adouble>& M, const vector3& v);
+template const Vector<adouble> Matrix<adouble>::operator*(const Vector<adouble>& v) const;
+template const Vector<adouble> Matrix<adouble>::operator*(const vector3& v) const;
 
 template Matrix<double>::Matrix(const double array[9]);
 template Matrix<adouble>::Matrix(const adouble array[9]);
@@ -68,8 +68,8 @@ const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& );
 template class Vector<HessType<N_VARS> >;
 template class Matrix<HessType<N_VARS> >;
 
-template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const Vector<HessType<N_VARS> >& v);
-template const Vector<HessType<N_VARS> > operator*(const Matrix<HessType<N_VARS> >& M, const vector3& v);
+template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const Vector<HessType<N_VARS> >& v) const;
+template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const vector3& v) const;
 
 template Matrix<HessType<N_VARS> >::Matrix(const HessType<N_VARS>  array[9]);
 template Matrix<HessType<N_VARS> >::Matrix(const double array[9]);

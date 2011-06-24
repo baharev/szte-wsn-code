@@ -148,14 +148,15 @@ std::ostream& Matrix<T>::print(std::ostream& os) const {
 	return os;
 }
 
-template <typename U, typename V>
-const Vector<U> operator*(const Matrix<U>& A, const Vector<V>& x) {
+template <typename T>
+template <typename U>
+const Vector<T> Matrix<T>::operator*(const Vector<U>& x) const {
 
-	Vector<U> z(0.0, 0.0, 0.0);
+	Vector<T> z;
 
 	for (int i=0; i<3; ++i) {
 		for (int j=0; j<3; ++j) {
-			z.v[i] += A.m[i][j]*x.v[j];
+			z.v[i] += m[i][j]*x.v[j];
 		}
 	}
 

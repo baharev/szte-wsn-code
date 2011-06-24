@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/** Copyright (c) 2010, 2011 University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,8 @@
 #define HESSTYPE_HPP_
 
 #include <ostream>
+
+namespace gyro {
 
 template <int N>
 class HessType {
@@ -321,6 +323,8 @@ std::ostream& HessType<N_VAR>::print(std::ostream& os) const {
 template <int N_VAR>
 std::ostream& operator<<(std::ostream& os, const HessType<N_VAR>& x) {
 	return x.print(os);
+}
+
 }
 
 #endif

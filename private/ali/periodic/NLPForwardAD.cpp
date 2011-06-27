@@ -49,7 +49,7 @@ NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 
 }
 
-NLPForwardAD::~NLPForwardAD(){
+NLPForwardAD::~NLPForwardAD() {
 
 	delete[] minimizer;
 	delete modelDouble;
@@ -57,23 +57,17 @@ NLPForwardAD::~NLPForwardAD(){
 	delete estimates;
 }
 
-bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u,
-		Index m, Number* g_l, Number* g_u)
-{
-	assert(n==N_VARS);
-	assert(m==N_CONS);
+bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u) {
 
 	const double* xL = estimates->lower_bounds();
 	const double* xU = estimates->upper_bounds();
 
 	for (int i=0; i<N_VARS; ++i) {
-
 		x_l[i] = xL[i];
 		x_u[i] = xU[i];
 	}
 
-	// Set the bounds for the constraints
-	for (Index i=0; i<m; i++) {
+	for (Index i=0; i<N_CONS; ++i) {
 		g_l[i] = 0;
 		g_u[i] = 0;
 	}
@@ -86,11 +80,6 @@ bool NLPForwardAD::get_starting_point(Index n, bool init_x, Number* x,
 		Index m, bool init_lambda,
 		Number* lambda)
 {
-	assert(init_x == true);
-	assert(init_z == false);
-	assert(init_lambda == false);
-	assert(n==N_VARS);
-
 	const double* x0 = estimates->initial_point();
 
 	for (int i=0; i<N_VARS; ++i) {
@@ -108,14 +97,13 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 
 	m = N_CONS;
 
-	// in this example the jacobian is dense. Hence, it contains n*m nonzeros
+	// Dense Jacobian
 	nnz_jac_g = n*m;
 
-	// the hessian is also dense and has n*n total nonzeros, but we
-	// only need the lower left corner (since it is symmetric)
+	// Dense Hessian, only lower left part is stored
 	nnz_h_lag = n*(n-1)/2+n;
 
-	// These were pretty much misplaced in generate_tapes
+	// These were pretty much misplaced in generate_tapes, are these needed?
 	Jac = new double*[m];
 	for(Index i=0;i<m;i++)
 		Jac[i] = new double[n];
@@ -126,7 +114,6 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	for(Index i=0;i<n+m+1;i++)
 		Hess[i] = new double[i+1];
 
-	// use the C style indexing (0-based)
 	index_style = C_STYLE;
 
 	return true;
@@ -154,8 +141,6 @@ bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
 
-	assert(m==N_CONS);
-
 	if (N_CONS) {
 
 		const std::vector<double> con = modelDouble->constraints(x);
@@ -170,16 +155,14 @@ bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
 		Index m, Index nele_jac, Index* iRow, Index *jCol,
 		Number* values)
 {
-	assert(n==N_VARS && m==N_CONS);
-
-	if (values == NULL) {
-
-		fill_Jacobian_sparsity_as_dense(iRow, jCol);
+	if (N_CONS==0) {
 
 		return true;
 	}
 
-	if (!N_CONS) {
+	if (values == 0) {
+
+		fill_Jacobian_sparsity_as_dense(iRow, jCol);
 
 		return true;
 	}
@@ -188,9 +171,9 @@ bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
 
 	Index idx = 0;
 
-	for(Index i=0; i<m; ++i) {
+	for (Index i=0; i<N_CONS; ++i) {
 
-		for(Index j=0; j<n; ++j) {
+		for (Index j=0; j<N_VARS; ++j) {
 
 			values[idx++] = Jac[i][j];
 		}
@@ -203,9 +186,9 @@ void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) con
 
 	Index idx = 0;
 
-	for(Index i=0; i<N_CONS; ++i) {
+	for (Index i=0; i<N_CONS; ++i) {
 
-		for(Index j=0; j<N_VARS; ++j) {
+		for (Index j=0; j<N_VARS; ++j) {
 
 			iRow[idx] = i;
 
@@ -287,8 +270,7 @@ void NLPForwardAD::finalize_solution(SolverReturn status,
 		minimizer[i] = x[i];
 	}
 
-	// Memory deallocation for ADOL-C variables
-
+	// TODO Why not in dtor?
 	delete[] x_lam;
 
 	for(Index i=0;i<m;i++)

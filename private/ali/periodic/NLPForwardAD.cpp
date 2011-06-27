@@ -33,7 +33,7 @@
 
 #include <algorithm>
 #include "NLPForwardAD.hpp"
-#include "Objective.hpp"
+#include "Model.hpp"
 #include "VarEnum.hpp"
 #include "VarEstimates.hpp"
 #define NUMBER_DIRECTIONS gyro::N_VARS

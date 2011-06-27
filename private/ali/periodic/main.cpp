@@ -34,11 +34,13 @@
 #include <exception>
 #include <iostream>
 #include <vector>
-#include "Objective.hpp"
+#include "Model.hpp"
 #include "Optimizer.hpp"
 #include "Sample.hpp"
 #include "VarEnum.hpp"
 #include "VarEstimates.hpp"
+#include "HessType.hpp"
+#include "adouble.h"
 
 using namespace std;
 using namespace gyro;
@@ -69,7 +71,22 @@ void real_main(const char* input, const char* output) {
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
 
-	Objective<double> obj(samples);
+	Model<double> obj(samples);
+/*
+	Model<HessType<9> > objH(samples);
+
+	HessType<9> vars[3];
+
+	objH.minimize_bumps(vars);
+
+	cout << vars << endl;
+
+	Model<adtl::adouble> objA(samples);
+
+	adtl::adouble varsa[3];
+
+	objA.minimize_bumps(varsa);
+*/
 
 	//obj.rotate_sum_downwards(x);
 

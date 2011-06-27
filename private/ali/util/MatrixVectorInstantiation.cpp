@@ -62,32 +62,4 @@ template const matrix3 euler2rotmat(const vector3& Euler_XYZ);
 
 template const vector3 matrix3::operator*(const vector3& v) const;
 
-template class Vector<GradType<12> >;
-template class Matrix<GradType<12> >;
-
-template const Vector<GradType<12> > operator+(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
-template const Vector<GradType<12> > operator-(const Vector<GradType<12> >& x, const Vector<GradType<12> >& y);
-template const Vector<GradType<12> > operator*(const Vector<GradType<12> >& x, double y);
-template const Vector<GradType<12> > operator/(const Vector<GradType<12> >& x, double y);
-template const Matrix<GradType<12> > operator+(const Matrix<GradType<12> >& A, const Matrix<GradType<12> >& B);
-
-template std::ostream& operator<<(std::ostream& os, const Vector<GradType<12> >& x);
-
-template const Vector<GradType<12> > Matrix<GradType<12> >::operator*(const Vector<GradType<12> >& v) const;
-template const Vector<GradType<12> > Matrix<GradType<12> >::operator*(const vector3& v) const;
-
-template class Vector<GradType<9> >;
-template class Matrix<GradType<9> >;
-
-template const Vector<GradType<9> > operator+(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
-template const Vector<GradType<9> > operator-(const Vector<GradType<9> >& x, const Vector<GradType<9> >& y);
-template const Vector<GradType<9> > operator*(const Vector<GradType<9> >& x, double y);
-template const Vector<GradType<9> > operator/(const Vector<GradType<9> >& x, double y);
-template const Matrix<GradType<9> > operator+(const Matrix<GradType<9> >& A, const Matrix<GradType<9> >& B);
-
-template std::ostream& operator<<(std::ostream& os, const Vector<GradType<9> >& x);
-
-template const Vector<GradType<9> > Matrix<GradType<9> >::operator*(const Vector<GradType<9> >& v) const;
-template const Vector<GradType<9> > Matrix<GradType<9> >::operator*(const vector3& v) const;
-
 }

@@ -33,27 +33,21 @@
 
 #include <cmath>
 #include <ostream>
+#include "GradType.hpp"
 #include "HessType.hpp"
 #include "VarEnum.hpp"
-
-// Only in tapeless forward mode, otherwise use adouble
-#define NUMBER_DIRECTIONS gyro::N_VARS
-#include "adouble.h"
-typedef adtl::adouble adouble;
-ADOLC_TAPELESS_UNIQUE_INTERNALS;
-
 #include "MatrixVector.cpp"
 
 namespace gyro {
 
-template class Matrix<adouble>;
+template class Matrix<GradType<N_VARS> >;
 
-template Matrix<adouble>::Matrix(const adouble array[9]);
-template Matrix<adouble>::Matrix(const double array[9]);
-template Matrix<adouble>::Matrix(const matrix3& other);
+template Matrix<GradType<N_VARS> >::Matrix(const GradType<N_VARS>  array[9]);
+template Matrix<GradType<N_VARS> >::Matrix(const double array[9]);
+template Matrix<GradType<N_VARS> >::Matrix(const matrix3& other);
 
-template const Vector<adouble> Matrix<adouble>::operator*(const Vector<adouble>& v) const;
-template const Vector<adouble> Matrix<adouble>::operator*(const vector3& v) const;
+template const Vector<GradType<N_VARS> > Matrix<GradType<N_VARS> >::operator*(const Vector<GradType<N_VARS> >& v) const;
+template const Vector<GradType<N_VARS> > Matrix<GradType<N_VARS> >::operator*(const vector3& v) const;
 
 
 template class Matrix<HessType<N_VARS> >;

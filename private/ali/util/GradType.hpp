@@ -84,7 +84,7 @@ public:
 
 	double value() const { return f; }
 
-	const double* gradient() const { return g; }
+	void copy_gradient(double grad[N]) const;
 
 	int size() const { return N; }
 
@@ -335,6 +335,14 @@ const GradType<N> sqrt(const GradType<N>& x) {
 	}
 
 	return z;
+}
+
+template <int N>
+void GradType<N>::copy_gradient(double grad[N]) const {
+
+	for (int i=0; i<N; ++i) {
+		grad[i] = g[i];
+	}
 }
 
 }

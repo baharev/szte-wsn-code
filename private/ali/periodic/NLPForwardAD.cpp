@@ -34,10 +34,7 @@
 #include <algorithm>
 #include "NLPForwardAD.hpp"
 #include "Model.hpp"
-#include "VarEnum.hpp"
 #include "VarEstimates.hpp"
-#define NUMBER_DIRECTIONS gyro::N_VARS
-#include "adolc.h"
 
 namespace gyro {
 
@@ -46,7 +43,7 @@ const int N_CONS(3);
 NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 		minimizer(new double[N_VARS]),
 		modelDouble(new Model<double>(samples)),
-		modelGradType(new Model<adouble>(samples)),
+		modelGradType(new Model<GradType<N_VARS> >(samples)),
 		estimates(new VarEstimates)
 {
 
@@ -144,33 +141,15 @@ bool NLPForwardAD::eval_f(Index n, const Number* x, bool new_x, Number& obj_valu
 
 bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f) {
 
-	adouble vars[N_VARS];
+	GradType<N_VARS> vars[N_VARS];
 
-	set_variable_vector(x, vars);
+	init_vars(vars, x);
 
-	const adouble objective_value = modelGradType->objective(vars);
+	const GradType<N_VARS> objective_value = modelGradType->objective(vars);
 
-	copy_derivatives(objective_value, grad_f);
+	objective_value.copy_gradient(grad_f);
 
 	return true;
-}
-
-void NLPForwardAD::set_variable_vector(const double* x, adouble* vars) const {
-
-	for (int i=0; i<N_VARS; ++i) {
-
-		vars[i] = x[i];
-
-		vars[i].setADValue(i, 1);
-	}
-}
-
-void NLPForwardAD::copy_derivatives(const adouble& x, double* derivatives) const {
-
-	for (int i=0; i<N_VARS; ++i) {
-
-		derivatives[i] = x.getADValue(i);
-	}
 }
 
 bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
@@ -209,9 +188,9 @@ bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
 
 	Index idx = 0;
 
-	for(Index i=0; i<m; i++) {
+	for(Index i=0; i<m; ++i) {
 
-		for(Index j=0; j<n; j++) {
+		for(Index j=0; j<n; ++j) {
 
 			values[idx++] = Jac[i][j];
 		}
@@ -224,9 +203,9 @@ void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) con
 
 	Index idx = 0;
 
-	for(Index i=0; i<N_CONS; i++) {
+	for(Index i=0; i<N_CONS; ++i) {
 
-		for(Index j=0; j<N_VARS; j++) {
+		for(Index j=0; j<N_VARS; ++j) {
 
 			iRow[idx] = i;
 
@@ -237,19 +216,15 @@ void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) con
 
 void NLPForwardAD::compute_Jacobian(const double* x) {
 
-	adouble vars[N_VARS];
+	GradType<N_VARS> vars[N_VARS];
 
-	set_variable_vector(x, vars);
+	init_vars(vars, x);
 
-	const std::vector<adouble> con = modelGradType->constraints(vars);
+	const std::vector<GradType<N_VARS> > con = modelGradType->constraints(vars);
 
-	adouble constraint[N_CONS];
+	for (int i=0; i<N_CONS; ++i) {
 
-	std::copy(con.begin(), con.end(), constraint);
-
-	for(int i=0; i<N_CONS; i++) {
-
-		copy_derivatives(constraint[i], Jac[i]);
+		con.at(i).copy_gradient(Jac[i]);
 	}
 }
 

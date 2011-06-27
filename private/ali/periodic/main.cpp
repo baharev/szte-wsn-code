@@ -41,7 +41,7 @@
 #include "VarEnum.hpp"
 #include "VarEstimates.hpp"
 #include "HessType.hpp"
-#include "adouble.h"
+#include "GradType.hpp"
 
 using namespace std;
 using namespace gyro;

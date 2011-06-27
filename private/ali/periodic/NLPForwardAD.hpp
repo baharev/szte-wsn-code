@@ -37,15 +37,10 @@
 #include <iosfwd>
 #include <vector>
 #include "IpTNLP.hpp"
+#include "GradType.hpp"
+#include "VarEnum.hpp"
 
 using namespace Ipopt;
-
-namespace adtl {
-
-	class adouble;
-}
-
-typedef adtl::adouble adouble;
 
 namespace gyro {
 
@@ -102,10 +97,6 @@ private:
 	NLPForwardAD(const NLPForwardAD& );
 	NLPForwardAD& operator=(const NLPForwardAD& );
 
-	void set_variable_vector(const double* x, adouble* vars) const;
-
-	void copy_derivatives(const adouble& x, double* derivatives) const;
-
 	void fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) const;
 
 	void compute_Jacobian(const double* x);
@@ -114,7 +105,7 @@ private:
 
 	Model<double>* const modelDouble;
 
-	Model<adouble>* const modelGradType;
+	Model<GradType<N_VARS> >* const modelGradType;
 
 	VarEstimates* estimates;
 

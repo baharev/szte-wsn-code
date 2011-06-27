@@ -31,26 +31,24 @@
 *      Author: Ali Baharev
 */
 
-#ifndef OBJECTIVE_HPP_
-#define OBJECTIVE_HPP_
+#ifndef MODEL_HPP_
+#define MODEL_HPP_
 
 #include <iomanip>
 #include <vector>
-#include "CompileTimeConstants.hpp"
 #include "MatrixVector.hpp"
 #include "Sample.hpp"
 #include "VarEstimates.hpp"
 
 namespace gyro {
 
-// TODO rename objective to problem representation
 template <typename T>
 class Model {
 
 public:
 
 	Model(const std::vector<Sample>& samples) :
-	samples(samples), N(static_cast<int>(samples.size())), estimates(VarEstimates())
+	samples(samples), TICKS_PER_SEC(32768), N(static_cast<int>(samples.size())), estimates(VarEstimates())
 	{
 		// FIXME Only for bump minimization
 		fix_A();
@@ -503,6 +501,8 @@ private:
 
 	const std::vector<Sample>& samples;
 
+	const double TICKS_PER_SEC;
+
 	const int N;
 
 	const VarEstimates estimates;
@@ -527,4 +527,4 @@ private:
 
 }
 
-#endif // OBJECTIVE_HPP_
+#endif // MODEL_HPP_

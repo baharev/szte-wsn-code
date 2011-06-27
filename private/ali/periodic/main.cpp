@@ -33,10 +33,11 @@
 
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "Model.hpp"
 #include "Optimizer.hpp"
-#include "Sample.hpp"
+#include "SampleReader.hpp"
 #include "VarEnum.hpp"
 #include "VarEstimates.hpp"
 #include "HessType.hpp"
@@ -140,5 +141,5 @@ int main(int argc, char* argv[]) {
 //		return FAILURE;
 //	}
 
-	return ::SUCCESS;
+	return SUCCESS;
 }

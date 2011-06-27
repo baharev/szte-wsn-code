@@ -31,99 +31,46 @@
 *      Author: Ali Baharev
 */
 
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include "Sample.hpp"
+#ifndef SAMPLEREADER_HPP_
+#define SAMPLEREADER_HPP_
 
-using namespace std;
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
+#include "Sample.hpp"
 
 namespace gyro {
 
-SampleReader::SampleReader(const char* input, vector<Sample>& samples) :
-samples(samples),
-ptr_in(new fstream(input)),
-in(*ptr_in),
-line(1)
-{
-	init();
+class SampleReader {
 
-	try {
+public:
 
-		read_all();
-	}
-	catch (...) {
+	SampleReader(const char* input, std::vector<Sample>& samples);
 
-		cerr << "Fatal error occured when reading line " << line << endl;
+	~SampleReader();
 
-		throw;
-	}
+private:
 
-	in.close();
-}
+	void init();
 
-void SampleReader::init() {
+	void read_all();
 
-	if (!in.is_open()) {
+	void push_back_sample();
 
-		throw runtime_error("failed to open the input file");
-	}
+	const Sample parse_buffer() const;
 
-	in.exceptions(ios_base::failbit | ios_base::badbit);
+	std::vector<Sample>& samples;
 
-	samples.clear();
+	std::auto_ptr<std::ifstream> ptr_in;
 
-	samples.reserve(10000);
-}
+	std::ifstream& in;
 
-void SampleReader::read_all() {
+	std::string buffer;
 
-	while (!in.eof()) {
-
-		getline(in, buffer);
-
-		push_back_sample();
-
-		++line;
-	}
-}
-
-void SampleReader::push_back_sample() {
-
-	if (buffer.empty()) {
-
-		return;
-	}
-
-	const Sample s = parse_buffer();
-
-	samples.push_back(s);
-}
-
-const Sample SampleReader::parse_buffer() const {
-
-	istringstream is(buffer);
-
-	is.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
-
-	unsigned int timestamp, accel[3], gyro[3];
-
-	is >> timestamp;
-
-	for (int i=0; i<3; ++i) {
-
-		is >> accel[i];
-	}
-
-	for (int i=0; i<3; ++i) {
-
-		is >> gyro[i];
-	}
-
-	Sample s = { timestamp, vector3(accel[X], accel[Y], accel[Z]),
-			                vector3( gyro[X],  gyro[Y],  gyro[Z]) };
-
-	return s;
-}
+	int line;
+};
 
 }
+
+#endif // SAMPLEREADER_HPP_

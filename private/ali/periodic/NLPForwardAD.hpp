@@ -110,8 +110,6 @@ private:
 
 	void compute_Jacobian(const double* x);
 
-	bool eval_constraints(Index n, const adouble *x, Index m, adouble* g);
-
 	double* const minimizer;
 
 	Model<double>* const modelDouble;

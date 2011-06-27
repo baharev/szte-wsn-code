@@ -31,19 +31,104 @@
 *      Author: Ali Baharev
 */
 
-#ifndef SAMPLE_HPP_
-#define SAMPLE_HPP_
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include "SampleReader.hpp"
 
-#include "Vector.hpp"
+using namespace std;
 
 namespace gyro {
 
-struct Sample {
-	unsigned int timestamp;
-	vector3      accel;
-	vector3      gyro;
-};
+SampleReader::SampleReader(const char* input, vector<Sample>& samples) :
+samples(samples),
+ptr_in(new ifstream(input)),
+in(*ptr_in),
+line(1)
+{
+	init();
 
+	try {
+
+		read_all();
+	}
+	catch (...) {
+
+		cerr << "Fatal error occured when reading line " << line << endl;
+
+		throw;
+	}
+
+	in.close();
 }
 
-#endif // SAMPLE_HPP_
+void SampleReader::init() {
+
+	if (!in.is_open()) {
+
+		throw runtime_error("failed to open the input file");
+	}
+
+	in.exceptions(ios_base::failbit | ios_base::badbit);
+
+	samples.clear();
+
+	samples.reserve(10000);
+}
+
+void SampleReader::read_all() {
+
+	while (!in.eof()) {
+
+		getline(in, buffer);
+
+		push_back_sample();
+
+		++line;
+	}
+}
+
+void SampleReader::push_back_sample() {
+
+	if (buffer.empty()) {
+
+		return;
+	}
+
+	const Sample s = parse_buffer();
+
+	samples.push_back(s);
+}
+
+const Sample SampleReader::parse_buffer() const {
+
+	istringstream is(buffer);
+
+	is.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
+
+	unsigned int timestamp, accel[3], gyro[3];
+
+	is >> timestamp;
+
+	for (int i=0; i<3; ++i) {
+
+		is >> accel[i];
+	}
+
+	for (int i=0; i<3; ++i) {
+
+		is >> gyro[i];
+	}
+
+	Sample s = { timestamp, vector3(accel[X], accel[Y], accel[Z]),
+			                vector3( gyro[X],  gyro[Y],  gyro[Z]) };
+
+	return s;
+}
+
+SampleReader::~SampleReader() {
+	// Do not remove! Necessary to generate dtor of auto_ptr
+}
+
+}

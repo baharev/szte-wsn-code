@@ -49,8 +49,7 @@ typedef adtl::adouble adouble;
 
 namespace gyro {
 
-class ObjDouble;
-class ObjAD;
+template <typename > class Model;
 class Sample;
 class VarEstimates;
 
@@ -115,9 +114,9 @@ private:
 
 	double* const minimizer;
 
-	ObjDouble* const obj;
+	Model<double>* const modelDouble;
 
-	ObjAD*   const ad;
+	Model<adouble>* const modelGradType;
 
 	VarEstimates* estimates;
 

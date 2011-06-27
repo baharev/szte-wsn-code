@@ -45,11 +45,11 @@ namespace gyro {
 
 // TODO rename objective to problem representation
 template <typename T>
-class Objective {
+class Model {
 
 public:
 
-	Objective(const std::vector<Sample>& samples) :
+	Model(const std::vector<Sample>& samples) :
 	samples(samples), N(static_cast<int>(samples.size())), estimates(VarEstimates())
 	{
 		// FIXME Only for bump minimization
@@ -60,10 +60,32 @@ public:
 		store_rotmat(); // FIXME Not appropriate for gyro regression plus C, d fixed!
 	}
 
-	T f(const T* const x)  {
+	T objective(const T* const x)  {
 
 		//return minimize_bumps(x);
 		return T(0.0);
+	}
+
+	const std::vector<T> constraints(const T* const x) {
+
+		//b  = Vector<T>(x+B1);
+		fix_b();
+
+		v0 = Vector<T>(x+VX);
+
+		rotate_back();
+
+		store_path();
+
+		std::vector<T> result(3);
+
+		Vector<T> delta_r = position.at(N-1);
+
+		result.at(X) = delta_r[X];
+		result.at(Y) = delta_r[Y];
+		result.at(Z) = delta_r[Z];
+
+		return result;
 	}
 
 	void rotate_sum_downwards(const T* const x) {
@@ -173,20 +195,6 @@ public:
 		store_path();
 
 		return integrate_bumps();
-	}
-
-	const Vector<T> g(const T* const x) {
-
-		//b  = Vector<T>(x+B1);
-		fix_b();
-
-		v0 = Vector<T>(x+VX);
-
-		rotate_back();
-
-		store_path();
-
-		return position.at(N-1);
 	}
 
 	void store_rotmat() {
@@ -328,7 +336,7 @@ private:
 
 		sum_rotated_accel();
 
-		return objective();
+		return gyro_regression_objective();
 	}
 
 	void sum_rotated_accel() {
@@ -446,7 +454,7 @@ private:
 		return (rotmat.at(i))*accel(i);
 	}
 
-	T objective() const {
+	T gyro_regression_objective() const {
 		return -((s[X]/N)*(s[X]/N) + (s[Y]/N)*(s[Y]/N) + (s[Z]/N)*(s[Z]/N));
 	}
 

@@ -31,6 +31,7 @@
 *      Author: Ali Baharev
 */
 
+#include <algorithm>
 #include "NLPForwardAD.hpp"
 #include "Objective.hpp"
 #include "VarEnum.hpp"
@@ -42,48 +43,10 @@ namespace gyro {
 
 const int N_CONS(3);
 
-class ObjDouble {
-
-public:
-
-	ObjDouble(const std::vector<Sample>& samples)
-	: obj(Objective<double> (samples))
-	{ }
-
-	double evaluate(const double* x) { return obj.f(x); }
-
-	const vector3 constraints(const double* x) { return obj.g(x); }
-
-private:
-
-	Objective<double> obj;
-};
-
-class ObjAD {
-
-public:
-
-	ObjAD(const std::vector<Sample>& samples)
-	: obj(Objective<adouble > (samples))
-	{
-
-	}
-
-	adouble evaluate(const adouble* x) { return obj.f(x); }
-
-
-	const Vector<adouble> constraints(const adouble* x) { return obj.g(x); }
-
-private:
-
-	Objective<adouble> obj;
-
-};
-
 NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 		minimizer(new double[N_VARS]),
-		obj(new ObjDouble(samples)),
-		ad(new ObjAD(samples)),
+		modelDouble(new Model<double>(samples)),
+		modelGradType(new Model<adouble>(samples)),
 		estimates(new VarEstimates)
 {
 
@@ -92,8 +55,8 @@ NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 NLPForwardAD::~NLPForwardAD(){
 
 	delete[] minimizer;
-	delete obj;
-	delete ad;
+	delete modelDouble;
+	delete modelGradType;
 	delete estimates;
 }
 
@@ -172,23 +135,9 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	return true;
 }
 
-bool NLPForwardAD::eval_constraints(Index n, const adouble *x, Index m, adouble* g) {
-
-	assert(m==N_CONS);
-
-	if (N_CONS) {
-
-		Vector<adouble> con = ad->constraints(x);
-
-		con.copy_to(g);
-	}
-
-	return true;
-}
-
 bool NLPForwardAD::eval_f(Index n, const Number* x, bool new_x, Number& obj_value) {
 
-	obj_value = obj->evaluate(x);
+	obj_value = modelDouble->objective(x);
 
 	return true;
 }
@@ -199,7 +148,7 @@ bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 	set_variable_vector(x, vars);
 
-	const adouble objective_value = ad->evaluate(vars);
+	const adouble objective_value = modelGradType->objective(vars);
 
 	copy_derivatives(objective_value, grad_f);
 
@@ -230,9 +179,9 @@ bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 
 	if (N_CONS) {
 
-		vector3 con = obj->constraints(x);
+		const std::vector<double> con = modelDouble->constraints(x);
 
-		con.copy_to(g);
+		std::copy(con.begin(), con.end(), g);
 	}
 
 	return true;
@@ -292,11 +241,11 @@ void NLPForwardAD::compute_Jacobian(const double* x) {
 
 	set_variable_vector(x, vars);
 
-	Vector<adouble> con = ad->constraints(vars);
+	const std::vector<adouble> con = modelGradType->constraints(vars);
 
 	adouble constraint[N_CONS];
 
-	con.copy_to(constraint);
+	std::copy(con.begin(), con.end(), constraint);
 
 	for(int i=0; i<N_CONS; i++) {
 

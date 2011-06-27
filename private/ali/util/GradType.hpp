@@ -46,7 +46,7 @@ public:
 
 	GradType() { }
 
-	GradType(double constant) { init(constant); }
+	explicit GradType(double constant) { init(constant); }
 
 	template <int N_VAR>
 	friend void init_vars(GradType<N_VAR> var[N_VAR], const double x[N_VAR]);

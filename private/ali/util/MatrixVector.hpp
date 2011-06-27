@@ -45,7 +45,7 @@ class Matrix {
 
 public:
 
-	Matrix();
+	Matrix(); // Elements are initialized to zero
 
 	template <typename U>
 	explicit Matrix(const U array[9]);

@@ -37,34 +37,6 @@
 namespace gyro {
 
 template <typename T>
-const Matrix<T> euler2rotmat(const Vector<T>& euler) {
-
-	const T sin_x = sin(euler[X]);
-	const T sin_y = sin(euler[Y]);
-	const T sin_z = sin(euler[Z]);
-
-	const T cos_x = cos(euler[X]);
-	const T cos_y = cos(euler[Y]);
-	const T cos_z = cos(euler[Z]);
-
-	T r[] = {
-			cos_y*cos_z,
-			cos_z*sin_x*sin_y-cos_x*sin_z,
-			sin_x*sin_z+cos_x*cos_z*sin_y,
-
-			cos_y*sin_z,
-			sin_x*sin_y*sin_z+cos_x*cos_z,
-			cos_x*sin_y*sin_z-cos_z*sin_x,
-
-			-sin_y,
-			cos_y*sin_x,
-			cos_x*cos_y
-	};
-
-	return Matrix<T>(r);
-}
-
-template <typename T>
 Matrix<T>::Matrix() {
 
 	for (int i=0; i<3; ++i) {
@@ -189,6 +161,34 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
 	}
 
 	return *this;
+}
+
+template <typename T>
+const Matrix<T> euler2rotmat(const Vector<T>& euler) {
+
+	const T sin_x = sin(euler[X]);
+	const T sin_y = sin(euler[Y]);
+	const T sin_z = sin(euler[Z]);
+
+	const T cos_x = cos(euler[X]);
+	const T cos_y = cos(euler[Y]);
+	const T cos_z = cos(euler[Z]);
+
+	T r[] = {
+			cos_y*cos_z,
+			cos_z*sin_x*sin_y-cos_x*sin_z,
+			sin_x*sin_z+cos_x*cos_z*sin_y,
+
+			cos_y*sin_z,
+			sin_x*sin_y*sin_z+cos_x*cos_z,
+			cos_x*sin_y*sin_z-cos_z*sin_x,
+
+			-sin_y,
+			cos_y*sin_x,
+			cos_x*cos_y
+	};
+
+	return Matrix<T>(r);
 }
 
 }

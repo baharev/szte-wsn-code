@@ -45,7 +45,7 @@ public:
 
 	HessType() { }
 
-	HessType(double x) { init(x); }
+	explicit HessType(double x) { init(x); }
 
 	HessType& operator=(double rhs) { init(rhs); return *this; }
 
@@ -64,6 +64,8 @@ public:
 
 	// just a workaround
 	HessType& operator/=(const HessType& x) { *this = (*this)/x; return *this; };
+
+	HessType& operator/=(double x) { return (*this)*=(1/x); }
 
 	template <int N_VAR>
 	friend void init_vars(HessType<N_VAR> var[N_VAR], const double* const x);

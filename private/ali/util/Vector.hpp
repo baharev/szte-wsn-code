@@ -60,14 +60,16 @@ public:
 	Vector(const T& x, const T& y, const T& z) { v[X] = x; v[Y] = y; v[Z] = z; }
 
 	template <typename U>
-	explicit Vector(const U x[3]) { v[X] = T(x[X]); v[Y] = T(x[Y]); v[Z] = T(x[Z]); }
+	explicit Vector(const U x[3]) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
 
 	template <typename U>
 	explicit Vector(const Vector<U> x) { v[X] = x[X]; v[Y] = x[Y]; v[Z] = x[Z]; }
 
 	void copy_to(T array[3]) const { for (int i=0; i<3; ++i) array[i] = v[i]; }
 
-	const T length() const { return sqrt(sqr(v[X])+sqr(v[Y])+sqr(v[Z])); }
+	const T length() const { return sqrt(sqr(*this)); }
+
+	void make_unit_length() { T c = 1.0/this->length(); for (int i=0; i<3; ++i) v[i] *= c; } // Division by zero?
 
 	Vector& operator+=(const Vector& x) { for (int i=0; i<3; ++i) v[i] += x.v[i]; return *this; }
 
@@ -75,8 +77,7 @@ public:
 
 	Vector& operator*=(double c) { for (int i=0; i<3; ++i) v[i] *= c; return *this; }
 
-	template <typename U>
-	Vector& operator/=(const U& x) { for (int i=0; i<3; ++i) v[i] /= x; return *this; }
+	Vector& operator/=(double x) { for (int i=0; i<3; ++i) v[i] /= x; return *this; }
 
 	const T& operator[] (coordinate i) const { return v[i]; }
 

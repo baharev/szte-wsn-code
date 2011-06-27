@@ -46,36 +46,23 @@ ADOLC_TAPELESS_UNIQUE_INTERNALS;
 
 namespace gyro {
 
-template class Vector<adouble>;
 template class Matrix<adouble>;
 
-template const Matrix<adouble> euler2rotmat(const Vector<adouble>& Euler_XYZ);
-
-template const Vector<adouble> Matrix<adouble>::operator*(const Vector<adouble>& v) const;
-template const Vector<adouble> Matrix<adouble>::operator*(const vector3& v) const;
-
-template Matrix<double>::Matrix(const double array[9]);
 template Matrix<adouble>::Matrix(const adouble array[9]);
 template Matrix<adouble>::Matrix(const double array[9]);
 template Matrix<adouble>::Matrix(const matrix3& other);
 
-template Vector<adouble>& Vector<adouble>::operator/=(const adouble& );
-template Vector<adouble>& Vector<adouble>::operator/=(const double& );
+template const Vector<adouble> Matrix<adouble>::operator*(const Vector<adouble>& v) const;
+template const Vector<adouble> Matrix<adouble>::operator*(const vector3& v) const;
 
-template <>
-const Matrix<HessType<N_VARS> > euler2rotmat(const Vector<HessType<N_VARS> >& );
 
-template class Vector<HessType<N_VARS> >;
 template class Matrix<HessType<N_VARS> >;
-
-template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const Vector<HessType<N_VARS> >& v) const;
-template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const vector3& v) const;
 
 template Matrix<HessType<N_VARS> >::Matrix(const HessType<N_VARS>  array[9]);
 template Matrix<HessType<N_VARS> >::Matrix(const double array[9]);
-template Matrix<HessType<N_VARS> >::Matrix(const Matrix<double>& other);
+template Matrix<HessType<N_VARS> >::Matrix(const matrix3& other);
 
-template Vector<HessType<N_VARS> >& Vector<HessType<N_VARS> >::operator/=(const HessType<N_VARS> & );
-template Vector<HessType<N_VARS> >& Vector<HessType<N_VARS> >::operator/=(const double& );
+template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const Vector<HessType<N_VARS> >& v) const;
+template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const vector3& v) const;
 
 }

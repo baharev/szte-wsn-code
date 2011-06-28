@@ -38,10 +38,7 @@
 #include "Model.hpp"
 #include "Optimizer.hpp"
 #include "SampleReader.hpp"
-#include "VarEnum.hpp"
 #include "VarEstimates.hpp"
-#include "HessType.hpp"
-#include "GradType.hpp"
 
 using namespace std;
 using namespace gyro;
@@ -73,33 +70,18 @@ void real_main(const char* input, const char* output) {
 	}
 
 	Model<double> obj(samples);
-/*
-	Model<HessType<9> > objH(samples);
 
-	HessType<9> vars[3];
+	obj.rotate_sum_downwards(x);
 
-	objH.minimize_bumps(vars);
+	vector3 sum = obj.get_rotated_sum();
 
-	cout << vars << endl;
+	cout << "Sum as rotated back: " << sum << endl;
 
-	Model<adtl::adouble> objA(samples);
+	obj.set_v0(x);
 
-	adtl::adouble varsa[3];
+	vector3 delta_r = obj.get_delta_r();
 
-	objA.minimize_bumps(varsa);
-*/
-
-	//obj.rotate_sum_downwards(x);
-
-	//vector3 sum = obj.get_rotated_sum();
-
-	//cout << "Sum as rotated back: " << sum << endl;
-
-	//obj.set_v0(x+VX);
-
-	//vector3 delta_r = obj.get_delta_r();
-
-	//cout << "Delta r: " << delta_r << endl;
+	cout << "Delta r: " << delta_r << endl;
 
 	ofstream outfile("path.csv");
 

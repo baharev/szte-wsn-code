@@ -60,8 +60,8 @@ public:
 
 	T objective(const T* const x)  {
 
-		//return minimize_bumps(x);
-		return T(0.0);
+		return minimize_bumps(x);
+		//return T(0.0);
 	}
 
 	const std::vector<T> constraints(const T* const x) {
@@ -107,19 +107,7 @@ public:
 		return s/N;
 	}
 
-	const Vector<T> get_delta_v() {
-
-		Vector<T> dv; // = M*rotated_accel(0) - gravity;
-
-		for (int i=1; i<N; ++i) {
-
-			dv += velocity(i);
-		}
-
-		return dv;
-	}
-
-	const Vector<T> velocity(int i) const {
+	const Vector<T> delta_v(int i) const {
 
 		const Vector<T> acc2 = M*rotated_accel(i  ) - gravity;
 
@@ -136,7 +124,7 @@ public:
 
 		for (int i=1; i<N; ++i) {
 
-			v += velocity(i);
+			v += delta_v(i);
 
 			r += v*time_step(i);
 		}
@@ -144,9 +132,9 @@ public:
 		return r;
 	}
 
-	void set_v0(const double* v) {
+	void set_v0(const double* x) {
 
-		v0 = Vector<T>(v);
+		v0 = Vector<T>(x+VX);
 	}
 
 	// TODO dump stored positions not computed ones
@@ -170,7 +158,7 @@ public:
 
 		for (int i=1; i<N; ++i) {
 
-			v += velocity(i);
+			v += delta_v(i);
 
 			r += v*time_step(i);
 
@@ -227,7 +215,7 @@ public:
 
 		for (int i=1; i<N; ++i) {
 
-			v += velocity(i);
+			v += delta_v(i);
 
 			r += v*time_step(i);
 
@@ -298,9 +286,7 @@ private:
 
 		rotate_back();
 
-		Vector<T> r = get_delta_r();
-
-		return r[X]*r[X] + r[Y]*r[Y] + r[Z]*r[Z];
+		return sqr(get_delta_r());
 	}
 
 	const T minimize_rotation() {
@@ -449,10 +435,11 @@ private:
 
 	const Vector<T> rotated_accel(int i) const {
 
-		return (rotmat.at(i))*accel(i);
+		return rotmat.at(i)*accel(i);
 	}
 
 	T gyro_regression_objective() const {
+
 		return -((s[X]/N)*(s[X]/N) + (s[Y]/N)*(s[Y]/N) + (s[Z]/N)*(s[Z]/N));
 	}
 

@@ -116,8 +116,6 @@ private:
 
 	VarEstimates* estimates;
 
-	double *x_lam;
-	double **Hess;
 };
 
 }

@@ -107,13 +107,6 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	// Dense Hessian, only lower left part is stored
 	nnz_h_lag = (n*(n-1))/2+n; // In the ADOLC code, it is a bug without the parentheses
 
-	// These were pretty much misplaced in generate_tapes, are these needed?
-	x_lam   = new double[n+m+1];
-
-	Hess = new double*[n+m+1];
-	for(Index i=0;i<n+m+1;i++)
-		Hess[i] = new double[i+1];
-
 	index_style = C_STYLE;
 
 	return true;
@@ -252,7 +245,7 @@ void NLPForwardAD::compute_Hessian(const double* x,
 		Lagrangian += lambda[i]*g.at(i);
 	}
 
-	Lagrangian.copy_hessian(values);
+	Lagrangian.copy_hessian(values); // Assumes the sparsity pattern!
 }
 
 void NLPForwardAD::finalize_solution(SolverReturn status,
@@ -265,13 +258,6 @@ void NLPForwardAD::finalize_solution(SolverReturn status,
 	for (int i=0; i<n; ++i) {
 		minimizer[i] = x[i];
 	}
-
-	// TODO Why not in dtor?
-	delete[] x_lam;
-
-	for(Index i=0;i<n+m+1;i++)
-		delete[] Hess[i];
-	delete[] Hess;
 }
 
 }

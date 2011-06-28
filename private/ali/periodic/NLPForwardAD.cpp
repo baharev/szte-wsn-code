@@ -105,7 +105,7 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	nnz_jac_g = n*m;
 
 	// Dense Hessian, only lower left part is stored
-	nnz_h_lag = n*(n-1)/2+n;
+	nnz_h_lag = (n*(n-1))/2+n; // In the ADOLC code, it is a bug without the parentheses
 
 	// These were pretty much misplaced in generate_tapes, are these needed?
 	x_lam   = new double[n+m+1];
@@ -209,21 +209,7 @@ bool NLPForwardAD::eval_h(Index n, const Number* x, bool new_x,
 	}
 	else {
 
-		for(Index i = 0; i<n ; i++)
-			x_lam[i] = x[i];
-		for(Index i = 0; i<m ; i++)
-			x_lam[n+i] = lambda[i];
-		x_lam[n+m] = obj_factor;
-
-		compute_Hessian(x, values);
-
-		Index idx = 0;
-
-		for(Index i = 0; i<n ; i++) {
-			for(Index j = 0; j<=i ; j++) {
-				values[idx++] = Hess[i][j];
-			}
-		}
+		compute_Hessian(x, obj_factor, lambda, values);
 	}
 
 	return true;
@@ -243,8 +229,30 @@ void NLPForwardAD::fill_Hessian_sparsity_as_dense(Index* iRow, Index *jCol) cons
 	}
 }
 
-void NLPForwardAD::compute_Hessian(const double* x, double* values) {
+void NLPForwardAD::compute_Hessian(const double* x,
+		                           const double obj_factor,
+		                           const double* lambda,
+		                           double* values)
+{
+	HessType<N_VARS> vars[N_VARS];
 
+	init_vars(vars, x);
+
+	HessType<N_VARS> Lagrangian = obj_factor*(modelHessType->objective(vars));
+
+	std::vector<HessType<N_VARS> > g;
+
+	if (N_CONS) {
+
+		g = modelHessType->constraints(vars);
+	}
+
+	for (int i=0; i<N_CONS; ++i) {
+
+		Lagrangian += lambda[i]*g.at(i);
+	}
+
+	Lagrangian.copy_hessian(values);
 }
 
 void NLPForwardAD::finalize_solution(SolverReturn status,

@@ -104,7 +104,7 @@ private:
 
 	void fill_Hessian_sparsity_as_dense(Index* iRow, Index *jCol) const;
 
-	void compute_Hessian(const double* x, double* values);
+	void compute_Hessian(const double* x, const double obj_factor, const double* lambda, double* values);
 
 	double* const minimizer;
 

@@ -73,6 +73,9 @@ public:
 
 	Vector& operator+=(const Vector& x) { for (int i=0; i<3; ++i) v[i] += x.v[i]; return *this; }
 
+	template <typename U>
+	Vector& operator+=(const Vector<U>& x) { for (int i=0; i<3; ++i) v[i] += x.v[i]; return *this; }
+
 	Vector& operator-=(const Vector& x) { for (int i=0; i<3; ++i) v[i] -= x.v[i]; return *this; }
 
 	Vector& operator*=(double c) { for (int i=0; i<3; ++i) v[i] *= c; return *this; }
@@ -92,6 +95,8 @@ public:
 		const T* const b = y.v;
 		return Vector<T>(a[Y]*b[Z]-a[Z]*b[Y], a[Z]*b[X]-a[X]*b[Z], a[X]*b[Y]-a[Y]*b[X]);
 	}
+
+	template <typename>	friend class Vector;
 
 	template <typename>	friend class Matrix;
 

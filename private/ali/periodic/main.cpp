@@ -73,27 +73,28 @@ void real_main(const char* input, const char* output) {
 
 	obj.rotate_sum_downwards(x);
 
-	vector3 sum = obj.get_rotated_sum();
+	vector3 sum = obj.downward_rotated_sum();
 
 	cout << "Sum as rotated back: " << sum << endl;
 
 	obj.set_v0(x);
 
-	vector3 delta_r = obj.get_delta_r();
+	vector3 delta_r = obj.delta_r();
 
 	cout << "Delta r: " << delta_r << endl;
 
 	ofstream outfile("path.csv");
 
-	obj.dump_path(x, outfile);
+	obj.dump_recomputed_path(x, outfile);
 
 	outfile.close();
 
 	outfile.open("avg.csv");
 
+	obj.store_path();
+
 	obj.dump_moving_averages(outfile);
 
-	//obj.minimize_bumps(x);
 }
 
 int main(int argc, char* argv[]) {

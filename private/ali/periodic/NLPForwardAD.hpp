@@ -38,6 +38,7 @@
 #include <vector>
 #include "IpTNLP.hpp"
 #include "GradType.hpp"
+#include "HessType.hpp"
 #include "VarEnum.hpp"
 
 using namespace Ipopt;
@@ -101,11 +102,17 @@ private:
 
 	void compute_Jacobian(const double* x, double* values);
 
+	void fill_Hessian_sparsity_as_dense(Index* iRow, Index *jCol) const;
+
+	void compute_Hessian(const double* x, double* values);
+
 	double* const minimizer;
 
-	Model<double>* const modelDouble;
+	Model<double>* const            modelDouble;
 
 	Model<GradType<N_VARS> >* const modelGradType;
+
+	Model<HessType<N_VARS> >* const modelHessType;
 
 	VarEstimates* estimates;
 

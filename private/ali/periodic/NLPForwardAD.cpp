@@ -44,6 +44,7 @@ NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 		minimizer(new double[N_VARS]),
 		modelDouble(new Model<double>(samples)),
 		modelGradType(new Model<GradType<N_VARS> >(samples)),
+		modelHessType(new Model<HessType<N_VARS> >(samples)),
 		estimates(new VarEstimates)
 {
 
@@ -54,6 +55,7 @@ NLPForwardAD::~NLPForwardAD() {
 	delete[] minimizer;
 	delete modelDouble;
 	delete modelGradType;
+	delete modelHessType;
 	delete estimates;
 }
 
@@ -192,7 +194,7 @@ void NLPForwardAD::compute_Jacobian(const double* x, double* values) {
 
 	for (int i=0; i<N_CONS; ++i) {
 
-		con.at(i).copy_gradient(values+i*N_VARS);
+		con.at(i).copy_gradient(values+i*N_VARS); // Assumes the sparsity pattern!
 	}
 }
 
@@ -201,25 +203,11 @@ bool NLPForwardAD::eval_h(Index n, const Number* x, bool new_x,
 		bool new_lambda, Index nele_hess, Index* iRow,
 		Index* jCol, Number* values)
 {
-	if (values == NULL) {
-		// return the structure. This is a symmetric matrix, fill the lower left
-		// triangle only.
+	if (values == 0) {
 
-		// the hessian for this problem is actually dense
-		Index idx=0;
-		for (Index row = 0; row < n; row++) {
-			for (Index col = 0; col <= row; col++) {
-				iRow[idx] = row;
-				jCol[idx] = col;
-				idx++;
-			}
-		}
-
-		assert(idx == nele_hess);
+		fill_Hessian_sparsity_as_dense(iRow, jCol);
 	}
 	else {
-		// return the values. This is a symmetric matrix, fill the lower left
-		// triangle only
 
 		for(Index i = 0; i<n ; i++)
 			x_lam[i] = x[i];
@@ -227,20 +215,36 @@ bool NLPForwardAD::eval_h(Index n, const Number* x, bool new_x,
 			x_lam[n+i] = lambda[i];
 		x_lam[n+m] = obj_factor;
 
-		//hessian(tag_L,n+m+1,x_lam,Hess);
+		compute_Hessian(x, values);
 
 		Index idx = 0;
 
-		for(Index i = 0; i<n ; i++)
-		{
-			for(Index j = 0; j<=i ; j++)
-			{
+		for(Index i = 0; i<n ; i++) {
+			for(Index j = 0; j<=i ; j++) {
 				values[idx++] = Hess[i][j];
 			}
 		}
 	}
 
 	return true;
+}
+
+void NLPForwardAD::fill_Hessian_sparsity_as_dense(Index* iRow, Index *jCol) const {
+
+	Index idx=0;
+
+	for (Index row = 0; row < N_VARS; ++row) {
+
+		for (Index col = 0; col <= row; ++col) { // Only the lower left part is stored
+			iRow[idx] = row;
+			jCol[idx] = col;
+			++idx;
+		}
+	}
+}
+
+void NLPForwardAD::compute_Hessian(const double* x, double* values) {
+
 }
 
 void NLPForwardAD::finalize_solution(SolverReturn status,
@@ -250,7 +254,6 @@ void NLPForwardAD::finalize_solution(SolverReturn status,
 		const IpoptData* ip_data,
 		IpoptCalculatedQuantities* ip_cq)
 {
-
 	for (int i=0; i<n; ++i) {
 		minimizer[i] = x[i];
 	}

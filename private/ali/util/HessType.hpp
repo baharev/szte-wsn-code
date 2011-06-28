@@ -88,6 +88,8 @@ public:
 	template <int N_VAR>
 	friend const HessType<N_VAR> sqr(const HessType<N_VAR>& x);
 
+	void copy_hessian(double hessian[(N*(N-1))/2+N]) const;
+
 	std::ostream& print(std::ostream& os) const { os << this->f << std::flush; return os; }
 
 private:
@@ -330,6 +332,20 @@ const HessType<N> sqr(const HessType<N>& x) {
 	}
 
 	return z;
+}
+
+template <int N>
+void HessType<N>::copy_hessian(double hessian[(N*(N-1))/2+N]) const {
+
+	int k=0;
+
+	for (int i=0; i<N; ++i) {
+		for (int j=0; j<=i; ++j) {
+
+			hessian[k] = h[i][j];
+			++k;
+		}
+	}
 }
 
 template <int N>

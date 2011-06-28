@@ -49,12 +49,12 @@ Optimizer::Optimizer(const std::vector<Sample>& samples)
 
 	SmartPtr<OptionsList> opt = app->Options();
 
-	opt->SetNumericValue("tol", 1.0e-3);
+	//opt->SetNumericValue("tol", 1.0e-6);
 	opt->SetIntegerValue("print_level", 0);
 	opt->SetStringValue("output_file", "ipopt.log");
 	opt->SetIntegerValue("file_print_level", 5);
-	//opt->SetStringValue("hessian_approximation", "exact");
-	opt->SetStringValue("hessian_approximation", "limited-memory");
+	opt->SetStringValue("hessian_approximation", "exact");
+	//opt->SetStringValue("hessian_approximation", "limited-memory");
 
 	ApplicationReturnStatus status(app->Initialize("ipopt.opt"));
 

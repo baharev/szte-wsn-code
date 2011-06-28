@@ -57,7 +57,9 @@ NLPForwardAD::~NLPForwardAD() {
 	delete estimates;
 }
 
-bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u) {
+bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u,
+		                           Index m, Number* g_l, Number* g_u)
+{
 
 	const double* xL = estimates->lower_bounds();
 	const double* xU = estimates->upper_bounds();
@@ -104,10 +106,6 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	nnz_h_lag = n*(n-1)/2+n;
 
 	// These were pretty much misplaced in generate_tapes, are these needed?
-	Jac = new double*[m];
-	for(Index i=0;i<m;i++)
-		Jac[i] = new double[n];
-
 	x_lam   = new double[n+m+1];
 
 	Hess = new double*[n+m+1];
@@ -132,9 +130,9 @@ bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 	init_vars(vars, x);
 
-	const GradType<N_VARS> objective_value = modelGradType->objective(vars);
+	const GradType<N_VARS> obj = modelGradType->objective(vars);
 
-	objective_value.copy_gradient(grad_f);
+	obj.copy_gradient(grad_f);
 
 	return true;
 }
@@ -152,31 +150,19 @@ bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 }
 
 bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
-		Index m, Index nele_jac, Index* iRow, Index *jCol,
-		Number* values)
+		Index m, Index nele_jac, Index* iRow, Index *jCol, Number* values)
 {
 	if (N_CONS==0) {
 
-		return true;
+		; // calling model->constraints() may crash
 	}
-
-	if (values == 0) {
+	else if (values == 0) {
 
 		fill_Jacobian_sparsity_as_dense(iRow, jCol);
-
-		return true;
 	}
+	else {
 
-	compute_Jacobian(x);
-
-	Index idx = 0;
-
-	for (Index i=0; i<N_CONS; ++i) {
-
-		for (Index j=0; j<N_VARS; ++j) {
-
-			values[idx++] = Jac[i][j];
-		}
+		compute_Jacobian(x, values);
 	}
 
 	return true;
@@ -189,15 +175,14 @@ void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) con
 	for (Index i=0; i<N_CONS; ++i) {
 
 		for (Index j=0; j<N_VARS; ++j) {
-
 			iRow[idx] = i;
-
-			jCol[idx++] = j;
+			jCol[idx] = j;
+			++idx;
 		}
 	}
 }
 
-void NLPForwardAD::compute_Jacobian(const double* x) {
+void NLPForwardAD::compute_Jacobian(const double* x, double* values) {
 
 	GradType<N_VARS> vars[N_VARS];
 
@@ -207,7 +192,7 @@ void NLPForwardAD::compute_Jacobian(const double* x) {
 
 	for (int i=0; i<N_CONS; ++i) {
 
-		con.at(i).copy_gradient(Jac[i]);
+		con.at(i).copy_gradient(values+i*N_VARS);
 	}
 }
 
@@ -272,10 +257,6 @@ void NLPForwardAD::finalize_solution(SolverReturn status,
 
 	// TODO Why not in dtor?
 	delete[] x_lam;
-
-	for(Index i=0;i<m;i++)
-		delete[] Jac[i];
-	delete[] Jac;
 
 	for(Index i=0;i<n+m+1;i++)
 		delete[] Hess[i];

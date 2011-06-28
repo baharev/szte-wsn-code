@@ -99,7 +99,7 @@ private:
 
 	void fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) const;
 
-	void compute_Jacobian(const double* x);
+	void compute_Jacobian(const double* x, double* values);
 
 	double* const minimizer;
 
@@ -108,8 +108,6 @@ private:
 	Model<GradType<N_VARS> >* const modelGradType;
 
 	VarEstimates* estimates;
-
-	double **Jac;
 
 	double *x_lam;
 	double **Hess;

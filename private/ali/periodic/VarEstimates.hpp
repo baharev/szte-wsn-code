@@ -56,6 +56,7 @@ public:
 	const double* initial_point(VarEnum i) const { return x_0+i; }
 
 	const matrix3 accel_gain() const;
+	const vector3 accel_offset() const;
 	const matrix3 gyro_gain() const;
 
 private:

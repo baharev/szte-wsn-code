@@ -63,6 +63,8 @@ double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 double v0[] = { 1.0, -1.0, 1.0 };
 //double v0[] = { 3.5020927245790132e-02,4.7663320606355371e-02,-1.4756210924809038e-01 };
 
+double gravity[] = { 0, 0, -9.81 };
+
 }
 
 namespace gyro {
@@ -111,7 +113,7 @@ void VarEstimates::set_intial_points() {
 
 	//copy_to_initial_point(accel_gain, A11, A33);
 
-	copy_to_initial_point(accel_offset, B1, B3);
+	//copy_to_initial_point(accel_offset, B1, B3);
 
 	//copy_to_initial_point(gyro_gain, C11, C33);
 
@@ -120,6 +122,8 @@ void VarEstimates::set_intial_points() {
 	//copy_to_initial_point(initial_orientation, EULER_X, EULER_Z);
 
 	copy_to_initial_point(v0, VX, VZ);
+
+	copy_to_initial_point(gravity, GRAVITY_X, GRAVITY_Z);
 }
 
 void VarEstimates::set_bounds_by_abs_inflation(const VarEnum begin, const VarEnum end, double amount) {
@@ -135,7 +139,7 @@ void VarEstimates::set_bounds() {
 
 	//set_bounds_by_abs_inflation(A11, A33, 0.01);
 
-	set_bounds_by_abs_inflation(B1, B3, 20.0);
+	//set_bounds_by_abs_inflation(B1, B3, 20.0);
 
 	//set_bounds_by_abs_inflation(C11, C33, 0.003);
 
@@ -144,6 +148,8 @@ void VarEstimates::set_bounds() {
 	//set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 
 	set_bounds_by_abs_inflation(VX, VZ, 5.0);
+
+	set_bounds_by_abs_inflation(GRAVITY_X, GRAVITY_Z, 0.5);
 }
 
 void VarEstimates::check_feasibility() {
@@ -165,6 +171,11 @@ void VarEstimates::check_feasibility() {
 const matrix3 VarEstimates::accel_gain() const {
 
 	return matrix3(::accel_gain);
+}
+
+const vector3 VarEstimates::accel_offset() const {
+
+	return vector3(::accel_offset);
 }
 
 const matrix3 VarEstimates::gyro_gain() const {

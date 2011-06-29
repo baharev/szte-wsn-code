@@ -38,10 +38,9 @@ namespace gyro {
 
 enum VarEnum {
 
-	// Accelerometer offset
-	B1,
-	B2,
-	B3,
+	GRAVITY_X,
+	GRAVITY_Y,
+	GRAVITY_Z,
 
 	// Gyro offset
 	D1,

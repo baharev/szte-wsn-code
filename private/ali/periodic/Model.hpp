@@ -282,11 +282,6 @@ protected:
 
 	virtual void set_used_variables(const T* x) = 0;
 
-	void use_b(const T* x) {
-
-		b = Vector<T>(x+B1);
-	}
-
 	void use_d(const T* x) {
 
 		d = Vector<T>(x+D1);
@@ -295,6 +290,11 @@ protected:
 	void use_v(const T* x) {
 
 		v0 = Vector<T>(x+VX);
+	}
+
+	void use_gravity(const T* x) {
+
+		gravity = Vector<T>(x+GRAVITY_X);
 	}
 
 	const T minimize_rotation() {
@@ -366,8 +366,8 @@ private:
 
 		M = Matrix<T>(v, w, u*(-1));
 
-		gravity = M*(s/N); //-9.747827
-		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748)); // TODO Check gravity
+		//gravity = M*(s/N); //-9.747827
+		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748));
 	}
 
 	const vector3& raw_gyro(int i) const {
@@ -462,7 +462,7 @@ private:
 
 	void fix_b() {
 
-		b = Vector<T>(estimates.initial_point(B1));
+		b = estimates.accel_offset();
 	}
 
 	void fix_C() {
@@ -498,7 +498,7 @@ private:
 	const VarEstimates estimates;
 
 	matrix3 A;
-	Vector<T> b;
+	vector3 b;
 
 	matrix3 C;
 	Vector<T> d;
@@ -592,6 +592,8 @@ private:
 	virtual void set_used_variables(const T* x) {
 
 		use_v(x);
+
+		use_gravity(x);
 	}
 
 	T objective(const T* x) {

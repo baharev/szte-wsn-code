@@ -79,7 +79,7 @@ void real_main(const char* input, const char* output) {
 	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
-	for (int i=B1; i<=B3; ++i) {
+	for (int i=GRAVITY_X; i<=GRAVITY_Z; ++i) {
 
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}

@@ -37,51 +37,40 @@
 #include <iomanip>
 #include <vector>
 #include "MatrixVector.hpp"
+#include "ModelType.hpp"
 #include "Sample.hpp"
 #include "VarEstimates.hpp"
 
 namespace gyro {
+
+template <typename > class MinimizeBumps;
 
 template <typename T>
 class Model {
 
 public:
 
-	Model(const std::vector<Sample>& samples) :
-	samples(samples), TICKS_PER_SEC(32768), N(static_cast<int>(samples.size())), estimates(VarEstimates())
-	{
-		fix_all();
+	static Model<T>* newInstance(ModelType type, const std::vector<Sample>& samples) {
 
-		store_rotmat();
+		Model<T>* model = 0;
+
+		if (type==MINIMIZE_BUMPS) {
+
+			model = new MinimizeBumps<T>(samples);
+		}
+
+		model->init();
+
+		return model;
 	}
 
-	void set_used_variables(const T* x) {
+	virtual void init() = 0;
 
-		use_b(x);
+	virtual T objective(const T* x) = 0;
 
-		use_v(x);
-	}
+	virtual const std::vector<T> constraints(const T* x) = 0;
 
-	T objective(const T* x)  {
-
-		set_used_variables(x);
-
-		return minimize_bumps();
-		//return T(0.0);
-	}
-
-	const std::vector<T> constraints(const T* x) {
-
-		set_used_variables(x);
-
-		rotate_back();
-
-		store_path();
-
-		Vector<T> delta_r = position.at(N-1);
-
-		return as_std_vector(delta_r);
-	}
+	virtual ~Model() { }
 
 	void store_rotmat() {
 
@@ -148,6 +137,17 @@ public:
 		}
 
 		return r;
+	}
+
+	const std::vector<T> delta_r_std_vector() {
+
+		rotate_back();
+
+		store_path();
+
+		Vector<T> delta_r = position.at(N-1);
+
+		return as_std_vector(delta_r);
 	}
 
 	void store_path() {
@@ -258,6 +258,31 @@ public:
 		out << "gravity: " << gravity << '\n';
 
 		out << std::flush;
+	}
+
+protected:
+
+	Model(const std::vector<Sample>& samples) :
+	samples(samples), TICKS_PER_SEC(32768), N(static_cast<int>(samples.size())), estimates(VarEstimates())
+	{
+		fix_all();
+	}
+
+	virtual void set_used_variables(const T* x) = 0;
+
+	void use_b(const T* x) {
+
+		b = Vector<T>(x+B1);
+	}
+
+	void use_d(const T* x) {
+
+		d = Vector<T>(x+D1);
+	}
+
+	void use_v(const T* x) {
+
+		v0 = Vector<T>(x+VX);
 	}
 
 private:
@@ -452,21 +477,6 @@ private:
 		fix_v0();
 	}
 
-	void use_b(const T* x) {
-
-		b = Vector<T>(x+B1);
-	}
-
-	void use_d(const T* x) {
-
-		d = Vector<T>(x+D1);
-	}
-
-	void use_v(const T* x) {
-
-		v0 = Vector<T>(x+VX);
-	}
-
 	const std::vector<Sample>& samples;
 
 	const double TICKS_PER_SEC;
@@ -488,6 +498,43 @@ private:
 
 	Matrix<T> M;
 	Vector<T> gravity;
+};
+
+template <typename T>
+class MinimizeBumps : public Model<T> {
+
+public:
+
+	MinimizeBumps(const std::vector<Sample>& samples) : Model<T>(samples) { }
+
+private:
+
+	virtual void init() {
+
+		this->store_rotmat();
+	}
+
+	virtual void set_used_variables(const T* x) {
+
+		use_b(x);
+
+		use_v(x);
+	}
+
+	T objective(const T* x) {
+
+		set_used_variables(x);
+
+		return this->minimize_bumps();
+		//return T(0.0);
+	}
+
+	const std::vector<T> constraints(const T* x) {
+
+		set_used_variables(x);
+
+		return this->delta_r_std_vector();
+	}
 };
 
 }

@@ -42,7 +42,7 @@ using namespace Ipopt;
 
 namespace gyro {
 
-Optimizer::Optimizer(const std::vector<Sample>& samples)
+Optimizer::Optimizer(ModelType type, const std::vector<Sample>& samples)
 : samples(samples), minimizer(new double[N_VARS])
 {
 	SmartPtr<IpoptApplication> app = new IpoptApplication();
@@ -63,7 +63,7 @@ Optimizer::Optimizer(const std::vector<Sample>& samples)
 		throw std::runtime_error("initialization of IPOPT failed");
 	}
 
-	NLPForwardAD* const nlp = new NLPForwardAD(samples);
+	NLPForwardAD* const nlp = new NLPForwardAD(type, samples);
 
 	SmartPtr<TNLP> NLP(nlp);
 

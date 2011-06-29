@@ -38,11 +38,11 @@
 
 namespace gyro {
 
-NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
+NLPForwardAD::NLPForwardAD(ModelType type, const std::vector<Sample>& samples) :
 		minimizer(new double[N_VARS]),
-		modelDouble(new Model<double>(samples)),
-		modelGradType(new Model<GradType<N_VARS> >(samples)),
-		modelHessType(new Model<HessType<N_VARS> >(samples)),
+		modelDouble(Model<double>::newInstance(type, samples)),
+		modelGradType(Model<GradType<N_VARS> >::newInstance(type, samples)),
+		modelHessType(Model<HessType<N_VARS> >::newInstance(type, samples)),
 		estimates(new VarEstimates)
 {
 

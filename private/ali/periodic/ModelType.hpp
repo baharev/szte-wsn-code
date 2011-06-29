@@ -31,40 +31,16 @@
 *      Author: Ali Baharev
 */
 
-#ifndef OPTIMIZER_HPP_
-#define OPTIMIZER_HPP_
-
-#include <memory>
-#include <vector>
-#include "ModelType.hpp"
-#include "Sample.hpp"
+#ifndef MODELTYPE_HPP_
+#define MODELTYPE_HPP_
 
 namespace gyro {
 
-class Optimizer {
+enum ModelType {
 
-public:
-
-	Optimizer(ModelType type, const std::vector<Sample>& samples);
-
-	const double* solution() const { return minimizer.get(); }
-
-private:
-
-	Optimizer(const Optimizer& );
-
-	Optimizer& operator=(const Optimizer& );
-
-	void check_return_code(int ret_code) const;
-
-	void postprocess_solution(const double* const sol);
-
-	const std::vector<Sample>& samples;
-
-	std::auto_ptr<double> minimizer;
-
+	MINIMIZE_BUMPS
 };
 
 }
 
-#endif // OPTIMIZER_HPP_
+#endif // MODELTYPE_HPP_

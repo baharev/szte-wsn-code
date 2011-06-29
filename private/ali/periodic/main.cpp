@@ -56,7 +56,7 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
-	Optimizer opt(samples);
+	Optimizer opt(MINIMIZE_BUMPS, samples);
 
 	VarEstimates estimates;
 
@@ -69,32 +69,35 @@ void real_main(const char* input, const char* output) {
 		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
 	}
 
-	Model<double> obj(samples);
+	Model<double>* obj = Model<double>::newInstance(MINIMIZE_BUMPS, samples);
 
-	obj.rotate_sum_downwards(x);
+	obj->init();
 
-	vector3 sum = obj.downward_rotated_sum();
+	obj->rotate_sum_downwards(x);
+
+	vector3 sum = obj->downward_rotated_sum();
 
 	cout << "Sum as rotated back: " << sum << endl;
 
-	obj.set_v0(x);
+	obj->set_v0(x);
 
-	vector3 delta_r = obj.delta_r();
+	vector3 delta_r = obj->delta_r();
 
 	cout << "Delta r: " << delta_r << endl;
 
 	ofstream outfile("path.csv");
 
-	obj.dump_recomputed_path(x, outfile);
+	obj->dump_recomputed_path(x, outfile);
 
 	outfile.close();
 
 	outfile.open("avg.csv");
 
-	obj.store_path();
+	obj->store_path();
 
-	obj.dump_moving_averages(outfile);
+	obj->dump_moving_averages(outfile);
 
+	delete obj;
 }
 
 int main(int argc, char* argv[]) {

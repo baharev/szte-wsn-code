@@ -38,6 +38,7 @@
 #include "IpTNLP.hpp"
 #include "GradType.hpp"
 #include "HessType.hpp"
+#include "Model.hpp"
 #include "VarEnum.hpp"
 
 using namespace Ipopt;
@@ -53,7 +54,7 @@ class NLPForwardAD : public TNLP
 
 public:
 
-	NLPForwardAD(const std::vector<Sample>& samples);
+	NLPForwardAD(ModelType type, const std::vector<Sample>& samples);
 
 	const double* solution() const { return minimizer; }
 

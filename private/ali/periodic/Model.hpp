@@ -235,6 +235,8 @@ public:
 
 	const T integrate_bumps() const {
 
+		const Vector<T> record_avg = average_in_window(0, N);
+
 		const int MOVING_AVG_WINDOW_SIZE = 193;
 
 		T sum(0.0);
@@ -243,7 +245,7 @@ public:
 
 			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
 
-			sum += sqr(average);
+			sum += sqr(average-record_avg);
 		}
 
 		return sum;
@@ -253,6 +255,10 @@ public:
 
 		out << std::setprecision(16) << std::scientific;
 
+		const Vector<T> record_avg = average_in_window(0, N);
+
+		out << record_avg << '\n';
+
 		const int MOVING_AVG_WINDOW_SIZE = 193;
 
 		T sum(0.0);
@@ -261,7 +267,7 @@ public:
 
 			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
 
-			sum += sqr(average);
+			sum += sqr(average-record_avg);
 
 			out << i << '\t' << average << '\n';
 		}

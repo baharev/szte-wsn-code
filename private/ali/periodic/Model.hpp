@@ -45,6 +45,7 @@ namespace gyro {
 
 template <typename > class MinimizeBumps;
 template <typename > class MinimizeRotation;
+template <typename > class GyroRegression;
 
 template <typename T>
 class Model {
@@ -62,6 +63,10 @@ public:
 		else if (type==MINIMIZE_BUMPS) {
 
 			model = new MinimizeBumps<T>(samples);
+		}
+		else if (type==GYRO_REGRESSION) {
+
+			model = new GyroRegression<T>(samples);
 		}
 
 		model->init();
@@ -306,6 +311,13 @@ protected:
 		return sqr(error);
 	}
 
+	const T gyro_regression() {
+
+		store_rotmat();
+
+		return gyro_regression_objective();
+	}
+
 private:
 
 	const T minimize_delta_r() {
@@ -315,13 +327,6 @@ private:
 		rotate_back();
 
 		return sqr(delta_r());
-	}
-
-	const T gyro_regression() {
-
-		store_rotmat();
-
-		return gyro_regression_objective();
 	}
 
 	const T gyro_regression_objective() const {
@@ -361,8 +366,8 @@ private:
 
 		M = Matrix<T>(v, w, u*(-1));
 
-		//gravity = M*(s/N); -9.747827
-		gravity = Vector<T>( T(0.020), T(0.0), T(-9.748)); // TODO Check gravity
+		gravity = M*(s/N); //-9.747827
+		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748)); // TODO Check gravity
 	}
 
 	const vector3& raw_gyro(int i) const {
@@ -540,6 +545,37 @@ private:
 };
 
 template <typename T>
+class GyroRegression : public Model<T> {
+
+public:
+
+	GyroRegression(const std::vector<Sample>& samples) : Model<T>(samples) { }
+
+private:
+
+	virtual void init() { }
+
+	virtual void set_used_variables(const T* x) {
+
+		use_d(x);
+	}
+
+	T objective(const T* x) {
+
+		set_used_variables(x);
+
+		return this->gyro_regression();
+	}
+
+	int number_of_constraints() const {
+
+		return 0;
+	}
+
+	const std::vector<T> constraints(const T* x) { return std::vector<T> (); }
+};
+
+template <typename T>
 class MinimizeBumps : public Model<T> {
 
 public:
@@ -554,8 +590,6 @@ private:
 	}
 
 	virtual void set_used_variables(const T* x) {
-
-		use_b(x);
 
 		use_v(x);
 	}

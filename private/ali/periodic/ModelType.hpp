@@ -39,7 +39,8 @@ namespace gyro {
 enum ModelType {
 
 	MINIMIZE_ROTATION,
-	MINIMIZE_BUMPS
+	MINIMIZE_BUMPS,
+	GYRO_REGRESSION
 };
 
 }

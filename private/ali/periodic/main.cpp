@@ -56,7 +56,18 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
-	Optimizer rot(MINIMIZE_ROTATION, samples);
+	Optimizer rot(GYRO_REGRESSION, samples);
+
+	const double* const sol = rot.solution();
+
+	cout << "gyro offset: " << endl;
+
+	for (int i=D1; i<=D3; ++i) {
+
+		cout << sol[i] << endl;
+	}
+
+	cout << endl;
 
 	set_new_gyro_offset_estimates(rot.solution());
 

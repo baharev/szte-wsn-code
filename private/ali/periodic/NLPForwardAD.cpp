@@ -38,8 +38,6 @@
 
 namespace gyro {
 
-const int N_CONS(3);
-
 NLPForwardAD::NLPForwardAD(const std::vector<Sample>& samples) :
 		minimizer(new double[N_VARS]),
 		modelDouble(new Model<double>(samples)),

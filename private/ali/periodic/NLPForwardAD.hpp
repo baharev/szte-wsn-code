@@ -34,7 +34,6 @@
 #ifndef NLPFORWARDAD_HPP_
 #define NLPFORWARDAD_HPP_
 
-#include <iosfwd>
 #include <vector>
 #include "IpTNLP.hpp"
 #include "GradType.hpp"

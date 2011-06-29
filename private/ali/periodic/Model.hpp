@@ -362,7 +362,7 @@ private:
 		return rotmat.at(i)*calibrated_accel(i);
 	}
 
-	const double time_step(int i) const {
+	double time_step(int i) const {
 
 		unsigned int t2 = samples.at(i  ).timestamp;
 		unsigned int t1 = samples.at(i-1).timestamp;

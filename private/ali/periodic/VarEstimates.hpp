@@ -39,6 +39,8 @@
 
 namespace gyro {
 
+void set_new_gyro_offset_estimates(const double* x);
+
 class VarEstimates {
 
 public:

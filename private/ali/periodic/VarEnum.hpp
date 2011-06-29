@@ -57,9 +57,6 @@ enum VarEnum {
 	N_VARS
 };
 
-// Number of constraints
-const int N_CONS(3);
-
 }
 
 #endif // VARENUM_HPP_

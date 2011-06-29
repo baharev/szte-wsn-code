@@ -56,6 +56,10 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
+	Optimizer rot(MINIMIZE_ROTATION, samples);
+
+	set_new_gyro_offset_estimates(rot.solution());
+
 	Optimizer opt(MINIMIZE_BUMPS, samples);
 
 	VarEstimates estimates;

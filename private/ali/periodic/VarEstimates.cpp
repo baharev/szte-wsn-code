@@ -53,7 +53,8 @@ double gyro_gain[] = {
 };
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
-double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+//double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+double gyro_offset[] = {-10, 20, -15 };
 
 //double v0[] = { 0.025019, 0.0388529, -0.138551 };
 //double v0[] = { 0.0, 0.0, 0.0 };
@@ -63,6 +64,16 @@ double v0[] = { 1.0, -1.0, 1.0 };
 }
 
 namespace gyro {
+
+void set_new_gyro_offset_estimates(const double* x) {
+
+	const double* const new_offset = x+gyro::D1;
+
+	for (int i=0; i<3; ++i) {
+
+		gyro_offset[i] = new_offset[i];
+	}
+}
 
 VarEstimates::VarEstimates() {
 

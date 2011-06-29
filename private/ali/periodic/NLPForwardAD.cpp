@@ -69,6 +69,8 @@ bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		x_u[i] = xU[i];
 	}
 
+	const int N_CONS = modelDouble->number_of_constraints();
+
 	for (Index i=0; i<N_CONS; ++i) {
 		g_l[i] = 0;
 		g_u[i] = 0;
@@ -97,7 +99,7 @@ bool NLPForwardAD::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 {
 	n = N_VARS;
 
-	m = N_CONS;
+	m = modelDouble->number_of_constraints();
 
 	// Dense Jacobian
 	nnz_jac_g = n*m;
@@ -132,7 +134,7 @@ bool NLPForwardAD::eval_grad_f(Index n, const Number* x, bool new_x, Number* gra
 
 bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
 
-	if (N_CONS) {
+	if (modelDouble->number_of_constraints()) {
 
 		const std::vector<double> con = modelDouble->constraints(x);
 
@@ -145,7 +147,7 @@ bool NLPForwardAD::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 bool NLPForwardAD::eval_jac_g(Index n, const Number* x, bool new_x,
 		Index m, Index nele_jac, Index* iRow, Index *jCol, Number* values)
 {
-	if (N_CONS==0) {
+	if (modelDouble->number_of_constraints()==0) {
 
 		; // calling model->constraints() may crash
 	}
@@ -165,6 +167,8 @@ void NLPForwardAD::fill_Jacobian_sparsity_as_dense(Index* iRow, Index *jCol) con
 
 	Index idx = 0;
 
+	const int N_CONS = modelDouble->number_of_constraints();
+
 	for (Index i=0; i<N_CONS; ++i) {
 
 		for (Index j=0; j<N_VARS; ++j) {
@@ -182,6 +186,8 @@ void NLPForwardAD::compute_Jacobian(const double* x, double* values) {
 	init_vars(vars, x);
 
 	const std::vector<GradType<N_VARS> > con = modelGradType->constraints(vars);
+
+	const int N_CONS = modelDouble->number_of_constraints();
 
 	for (int i=0; i<N_CONS; ++i) {
 
@@ -232,6 +238,8 @@ void NLPForwardAD::compute_Hessian(const double* x,
 	HessType<N_VARS> Lagrangian = obj_factor*(modelHessType->objective(vars));
 
 	std::vector<HessType<N_VARS> > g;
+
+	const int N_CONS = modelDouble->number_of_constraints();
 
 	if (N_CONS) {
 

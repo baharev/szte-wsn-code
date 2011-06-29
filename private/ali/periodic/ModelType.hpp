@@ -38,6 +38,7 @@ namespace gyro {
 
 enum ModelType {
 
+	MINIMIZE_ROTATION,
 	MINIMIZE_BUMPS
 };
 

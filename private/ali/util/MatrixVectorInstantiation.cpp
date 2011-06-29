@@ -58,7 +58,7 @@ void Vector<double>::enforce_range_minus_pi_plus_pi() {
 template class Vector<double>;
 template class Matrix<double>;
 
-template Matrix<double>::Matrix<double>(double const* array);
+template Matrix<double>::Matrix(double const* array);
 
 template const matrix3 euler2rotmat(const vector3& Euler_XYZ);
 

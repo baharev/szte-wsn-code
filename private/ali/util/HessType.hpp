@@ -327,7 +327,7 @@ const HessType<N> sqr(const HessType<N>& x) {
 	for (int i=0; i<N; ++i) {
 		z.g[i] = tmp*x.g[i];
 		for (int j=0; j<=i; ++j) {
-			z.h[i][j] = tmp*x.h[i][j] + 2.0*x.g[i]*x.g[j];
+			z.h[i][j] = tmp*x.h[i][j] + 2*x.g[i]*x.g[j];
 		}
 	}
 

@@ -40,6 +40,8 @@ namespace gyro {
 
 typedef Matrix<double> matrix3;
 
+template <typename T> const T distance(const Matrix<T>& A, const Matrix<T>& B);
+
 template <typename T>
 class Matrix {
 
@@ -71,6 +73,8 @@ public:
 
 	template <typename U>
 	const Vector<T> operator*(const Vector<U>& v) const;
+
+	friend const T distance<>(const Matrix& A, const Matrix& B);
 
 	template <typename>	friend class Matrix; // templated copy ctor needs this
 

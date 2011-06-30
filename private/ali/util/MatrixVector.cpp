@@ -164,6 +164,22 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
 }
 
 template <typename T>
+const T distance(const Matrix<T>& A, const Matrix<T>& B) {
+
+	T trace(0.0); // of A^T*B
+
+	for (int i=0; i<3; ++i) {
+
+		for (int j=0; j<3; ++j) {
+
+			trace += A.m[j][i]*B.m[j][i];
+		}
+	}
+
+	return sqr(trace-T(3.0));
+}
+
+template <typename T>
 const Matrix<T> euler2rotmat(const Vector<T>& euler) {
 
 	const T sin_x = sin(euler[X]);

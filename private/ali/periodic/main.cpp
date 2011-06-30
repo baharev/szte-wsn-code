@@ -56,7 +56,7 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
-	Optimizer rot(GYRO_REGRESSION, samples);
+	Optimizer rot(MINIMIZE_ROTATION, samples);
 
 	const double* const sol = rot.solution();
 

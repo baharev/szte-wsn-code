@@ -36,7 +36,7 @@
 
 namespace gyro {
 
-const int MOVING_AVG_WINDOW_SIZE = 193;
+const int MOVING_AVG_WINDOW_SIZE = 200;
 
 enum VarEnum {
 

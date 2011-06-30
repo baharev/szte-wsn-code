@@ -69,7 +69,7 @@ void real_main(const char* input, const char* output) {
 
 	cout << endl;
 
-	set_new_gyro_offset_estimates(rot.solution());
+	//set_new_gyro_offset_estimates(rot.solution());
 
 	Optimizer opt(MINIMIZE_BUMPS, samples);
 
@@ -99,6 +99,15 @@ void real_main(const char* input, const char* output) {
 	vector3 delta_r = obj->delta_r();
 
 	cout << "Delta r: " << delta_r << endl;
+
+	cout << "gyro offset: " << endl;
+
+	for (int i=D1; i<=D3; ++i) {
+
+		cout << x[i] << endl;
+	}
+
+	cout << endl;
 
 	ofstream outfile("path.csv");
 

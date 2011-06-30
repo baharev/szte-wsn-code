@@ -71,7 +71,7 @@ double accel_gain[] = {
 		0.0, 0.0, 1.0
 };
 
-double accel_offset[] = { 0, 0, 0 };
+double accel_offset[] = { 0.04, -0.04, 0.04 };
 
 double gyro_gain[] = {
 		1.0, 0.0, 0.0,
@@ -79,7 +79,7 @@ double gyro_gain[] = {
 		0.0, 0.0, 1.0
 };
 
-double gyro_offset[] = { 0, 0, 0 };
+double gyro_offset[] = { 0.01, 0.01, -0.01 };
 
 double v0[] = { 0, 0, 0 };
 

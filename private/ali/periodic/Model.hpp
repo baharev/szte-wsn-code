@@ -237,8 +237,6 @@ public:
 
 		const Vector<T> record_avg = average_in_window(0, N);
 
-		const int MOVING_AVG_WINDOW_SIZE = 193;
-
 		T sum(0.0);
 
 		for (int i=0; i<N-MOVING_AVG_WINDOW_SIZE; ++i) {
@@ -258,8 +256,6 @@ public:
 		const Vector<T> record_avg = average_in_window(0, N);
 
 		out << record_avg << '\n';
-
-		const int MOVING_AVG_WINDOW_SIZE = 193;
 
 		T sum(0.0);
 

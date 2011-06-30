@@ -36,6 +36,8 @@
 
 namespace gyro {
 
+const int MOVING_AVG_WINDOW_SIZE = 193;
+
 enum VarEnum {
 
 	GRAVITY_X,

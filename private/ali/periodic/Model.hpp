@@ -332,6 +332,28 @@ protected:
 		return gyro_regression_objective();
 	}
 
+	void rotate_back() {
+
+		const Vector<T> s = sum_R_accel();
+
+		Vector<T> u = s;
+
+		u.make_unit_length();
+
+		// FIXME If-then-else is not good for optimization
+		//Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
+		Vector<T> v = Vector<T>( -u[Z], T(0.0), u[X]);
+
+		v.make_unit_length();
+
+		Vector<T> w = cross_product(v, u);
+
+		M = Matrix<T>(v, w, u*(-1));
+
+		gravity = M*(s/N); //-9.747827
+		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748));
+	}
+
 private:
 
 	const T minimize_delta_r() {
@@ -360,28 +382,6 @@ private:
 		}
 
 		return s;
-	}
-
-	void rotate_back() {
-
-		const Vector<T> s = sum_R_accel();
-
-		Vector<T> u = s;
-
-		u.make_unit_length();
-
-		// FIXME If-then-else is not good for optimization
-		//Vector<T> v = (u[X]>1.0e-6 || u[Z]>1.0e-6) ? Vector<T>(-u[Z],0,u[X]) : Vector<T>(0,0,1);
-		Vector<T> v = Vector<T>( -u[Z], T(0.0), u[X]);
-
-		v.make_unit_length();
-
-		Vector<T> w = cross_product(v, u);
-
-		M = Matrix<T>(v, w, u*(-1));
-
-		//gravity = M*(s/N); //-9.747827
-		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748));
 	}
 
 	const vector3& raw_gyro(int i) const {
@@ -600,16 +600,18 @@ public:
 
 private:
 
-	virtual void init() {
-
-		this->store_rotmat();
-	}
+	virtual void init() { }
 
 	virtual void set_used_variables(const T* x) {
 
+		use_d(x);
+
 		use_v(x);
 
-		use_gravity(x);
+		this->store_rotmat();
+
+		this->rotate_back();
+		//use_gravity(x);
 	}
 
 	T objective(const T* x) {

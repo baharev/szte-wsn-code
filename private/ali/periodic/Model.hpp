@@ -239,9 +239,9 @@ public:
 
 		T sum(0.0);
 
-		for (int i=0; i<N-MOVING_AVG_WINDOW_SIZE; ++i) {
+		for (int i=0; i<N-PERIOD; ++i) {
 
-			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
+			Vector<T> average = average_in_window(i, PERIOD);
 
 			sum += sqr(average-record_avg);
 		}
@@ -259,9 +259,9 @@ public:
 
 		T sum(0.0);
 
-		for (int i=0; i<N-MOVING_AVG_WINDOW_SIZE; ++i) {
+		for (int i=0; i<N-PERIOD; ++i) {
 
-			Vector<T> average = average_in_window(i, MOVING_AVG_WINDOW_SIZE);
+			Vector<T> average = average_in_window(i, PERIOD);
 
 			sum += sqr(average-record_avg);
 
@@ -272,6 +272,18 @@ public:
 		out << "gravity: " << gravity << '\n';
 
 		out << std::flush;
+	}
+
+	const T integrate_rotation() {
+
+		T integral(0.0);
+
+		for (int i=0; i<N-PERIOD; ++i) {
+
+			integral += distance(rotmat.at(i), rotmat.at(i+PERIOD));
+		}
+
+		return integral;
 	}
 
 protected:
@@ -535,7 +547,9 @@ private:
 
 		set_used_variables(x);
 
-		return this->minimize_rotation();
+		this->store_rotmat();
+
+		return this->integrate_rotation();
 	}
 
 	int number_of_constraints() const {

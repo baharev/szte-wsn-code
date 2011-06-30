@@ -59,4 +59,8 @@ template Matrix<HessType<N_VARS> >::Matrix(const matrix3& other);
 template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const Vector<HessType<N_VARS> >& v) const;
 template const Vector<HessType<N_VARS> > Matrix<HessType<N_VARS> >::operator*(const vector3& v) const;
 
+template const double distance(const Matrix<double>& , const Matrix<double>& );
+template const GradType<N_VARS>  distance(const Matrix<GradType<N_VARS> >& , const Matrix<GradType<N_VARS> >& );
+template const HessType<N_VARS>  distance(const Matrix<HessType<N_VARS> >& , const Matrix<HessType<N_VARS> >& );
+
 }

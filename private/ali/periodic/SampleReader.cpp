@@ -107,9 +107,11 @@ const Sample SampleReader::parse_buffer() const {
 
 	is.exceptions(ios_base::failbit | ios_base::badbit | ios_base::eofbit);
 
-	unsigned int timestamp, accel[3], gyro[3];
+	unsigned int timestamp;
 
 	is >> timestamp;
+
+	double accel[3], gyro[3];
 
 	for (int i=0; i<3; ++i) {
 
@@ -121,8 +123,7 @@ const Sample SampleReader::parse_buffer() const {
 		is >> gyro[i];
 	}
 
-	Sample s = { timestamp, vector3(accel[X], accel[Y], accel[Z]),
-			                vector3( gyro[X],  gyro[Y],  gyro[Z]) };
+	Sample s = { timestamp, vector3(accel), vector3(gyro) };
 
 	return s;
 }

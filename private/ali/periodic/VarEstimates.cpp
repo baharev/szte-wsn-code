@@ -36,7 +36,6 @@
 #include "VarEstimates.hpp"
 
 namespace {
-
 /*
 double accel_gain[] = {
 		0.0211877,    0.000196498, -0.000102888,
@@ -54,19 +53,17 @@ double gyro_gain[] = {
 };
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
-double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
-//double gyro_offset[] = {-10, 20, -15 };
-//double gyro_offset[] = {-5, 25, -20 };
-//double gyro_offset[] = { 5, 0, 5 };
+//double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
-//double v0[] = { 0.025019, 0.0388529, -0.138551 };
-//double v0[] = { 0.0, 0.0, 0.0 };
-double v0[] = { 1.0, -1.0, 1.0 };
-//double v0[] = { 3.5020927245790132e-02,4.7663320606355371e-02,-1.4756210924809038e-01 };
+double beg_gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+
+double end_gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+
+double v0[] = { 0.0, 0.0, 0.0 };
 */
 
 double accel_gain[] = {
-		1.0, 0.0, 0.0,
+		1.0, 0.0, 0.05,
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0
 };
@@ -84,8 +81,6 @@ double beg_gyro_offset[] = { 0.0, 0.0, 0.0 };
 double end_gyro_offset[] = { 0.0, 0.0, 0.0 };
 
 double v0[] = { 0, 0, 0 };
-
-//double gravity[] = { 0, 0, -9.81 };
 
 }
 

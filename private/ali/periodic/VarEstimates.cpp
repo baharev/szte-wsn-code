@@ -79,25 +79,17 @@ double gyro_gain[] = {
 		0.0, 0.0, 1.0
 };
 
-double gyro_offset[] = { 0.01, 0.01, -0.01 };
+double beg_gyro_offset[] = { 0.0, 0.0, 0.0 };
+
+double end_gyro_offset[] = { 0.0, 0.0, 0.0 };
 
 double v0[] = { 0, 0, 0 };
 
-double gravity[] = { 0, 0, -9.81 };
+//double gravity[] = { 0, 0, -9.81 };
 
 }
 
 namespace gyro {
-
-void set_new_gyro_offset_estimates(const double* x) {
-
-	const double* const new_offset = x+D1;
-
-	for (int i=0; i<3; ++i) {
-
-		gyro_offset[i] = new_offset[i];
-	}
-}
 
 VarEstimates::VarEstimates() {
 
@@ -137,13 +129,17 @@ void VarEstimates::set_intial_points() {
 
 	//copy_to_initial_point(gyro_gain, C11, C33);
 
-	copy_to_initial_point(gyro_offset, D1, D3);
+	//copy_to_initial_point(gyro_offset, D1, D3);
+
+	copy_to_initial_point(beg_gyro_offset, DX_BEG, DZ_BEG);
+
+	copy_to_initial_point(end_gyro_offset, DX_END, DZ_END);
 
 	//copy_to_initial_point(initial_orientation, EULER_X, EULER_Z);
 
 	copy_to_initial_point(v0, VX, VZ);
 
-	copy_to_initial_point(gravity, GRAVITY_X, GRAVITY_Z);
+	//copy_to_initial_point(gravity, GRAVITY_X, GRAVITY_Z);
 }
 
 void VarEstimates::set_bounds_by_abs_inflation(const VarEnum begin, const VarEnum end, double amount) {
@@ -163,13 +159,17 @@ void VarEstimates::set_bounds() {
 
 	//set_bounds_by_abs_inflation(C11, C33, 0.003);
 
-	set_bounds_by_abs_inflation(D1, D3, 30.0);
+	//set_bounds_by_abs_inflation(D1, D3, 30.0);
+
+	set_bounds_by_abs_inflation(DX_BEG, DZ_BEG, 30.0);
+
+	set_bounds_by_abs_inflation(DX_END, DZ_END, 30.0);
 
 	//set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
 
 	set_bounds_by_abs_inflation(VX, VZ, 5.0);
 
-	set_bounds_by_abs_inflation(GRAVITY_X, GRAVITY_Z, 0.5);
+	//set_bounds_by_abs_inflation(GRAVITY_X, GRAVITY_Z, 0.5);
 }
 
 void VarEstimates::check_feasibility() {

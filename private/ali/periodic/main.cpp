@@ -56,21 +56,6 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
-	Optimizer rot(MINIMIZE_ROTATION, samples);
-
-	const double* const sol = rot.solution();
-
-	cout << "gyro offset: " << endl;
-
-	for (int i=D1; i<=D3; ++i) {
-
-		cout << sol[i] << endl;
-	}
-
-	cout << endl;
-
-	//set_new_gyro_offset_estimates(rot.solution());
-
 	Optimizer opt(MINIMIZE_BUMPS, samples);
 
 	VarEstimates estimates;
@@ -78,11 +63,6 @@ void real_main(const char* input, const char* output) {
 	const double* const xL = estimates.lower_bounds();
 	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
-
-	for (int i=GRAVITY_X; i<=GRAVITY_Z; ++i) {
-
-		cout << x[i] << '\t' << "( " << xL[i] << ", " << xU[i] << ")" << endl;
-	}
 
 	Model<double>* obj = Model<double>::newInstance(MINIMIZE_BUMPS, samples);
 
@@ -100,12 +80,12 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Delta r: " << delta_r << endl;
 
-	cout << "gyro offset: " << endl;
+	//cout << "gyro offset: " << endl;
 
-	for (int i=D1; i<=D3; ++i) {
-
-		cout << x[i] << endl;
-	}
+	//for (int i=D1; i<=D3; ++i) {
+	//
+	//	cout << x[i] << endl;
+	//}
 
 	cout << endl;
 

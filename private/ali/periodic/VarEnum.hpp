@@ -40,14 +40,14 @@ const int PERIOD = 200;
 
 enum VarEnum {
 
-	GRAVITY_X,
-	GRAVITY_Y,
-	GRAVITY_Z,
-
 	// Gyro offset
-	D1,
-	D2,
-	D3,
+	DX_BEG,
+	DY_BEG,
+	DZ_BEG,
+
+	DX_END,
+	DY_END,
+	DZ_END,
 
 	// Intial velocity
 	VX,

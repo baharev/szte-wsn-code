@@ -35,6 +35,7 @@
 #define MODEL_HPP_
 
 #include <iomanip>
+#include <stdexcept>
 #include <vector>
 #include "MatrixVector.hpp"
 #include "ModelType.hpp"
@@ -298,17 +299,20 @@ protected:
 
 	void use_d(const T* x) {
 
-		d = Vector<T>(x+D1);
+		//d = Vector<T>(x+D1);
+		throw std::logic_error("implementation not updated properly");
+	}
+
+	void use_d_varying(const T* x) {
+
+		d_beg = Vector<T>(x+DX_BEG);
+
+		d_end = Vector<T>(x+DX_END);
 	}
 
 	void use_v(const T* x) {
 
 		v0 = Vector<T>(x+VX);
-	}
-
-	void use_gravity(const T* x) {
-
-		gravity = Vector<T>(x+GRAVITY_X);
 	}
 
 	const T minimize_rotation() {
@@ -389,9 +393,21 @@ private:
 		return samples.at(i).gyro;
 	}
 
+//	const Vector<T> angular_rate(int i) const {
+//
+//		Vector<T> offset(d);
+//
+//		return offset += C*raw_gyro(i);
+//	}
+//
+
 	const Vector<T> angular_rate(int i) const {
 
-		Vector<T> offset(d);
+		double weight = i;
+
+		weight /= (N-1);
+
+		Vector<T> offset(d_beg*(1-weight)+d_end*weight);
 
 		return offset += C*raw_gyro(i);
 	}
@@ -484,10 +500,10 @@ private:
 		C = estimates.gyro_gain();
 	}
 
-	void fix_d() {
-
-		d = Vector<T>(estimates.initial_point(D1));
-	}
+//	void fix_d() {
+//
+//		d = Vector<T>(estimates.initial_point(D1));
+//	}
 
 	void fix_v0() {
 
@@ -499,7 +515,7 @@ private:
 		fix_A();
 		fix_b();
 		fix_C();
-		fix_d();
+//		fix_d();
 		fix_v0();
 	}
 
@@ -515,7 +531,10 @@ private:
 	vector3 b;
 
 	matrix3 C;
-	Vector<T> d;
+	//Vector<T> d;
+
+	Vector<T> d_beg;
+	Vector<T> d_end;
 
 	Vector<T> v0;
 
@@ -604,14 +623,13 @@ private:
 
 	virtual void set_used_variables(const T* x) {
 
-		use_d(x);
+		use_d_varying(x);
 
 		use_v(x);
 
 		this->store_rotmat();
 
 		this->rotate_back();
-		//use_gravity(x);
 	}
 
 	T objective(const T* x) {
@@ -619,7 +637,6 @@ private:
 		set_used_variables(x);
 
 		return this->minimize_bumps();
-		//return T(0.0);
 	}
 
 	int number_of_constraints() const {

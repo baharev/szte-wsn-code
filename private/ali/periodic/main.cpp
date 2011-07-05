@@ -60,8 +60,8 @@ void real_main(const char* input, const char* output) {
 
 	VarEstimates estimates;
 
-	const double* const xL = estimates.lower_bounds();
-	const double* const xU = estimates.upper_bounds();
+//	const double* const xL = estimates.lower_bounds();
+//	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
 	Model<double>* obj = Model<double>::newInstance(MINIMIZE_BUMPS, samples);
@@ -79,13 +79,6 @@ void real_main(const char* input, const char* output) {
 	vector3 delta_r = obj->delta_r();
 
 	cout << "Delta r: " << delta_r << endl;
-
-	//cout << "gyro offset: " << endl;
-
-	//for (int i=D1; i<=D3; ++i) {
-	//
-	//	cout << x[i] << endl;
-	//}
 
 	cout << endl;
 

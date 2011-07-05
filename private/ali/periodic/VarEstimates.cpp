@@ -31,8 +31,6 @@
 *      Author: Ali Baharev
 */
 
-#include <limits>
-#include <stdexcept>
 #include "VarEstimates.hpp"
 
 namespace {
@@ -63,12 +61,12 @@ double v0[] = { 0.0, 0.0, 0.0 };
 */
 
 double accel_gain[] = {
-		1.0, 0.0, 0.05,
+		1.0, 0.0, 0.0,
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0
 };
 
-double accel_offset[] = { 0.04, -0.04, 0.04 };
+double accel_offset[] = { 0.0,0.0, 0.0 };
 
 double gyro_gain[] = {
 		1.0, 0.0, 0.0,
@@ -76,19 +74,23 @@ double gyro_gain[] = {
 		0.0, 0.0, 1.0
 };
 
-double beg_gyro_offset[] = { 0.0, 0.0, 0.0 };
-
-double end_gyro_offset[] = { 0.0, 0.0, 0.0 };
+double gyro_offset[] = { 0.0, 0.0, 0.0 };
 
 double v0[] = { 0, 0, 0 };
+
+const int period_end[] = { 0, 200, 400, 600, 800, 1000, 1200 };
+
+const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 }
 
 namespace gyro {
 
-VarEstimates::VarEstimates() {
+VarEstimates::VarEstimates() : PERIOD_END(period_end, period_end+period_end_size) {
 
-	set_everything_incorrect();
+	assert(PERIOD_END.size()==N_PERIODS+1);
+
+	reset_period_position();
 
 	set_intial_points();
 
@@ -97,89 +99,50 @@ VarEstimates::VarEstimates() {
 	check_feasibility();
 }
 
-void VarEstimates::set_everything_incorrect() {
-
-	const double DOUBLE_MAX = std::numeric_limits<double>::max();
-
-	for (int i=0; i<N_VARS; ++i) {
-		x_L[i] = DOUBLE_MAX;
-		x_U[i] =-DOUBLE_MAX;
-		x_0[i] = std::numeric_limits<double>::quiet_NaN();
-	}
-}
-
-void VarEstimates::copy_to_initial_point(const double array[], const VarEnum begin, const VarEnum end) {
-
-	for (int i=begin; i<=end; ++i) {
-
-		x_0[i] = array[i-begin];
-	}
-}
-
 void VarEstimates::set_intial_points() {
 
-	//copy_to_initial_point(accel_gain, A11, A33);
+	push_back_3d_vector(x_0, v0);
 
-	//copy_to_initial_point(accel_offset, B1, B3);
+	for (int i=0; i<N_PERIODS+1; ++i) {
 
-	//copy_to_initial_point(gyro_gain, C11, C33);
-
-	//copy_to_initial_point(gyro_offset, D1, D3);
-
-	copy_to_initial_point(beg_gyro_offset, DX_BEG, DZ_BEG);
-
-	copy_to_initial_point(end_gyro_offset, DX_END, DZ_END);
-
-	//copy_to_initial_point(initial_orientation, EULER_X, EULER_Z);
-
-	copy_to_initial_point(v0, VX, VZ);
-
-	//copy_to_initial_point(gravity, GRAVITY_X, GRAVITY_Z);
+		push_back_3d_vector(x_0, gyro_offset);
+	}
 }
 
-void VarEstimates::set_bounds_by_abs_inflation(const VarEnum begin, const VarEnum end, double amount) {
+void VarEstimates::push_back_3d_vector(std::vector<double>& v, const double x[3]) {
 
-	for (int i=begin; i<=end; ++i) {
+	for (int i=0; i<3; ++i) {
 
-		x_L[i] = x_0[i] - amount;
-		x_U[i] = x_0[i] + amount;
+		v.push_back( x[i] );
 	}
 }
 
 void VarEstimates::set_bounds() {
 
-	//set_bounds_by_abs_inflation(A11, A33, 0.01);
+	for (int i=0; i<3; ++i) {
 
-	//set_bounds_by_abs_inflation(B1, B3, 20.0);
+		x_L.push_back(x_0.at(i) - 5); // velocity [-5, 5] m/s^2
+		x_U.push_back(x_0.at(i) + 5);
+	}
 
-	//set_bounds_by_abs_inflation(C11, C33, 0.003);
+	for (int i=3; i<N_VARS; ++i) {
 
-	//set_bounds_by_abs_inflation(D1, D3, 30.0);
-
-	set_bounds_by_abs_inflation(DX_BEG, DZ_BEG, 30.0);
-
-	set_bounds_by_abs_inflation(DX_END, DZ_END, 30.0);
-
-	//set_bounds_by_abs_inflation(EULER_X, EULER_Z, 1.0);
-
-	set_bounds_by_abs_inflation(VX, VZ, 5.0);
-
-	//set_bounds_by_abs_inflation(GRAVITY_X, GRAVITY_Z, 0.5);
+		x_L.push_back(x_0.at(i) - 2); // gyro_offsets
+		x_U.push_back(x_0.at(i) + 2);
+	}
 }
 
-void VarEstimates::check_feasibility() {
+void VarEstimates::check_feasibility() const {
+
+	assert(static_cast<int>(x_L.size())==N_VARS);
+	assert(static_cast<int>(x_U.size())==N_VARS);
+	assert(static_cast<int>(x_0.size())==N_VARS);
 
 	for (int i=0; i<N_VARS; ++i) {
 
-		if (x_L[i] >= x_U[i]) {
+		assert(x_L.at(i) < x_U.at(i));
 
-			throw std::logic_error("incorrect variable bounds");
-		}
-
-		if (!(x_L[i] <= x_0[i] && x_0[i] <= x_U[i])) {
-
-			throw std::logic_error("initial estimate is out of range");
-		}
+		assert(x_L.at(i) <= x_0.at(i) && x_0.at(i) <= x_U.at(i));
 	}
 }
 

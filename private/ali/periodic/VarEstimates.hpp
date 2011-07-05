@@ -34,12 +34,21 @@
 #ifndef VARESTIMATES_HPP_
 #define VARESTIMATES_HPP_
 
+#include <cassert>
+#include <vector>
 #include "MatrixVector.hpp"
-#include "VarEnum.hpp"
 
 namespace gyro {
 
-void set_new_gyro_offset_estimates(const double* x);
+const int PERIOD_LENGTH = 200;
+
+const int N_PERIODS = 6;
+
+const int N_SAMPLES = PERIOD_LENGTH*N_PERIODS; // TODO Check samples.size() == N_SAMPLES
+
+const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_offsets)
+
+const int N_CONS = 3*N_PERIODS;
 
 class VarEstimates {
 
@@ -47,35 +56,51 @@ public:
 
 	VarEstimates();
 
-	const double* lower_bounds()  const { return x_L; }
-	const double* upper_bounds()  const { return x_U; }
-	const double* initial_point() const { return x_0; }
-
-	const double* lower_bounds(VarEnum i)  const { return x_L+i; }
-	const double* upper_bounds(VarEnum i)  const { return x_U+i; }
-	const double* initial_point(VarEnum i) const { return x_0+i; }
+	const double* lower_bounds()  const { return &x_L.at(0); }
+	const double* upper_bounds()  const { return &x_U.at(0); }
+	const double* initial_point() const { return &x_0.at(0); }
 
 	const matrix3 accel_gain() const;
 	const vector3 accel_offset() const;
 	const matrix3 gyro_gain() const;
 
-private:
+	template <typename T>
+	const Vector<T> initial_velocity(const T* x) {
 
-	void set_everything_incorrect();
+		return Vector<T>(x);
+	}
+
+	void reset_period_position() { period = 1; }
+
+	template <typename T>
+	const Vector<T> next_gyro_offset(const T* x) {
+
+		const int index = 3*period;
+
+		assert(index<N_VARS);
+
+		++period;
+
+		return Vector<T>(x+index);
+	}
+
+private:
 
 	void set_intial_points();
 
-	void copy_to_initial_point(const double array[], const VarEnum first, const VarEnum last_inclusive);
+	void push_back_3d_vector(std::vector<double>& v, const double x[3]);
 
 	void set_bounds();
 
-	void set_bounds_by_abs_inflation(const VarEnum first, const VarEnum last_inclusive, double amount);
+	void check_feasibility() const;
 
-	void check_feasibility();
+	std::vector<double> x_L;
+	std::vector<double> x_U;
+	std::vector<double> x_0;
 
-	double x_L[N_VARS];
-	double x_U[N_VARS];
-	double x_0[N_VARS];
+	const std::vector<int> PERIOD_END;
+
+	int period;
 };
 
 }

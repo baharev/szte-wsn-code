@@ -240,9 +240,9 @@ public:
 
 		T sum(0.0);
 
-		for (int i=0; i<N-PERIOD; ++i) {
+		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
 
-			Vector<T> average = average_in_window(i, PERIOD);
+			Vector<T> average = average_in_window(i, PERIOD_LENGTH);
 
 			sum += sqr(average-record_avg);
 		}
@@ -260,9 +260,9 @@ public:
 
 		T sum(0.0);
 
-		for (int i=0; i<N-PERIOD; ++i) {
+		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
 
-			Vector<T> average = average_in_window(i, PERIOD);
+			Vector<T> average = average_in_window(i, PERIOD_LENGTH);
 
 			sum += sqr(average-record_avg);
 
@@ -279,9 +279,9 @@ public:
 
 		T integral(0.0);
 
-		for (int i=0; i<N-PERIOD; ++i) {
+		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
 
-			integral += distance(rotmat.at(i), rotmat.at(i+PERIOD));
+			integral += distance(rotmat.at(i), rotmat.at(i+PERIOD_LENGTH));
 		}
 
 		return integral;
@@ -305,14 +305,14 @@ protected:
 
 	void use_d_varying(const T* x) {
 
-		d_beg = Vector<T>(x+DX_BEG);
+//		d_beg = Vector<T>(x+DX_BEG); // FIXME Ask VarEstimates
 
-		d_end = Vector<T>(x+DX_END);
+//		d_end = Vector<T>(x+DX_END); // FIXME Ask VarEstimates
 	}
 
 	void use_v(const T* x) {
 
-		v0 = Vector<T>(x+VX);
+//		v0 = Vector<T>(x+VX); // FIXME Ask VarEstimates
 	}
 
 	const T minimize_rotation() {
@@ -507,7 +507,7 @@ private:
 
 	void fix_v0() {
 
-		v0 = Vector<T>(estimates.initial_point(VX));
+//		v0 = Vector<T>(estimates.initial_point(VX)); // FIXME Ask VarEstimates
 	}
 
 	void fix_all() {

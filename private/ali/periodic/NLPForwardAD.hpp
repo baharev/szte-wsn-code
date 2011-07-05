@@ -39,7 +39,7 @@
 #include "GradType.hpp"
 #include "HessType.hpp"
 #include "Model.hpp"
-#include "VarEnum.hpp"
+#include "VarEstimates.hpp"
 
 using namespace Ipopt;
 

@@ -47,6 +47,7 @@ namespace gyro {
 template <typename > class MinimizeBumps;
 template <typename > class MinimizeRotation;
 template <typename > class GyroRegression;
+template <typename > class PWLOffset;
 
 template <typename T>
 class Model {
@@ -69,6 +70,12 @@ public:
 
 			model = new GyroRegression<T>(samples);
 		}
+		else if (type==PWL_GYRO_OFFSET) {
+
+			model = new PWLOffset<T>(samples);
+		}
+
+		model->x = 0;
 
 		model->init();
 
@@ -94,6 +101,8 @@ public:
 		Matrix<T> R = Matrix<T>::identity();
 
 		rotmat.at(0) = R;
+
+		set_period_begin_end(0);
 
 		for (int i=1; i<N; ++i) {
 
@@ -161,6 +170,32 @@ public:
 		Vector<T> delta_r = position.at(N-1);
 
 		return as_std_vector(delta_r);
+	}
+
+	const std::vector<T> delta_r_periods() {
+
+		rotate_back();
+
+		store_path();
+
+		std::vector<T> constraints;
+
+		for (int i=0; i<N_PERIODS; ++i) {
+
+			int k = estimates.end_period();
+
+			const std::vector<T> delta_r = as_std_vector(position.at(k));
+
+			constraints.insert(constraints.end(), delta_r.begin(), delta_r.end());
+
+			estimates.increment_period_counter();
+		}
+
+		const int size = static_cast<size_t>(constraints.size());
+
+		ASSERT2(size==N_CONS,"size, N_CONS: "<<size<<", "<<N_CONS);
+
+		return constraints;
 	}
 
 	void store_path() {
@@ -312,7 +347,7 @@ protected:
 
 	void use_v(const T* x) {
 
-//		v0 = Vector<T>(x+VX); // FIXME Ask VarEstimates
+		v0 = estimates.initial_velocity(x);
 	}
 
 	const T minimize_rotation() {
@@ -358,6 +393,16 @@ protected:
 		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748));
 	}
 
+	void reset_period_position() {
+
+		estimates.reset_period_position();
+	}
+
+	void store_variables(const T* x) {
+
+		this->x = x;
+	}
+
 private:
 
 	const T minimize_delta_r() {
@@ -400,16 +445,52 @@ private:
 //		return offset += C*raw_gyro(i);
 //	}
 //
+//
+//	const Vector<T> angular_rate(int i) const {
+//
+//		double weight = i;
+//
+//		weight /= (N-1);
+//
+//		Vector<T> offset(d_beg*(1-weight)+d_end*weight);
+//
+//		return offset += C*raw_gyro(i);
+//	}
 
-	const Vector<T> angular_rate(int i) const {
+	const Vector<T> angular_rate(int i) {
 
-		double weight = i;
-
-		weight /= (N-1);
-
-		Vector<T> offset(d_beg*(1-weight)+d_end*weight);
+		Vector<T> offset = pwl_gyro_offset(i);
 
 		return offset += C*raw_gyro(i);
+	}
+
+	const Vector<T> pwl_gyro_offset(int i) {
+
+		set_period_begin_end(i);
+
+		double weight = i - per_beg;
+
+		weight /= (per_end-per_beg);
+
+		return d_beg*(1-weight)+d_end*weight;
+	}
+
+	void set_period_begin_end(int i) {
+
+		if (estimates.is_period_end(i) && estimates.not_last_period(i)) {
+
+			ASSERT2(i==estimates.beg_period(),"i, beg: "<<i<<", "<<estimates.beg_period());
+
+			per_beg = i;
+
+			per_end = estimates.end_period();
+
+			d_beg = estimates.beg_gyro_offset(x);;
+
+			d_end = estimates.end_gyro_offset(x);
+
+			estimates.increment_period_counter();
+		}
 	}
 
 	const vector3& raw_accel(int i) const {
@@ -525,16 +606,19 @@ private:
 
 	const int N;
 
-	const VarEstimates estimates;
+	VarEstimates estimates;
 
 	matrix3 A;
 	vector3 b;
 
 	matrix3 C;
-	//Vector<T> d;
 
+	//Vector<T> d;
 	Vector<T> d_beg;
 	Vector<T> d_end;
+	int per_beg;
+	int per_end;
+	const T* x;
 
 	Vector<T> v0;
 
@@ -649,6 +733,54 @@ private:
 		set_used_variables(x);
 
 		return this->delta_r_std_vector();
+	}
+};
+
+template <typename T>
+class PWLOffset : public Model<T> {
+
+public:
+
+	PWLOffset(const std::vector<Sample>& samples) : Model<T>(samples) { }
+
+	~PWLOffset() { }
+
+private:
+
+	virtual void init() { }
+
+	virtual void set_used_variables(const T* x) {
+
+		Model<T>::reset_period_position();
+
+		Model<T>::store_variables(x);
+
+		Model<T>::use_d_varying(x);
+
+		Model<T>::use_v(x);
+
+		Model<T>::store_rotmat();
+
+		Model<T>::reset_period_position();
+	}
+
+	T objective(const T* x) {
+
+		set_used_variables(x);
+
+		return Model<T>::minimize_bumps();
+	}
+
+	int number_of_constraints() const {
+
+		return N_CONS;
+	}
+
+	const std::vector<T> constraints(const T* x) {
+
+		set_used_variables(x);
+
+		return Model<T>::delta_r_periods();
 	}
 };
 

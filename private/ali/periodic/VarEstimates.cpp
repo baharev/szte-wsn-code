@@ -88,7 +88,7 @@ namespace gyro {
 
 VarEstimates::VarEstimates() : PERIOD_END(period_end, period_end+period_end_size) {
 
-	assert(PERIOD_END.size()==N_PERIODS+1);
+	ASSERT(PERIOD_END.size()==N_PERIODS+1);
 
 	reset_period_position();
 
@@ -134,15 +134,15 @@ void VarEstimates::set_bounds() {
 
 void VarEstimates::check_feasibility() const {
 
-	assert(static_cast<int>(x_L.size())==N_VARS);
-	assert(static_cast<int>(x_U.size())==N_VARS);
-	assert(static_cast<int>(x_0.size())==N_VARS);
+	ASSERT(static_cast<int>(x_L.size())==N_VARS);
+	ASSERT(static_cast<int>(x_U.size())==N_VARS);
+	ASSERT(static_cast<int>(x_0.size())==N_VARS);
 
 	for (int i=0; i<N_VARS; ++i) {
 
-		assert(x_L.at(i) < x_U.at(i));
+		ASSERT(x_L.at(i) < x_U.at(i));
 
-		assert(x_L.at(i) <= x_0.at(i) && x_0.at(i) <= x_U.at(i));
+		ASSERT(x_L.at(i) <= x_0.at(i) && x_0.at(i) <= x_U.at(i));
 	}
 }
 

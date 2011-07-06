@@ -34,8 +34,8 @@
 #ifndef VARESTIMATES_HPP_
 #define VARESTIMATES_HPP_
 
-#include <cassert>
 #include <vector>
+#include "Diagnostics.hpp"
 #include "MatrixVector.hpp"
 
 namespace gyro {
@@ -72,16 +72,37 @@ public:
 
 	void reset_period_position() { period = 1; }
 
+	bool is_period_end(int i) const { return PERIOD_END.at(period-1)==i; }
+
+	bool not_last_period(int i) const { return i!=PERIOD_END.back(); }
+
+	int beg_period() const { return PERIOD_END.at(period-1); }
+
+	int end_period() const { return PERIOD_END.at(period); }
+
 	template <typename T>
-	const Vector<T> next_gyro_offset(const T* x) {
+	const Vector<T> beg_gyro_offset(const T* x) const {
 
 		const int index = 3*period;
 
-		assert(index<N_VARS);
-
-		++period;
+		ASSERT2(index<N_VARS,"index, N_VARS: "<<index<<", "<<N_VARS);
 
 		return Vector<T>(x+index);
+	}
+
+	template <typename T>
+	const Vector<T> end_gyro_offset(const T* x) const {
+
+		const int index = 3*(period+1);
+
+		ASSERT2(index<N_VARS,"index, N_VARS: "<<index<<", "<<N_VARS);
+
+		return Vector<T>(x+index);
+	}
+
+	void increment_period_counter() {
+
+		++period;
 	}
 
 private:

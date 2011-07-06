@@ -56,7 +56,7 @@ void real_main(const char* input, const char* output) {
 
 	cout << "Read " << samples.size() << " samples" << endl;
 
-	Optimizer opt(MINIMIZE_BUMPS, samples);
+	Optimizer opt(PWL_GYRO_OFFSET, samples);
 
 	VarEstimates estimates;
 
@@ -64,7 +64,7 @@ void real_main(const char* input, const char* output) {
 //	const double* const xU = estimates.upper_bounds();
 	const double* const x = opt.solution();
 
-	Model<double>* obj = Model<double>::newInstance(MINIMIZE_BUMPS, samples);
+	Model<double>* obj = Model<double>::newInstance(PWL_GYRO_OFFSET, samples);
 
 	obj->init();
 

@@ -38,7 +38,7 @@
 #include "Model.hpp"
 #include "Optimizer.hpp"
 #include "SampleReader.hpp"
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 
 using namespace std;
 using namespace gyro;

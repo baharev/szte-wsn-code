@@ -34,7 +34,7 @@
 #include <algorithm>
 #include "NLPForwardAD.hpp"
 #include "Model.hpp"
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 
 namespace gyro {
 

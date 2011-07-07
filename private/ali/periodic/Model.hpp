@@ -40,7 +40,7 @@
 #include "MatrixVector.hpp"
 #include "ModelType.hpp"
 #include "Sample.hpp"
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 
 namespace gyro {
 

@@ -31,7 +31,7 @@
 *      Author: Ali Baharev
 */
 
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 
 namespace {
 

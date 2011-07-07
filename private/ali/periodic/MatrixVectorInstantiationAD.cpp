@@ -35,7 +35,7 @@
 #include <ostream>
 #include "GradType.hpp"
 #include "HessType.hpp"
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 #include "MatrixVector.cpp"
 
 namespace gyro {

@@ -36,7 +36,7 @@
 #include "IpSolveStatistics.hpp"
 #include "Optimizer.hpp"
 #include "NLPForwardAD.hpp"
-#include "VarEstimates.hpp"
+#include "Variables.hpp"
 
 using namespace Ipopt;
 

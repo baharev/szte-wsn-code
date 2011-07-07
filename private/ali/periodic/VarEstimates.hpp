@@ -40,11 +40,10 @@
 
 namespace gyro {
 
-const int PERIOD_LENGTH = 200;
+const int PERIOD_LENGTH = 196;
+const int N_PERIODS = 2;
 
-const int N_PERIODS = 6;
-
-const int N_SAMPLES = PERIOD_LENGTH*N_PERIODS; // TODO Check samples.size() == N_SAMPLES
+//const int N_SAMPLES = PERIOD_LENGTH*N_PERIODS; // TODO Check samples.size() == N_SAMPLES
 
 const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_offsets)
 

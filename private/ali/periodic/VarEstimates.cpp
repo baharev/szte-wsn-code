@@ -34,7 +34,7 @@
 #include "VarEstimates.hpp"
 
 namespace {
-/*
+
 double accel_gain[] = {
 		0.0211877,    0.000196498, -0.000102888,
 		-0.000392152, 0.0217456,   -3.38839e-05,
@@ -51,15 +51,17 @@ double gyro_gain[] = {
 };
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
-//double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
-double beg_gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
 
-double end_gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+//const int period_end[] = { 0, 193, 392, 585, 776, 969 };
+const int period_end[] = { 0, 193, 392 };
+
+const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 double v0[] = { 0.0, 0.0, 0.0 };
-*/
 
+/*
 double accel_gain[] = {
 		1.0, 0.0, 0.0,
 		0.0, 1.0, 0.0,
@@ -81,7 +83,7 @@ double v0[] = { 0, 0, 0 };
 const int period_end[] = { 0, 200, 400, 600, 800, 1000, 1200 };
 
 const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
-
+*/
 }
 
 namespace gyro {

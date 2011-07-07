@@ -58,7 +58,7 @@ void real_main(const char* input, const char* output) {
 
 	Optimizer opt(PWL_GYRO_OFFSET, samples);
 
-	VarEstimates estimates;
+	Variables estimates;
 
 //	const double* const xL = estimates.lower_bounds();
 //	const double* const xU = estimates.upper_bounds();

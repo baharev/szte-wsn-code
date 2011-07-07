@@ -43,7 +43,7 @@ NLPForwardAD::NLPForwardAD(ModelType type, const std::vector<Sample>& samples) :
 		modelDouble(Model<double>::newInstance(type, samples)),
 		modelGradType(Model<GradType<N_VARS> >::newInstance(type, samples)),
 		modelHessType(Model<HessType<N_VARS> >::newInstance(type, samples)),
-		estimates(new VarEstimates)
+		variables(new Variables)
 {
 
 }
@@ -54,15 +54,15 @@ NLPForwardAD::~NLPForwardAD() {
 	delete modelDouble;
 	delete modelGradType;
 	delete modelHessType;
-	delete estimates;
+	delete variables;
 }
 
 bool NLPForwardAD::get_bounds_info(Index n, Number* x_l, Number* x_u,
 		                           Index m, Number* g_l, Number* g_u)
 {
 
-	const double* xL = estimates->lower_bounds();
-	const double* xU = estimates->upper_bounds();
+	const double* xL = variables->lower_bounds();
+	const double* xU = variables->upper_bounds();
 
 	for (int i=0; i<N_VARS; ++i) {
 		x_l[i] = xL[i];
@@ -84,7 +84,7 @@ bool NLPForwardAD::get_starting_point(Index n, bool init_x, Number* x,
 		Index m, bool init_lambda,
 		Number* lambda)
 {
-	const double* x0 = estimates->initial_point();
+	const double* x0 = variables->initial_point();
 
 	for (int i=0; i<N_VARS; ++i) {
 

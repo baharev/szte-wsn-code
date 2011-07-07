@@ -47,7 +47,7 @@ namespace gyro {
 
 template <typename > class Model;
 class Sample;
-class VarEstimates;
+class Variables;
 
 class NLPForwardAD : public TNLP
 {
@@ -114,7 +114,7 @@ private:
 
 	Model<HessType<N_VARS> >* const modelHessType;
 
-	VarEstimates* estimates;
+	Variables* variables;
 
 };
 

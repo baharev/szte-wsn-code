@@ -31,8 +31,8 @@
 *      Author: Ali Baharev
 */
 
-#ifndef VARESTIMATES_HPP_
-#define VARESTIMATES_HPP_
+#ifndef VARIABLES_HPP_
+#define VARIABLES_HPP_
 
 #include <vector>
 #include "Diagnostics.hpp"
@@ -49,11 +49,11 @@ const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_off
 
 const int N_CONS = 3*N_PERIODS;
 
-class VarEstimates {
+class Variables {
 
 public:
 
-	VarEstimates();
+	Variables();
 
 	const double* lower_bounds()  const { return &x_L.at(0); }
 	const double* upper_bounds()  const { return &x_U.at(0); }
@@ -125,4 +125,4 @@ private:
 
 }
 
-#endif // VARESTIMATES_HPP_
+#endif // VARIABLES_HPP_

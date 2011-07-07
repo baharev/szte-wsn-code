@@ -182,13 +182,13 @@ public:
 
 		for (int i=0; i<N_PERIODS; ++i) {
 
-			int k = estimates.end_period();
+			int k = variables.end_period();
 
 			const std::vector<T> delta_r = as_std_vector(position.at(k));
 
 			constraints.insert(constraints.end(), delta_r.begin(), delta_r.end());
 
-			estimates.increment_period_counter();
+			variables.increment_period_counter();
 		}
 
 		const int size = static_cast<size_t>(constraints.size());
@@ -325,7 +325,7 @@ public:
 protected:
 
 	Model(const std::vector<Sample>& samples) :
-	samples(samples), TICKS_PER_SEC(32768), N(static_cast<int>(samples.size())), estimates(VarEstimates())
+	samples(samples), TICKS_PER_SEC(32768), N(static_cast<int>(samples.size())), variables(Variables())
 	{
 		fix_all();
 	}
@@ -347,7 +347,7 @@ protected:
 
 	void use_v(const T* x) {
 
-		v0 = estimates.initial_velocity(x);
+		v0 = variables.initial_velocity(x);
 	}
 
 	const T minimize_rotation() {
@@ -395,7 +395,7 @@ protected:
 
 	void reset_period_position() {
 
-		estimates.reset_period_position();
+		variables.reset_period_position();
 	}
 
 	void store_variables(const T* x) {
@@ -477,19 +477,19 @@ private:
 
 	void set_period_begin_end(int i) {
 
-		if (estimates.is_period_end(i) && estimates.not_last_period(i)) {
+		if (variables.is_period_end(i) && variables.not_last_period(i)) {
 
-			ASSERT2(i==estimates.beg_period(),"i, beg: "<<i<<", "<<estimates.beg_period());
+			ASSERT2(i==variables.beg_period(),"i, beg: "<<i<<", "<<variables.beg_period());
 
 			per_beg = i;
 
-			per_end = estimates.end_period();
+			per_end = variables.end_period();
 
-			d_beg = estimates.beg_gyro_offset(x);;
+			d_beg = variables.beg_gyro_offset(x);;
 
-			d_end = estimates.end_gyro_offset(x);
+			d_end = variables.end_gyro_offset(x);
 
-			estimates.increment_period_counter();
+			variables.increment_period_counter();
 		}
 	}
 
@@ -568,17 +568,17 @@ private:
 
 	void fix_A() {
 
-		A = estimates.accel_gain();
+		A = variables.accel_gain();
 	}
 
 	void fix_b() {
 
-		b = estimates.accel_offset();
+		b = variables.accel_offset();
 	}
 
 	void fix_C() {
 
-		C = estimates.gyro_gain();
+		C = variables.gyro_gain();
 	}
 
 //	void fix_d() {
@@ -606,7 +606,7 @@ private:
 
 	const int N;
 
-	VarEstimates estimates;
+	Variables variables;
 
 	matrix3 A;
 	vector3 b;

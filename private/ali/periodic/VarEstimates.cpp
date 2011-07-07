@@ -88,7 +88,7 @@ const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 namespace gyro {
 
-VarEstimates::VarEstimates() : PERIOD_END(period_end, period_end+period_end_size) {
+Variables::Variables() : PERIOD_END(period_end, period_end+period_end_size) {
 
 	ASSERT(PERIOD_END.size()==N_PERIODS+1);
 
@@ -101,7 +101,7 @@ VarEstimates::VarEstimates() : PERIOD_END(period_end, period_end+period_end_size
 	check_feasibility();
 }
 
-void VarEstimates::set_intial_points() {
+void Variables::set_intial_points() {
 
 	push_back_3d_vector(x_0, v0);
 
@@ -111,7 +111,7 @@ void VarEstimates::set_intial_points() {
 	}
 }
 
-void VarEstimates::push_back_3d_vector(std::vector<double>& v, const double x[3]) {
+void Variables::push_back_3d_vector(std::vector<double>& v, const double x[3]) {
 
 	for (int i=0; i<3; ++i) {
 
@@ -119,7 +119,7 @@ void VarEstimates::push_back_3d_vector(std::vector<double>& v, const double x[3]
 	}
 }
 
-void VarEstimates::set_bounds() {
+void Variables::set_bounds() {
 
 	for (int i=0; i<3; ++i) {
 
@@ -134,7 +134,7 @@ void VarEstimates::set_bounds() {
 	}
 }
 
-void VarEstimates::check_feasibility() const {
+void Variables::check_feasibility() const {
 
 	ASSERT(static_cast<int>(x_L.size())==N_VARS);
 	ASSERT(static_cast<int>(x_U.size())==N_VARS);
@@ -148,17 +148,17 @@ void VarEstimates::check_feasibility() const {
 	}
 }
 
-const matrix3 VarEstimates::accel_gain() const {
+const matrix3 Variables::accel_gain() const {
 
 	return matrix3(::accel_gain);
 }
 
-const vector3 VarEstimates::accel_offset() const {
+const vector3 Variables::accel_offset() const {
 
 	return vector3(::accel_offset);
 }
 
-const matrix3 VarEstimates::gyro_gain() const {
+const matrix3 Variables::gyro_gain() const {
 
 	return matrix3(::gyro_gain);
 }

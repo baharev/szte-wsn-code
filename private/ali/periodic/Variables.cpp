@@ -52,12 +52,12 @@ double gyro_gain[] = {
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
 
-double gyro_offset[] = {-13.2207, 18.3094, -14.7302 };
+double gyro_offset[] = {-13.2207, 18.3094, -14.7302 }; // TODO Check bound inflation!
 
 //const int period_end[] = { 0, 193, 392, 585, 776, 969 };
-const int period_end[] = { 0, 193, 392 };
+//const int period_end[] = { 0, 193, 392 };
 
-const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
+//const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 double v0[] = { 0.0, 0.0, 0.0 };
 
@@ -76,7 +76,7 @@ double gyro_gain[] = {
 		0.0, 0.0, 1.0
 };
 
-double gyro_offset[] = { 0.0, 0.0, 0.0 };
+double gyro_offset[] = { 0.0, 0.0, 0.0 }; // TODO Check bound inflation!
 
 double v0[] = { 0, 0, 0 };
 
@@ -88,7 +88,21 @@ const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 namespace gyro {
 
-Variables::Variables() : PERIOD_END(period_end, period_end+period_end_size) {
+std::vector<int> Variables::current_periods = std::vector<int>();
+
+void Variables::set_current_periods(const std::vector<int>& p, size_t i) {
+
+	current_periods.assign(&p.at(i), &p.at(i+N_PERIODS)+1);
+
+	int offset = current_periods.at(0);
+
+	for (size_t k=0; k<current_periods.size(); ++k) {
+
+		current_periods.at(k) -= offset;
+	}
+}
+
+Variables::Variables() : PERIOD_END(current_periods) {
 
 	ASSERT(PERIOD_END.size()==N_PERIODS+1);
 
@@ -129,8 +143,8 @@ void Variables::set_bounds() {
 
 	for (int i=3; i<N_VARS; ++i) {
 
-		x_L.push_back(x_0.at(i) - 2); // gyro_offsets
-		x_U.push_back(x_0.at(i) + 2);
+		x_L.push_back(x_0.at(i) - 30); // gyro_offsets
+		x_U.push_back(x_0.at(i) + 30);
 	}
 }
 

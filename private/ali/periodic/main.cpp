@@ -48,23 +48,33 @@ enum {
 	FAILURE
 };
 
-void real_main(const char* input, const char* output) {
+const string str(size_t i) {
 
-	vector<Sample> samples;
+	ostringstream os;
 
-	SampleReader read(input, samples);
+	os << i;
 
-	cout << "Read " << samples.size() << " samples" << endl;
+	return os.str();
+}
 
-	Optimizer opt(PWL_GYRO_OFFSET, samples);
+const string path_file_name(size_t i) {
 
-	Variables estimates;
+	return "path_"+str(i)+".csv";
+}
+
+const string avg_file_name(size_t i) {
+
+	return "avg_"+str(i)+".csv";
+}
+
+void write_results(const vector<Sample>& slice, const double* x, size_t i) {
+
+//	Variables estimates;
 
 //	const double* const xL = estimates.lower_bounds();
 //	const double* const xU = estimates.upper_bounds();
-	const double* const x = opt.solution();
 
-	Model<double>* obj = Model<double>::newInstance(PWL_GYRO_OFFSET, samples);
+	Model<double>* obj = Model<double>::newInstance(PWL_GYRO_OFFSET, slice);
 
 	obj->init();
 
@@ -82,19 +92,68 @@ void real_main(const char* input, const char* output) {
 
 	cout << endl;
 
-	ofstream outfile("path.csv");
+	ofstream outfile(path_file_name(i).c_str());
 
 	obj->dump_recomputed_path(x, outfile);
 
 	outfile.close();
 
-	outfile.open("avg.csv");
+	outfile.open(avg_file_name(i).c_str());
 
 	obj->store_path();
 
 	obj->dump_moving_averages(outfile);
 
 	delete obj;
+}
+
+void run_optimizer(const vector<Sample>& slice, size_t i) {
+
+	try {
+
+		Optimizer opt(PWL_GYRO_OFFSET, slice);
+
+		write_results(slice, opt.solution(), i);
+	}
+	catch (...) {
+
+	}
+}
+
+void run_window(const vector<Sample>& samples, const vector<int>& periods, size_t i) {
+
+	int per_beg = periods.at(i);
+
+	int per_end = periods.at(i+N_PERIODS);
+
+	Variables::set_current_periods(periods, i);
+
+	const vector<Sample> slice(&samples.at(per_beg), &samples.at(per_end)+1);
+
+	run_optimizer(slice, i);
+}
+
+void run_for_each_window(const vector<Sample>& samples, const vector<int>& periods) {
+
+	const size_t runs = periods.size()-N_PERIODS;
+
+	for (size_t i=0; i<runs; ++i) {
+
+		cout << "Run #" << i << endl;
+
+		run_window(samples, periods, i);
+	}
+}
+
+void real_main(const char* input, const char* output) {
+
+	vector<Sample> samples;
+
+	vector<int> periods;
+
+	SampleReader read(input, samples, "periods.txt", periods);
+
+	run_for_each_window(samples, periods);
 }
 
 int main(int argc, char* argv[]) {

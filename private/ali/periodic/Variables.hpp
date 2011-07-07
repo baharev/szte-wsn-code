@@ -40,10 +40,7 @@
 
 namespace gyro {
 
-const int PERIOD_LENGTH = 196;
 const int N_PERIODS = 2;
-
-//const int N_SAMPLES = PERIOD_LENGTH*N_PERIODS; // TODO Check samples.size() == N_SAMPLES
 
 const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_offsets)
 
@@ -52,6 +49,8 @@ const int N_CONS = 3*N_PERIODS;
 class Variables {
 
 public:
+
+	static void set_current_periods(const std::vector<int>& periods, size_t i);
 
 	Variables();
 
@@ -104,6 +103,8 @@ public:
 		++period;
 	}
 
+	int lpf_win_size() const { return (PERIOD_END.back()-PERIOD_END.front())/N_PERIODS; }
+
 private:
 
 	void set_intial_points();
@@ -121,6 +122,8 @@ private:
 	const std::vector<int> PERIOD_END;
 
 	int period;
+
+	static std::vector<int> current_periods;
 };
 
 }

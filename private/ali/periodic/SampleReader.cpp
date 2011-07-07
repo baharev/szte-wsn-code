@@ -41,17 +41,26 @@ using namespace std;
 
 namespace gyro {
 
-SampleReader::SampleReader(const char* input, vector<Sample>& samples) :
+SampleReader::SampleReader(const char* samples_file, std::vector<Sample>& samples,
+	                       const char* periods_file, std::vector<int>& periods)
+:
 samples(samples),
-ptr_in(new ifstream(input)),
-in(*ptr_in),
+periods(periods),
+in(new ifstream(samples_file)),
 line(1)
 {
 	init();
 
 	try {
 
-		read_all();
+		read_all_samples();
+
+		cout << "Read " << samples.size() << " samples" << endl;
+
+		read_periods(periods_file);
+
+		cout << "Number of periods: " << periods.size()-1 << endl;
+
 	}
 	catch (...) {
 
@@ -59,29 +68,27 @@ line(1)
 
 		throw;
 	}
-
-	in.close();
 }
 
 void SampleReader::init() {
 
-	if (!in.is_open()) {
+	if (!in->is_open()) {
 
-		throw runtime_error("failed to open the input file");
+		throw runtime_error("failed to open the samples file");
 	}
 
-	in.exceptions(ios_base::failbit | ios_base::badbit);
+	in->exceptions(ios_base::failbit | ios_base::badbit);
 
 	samples.clear();
 
 	samples.reserve(10000);
 }
 
-void SampleReader::read_all() {
+void SampleReader::read_all_samples() {
 
-	while (!in.eof()) {
+	while (!in->eof()) {
 
-		getline(in, buffer);
+		getline(*in, buffer);
 
 		push_back_sample();
 
@@ -126,6 +133,40 @@ const Sample SampleReader::parse_buffer() const {
 	Sample s = { timestamp, vector3(accel), vector3(gyro) };
 
 	return s;
+}
+
+void SampleReader::read_periods(const char* periods_file) {
+
+	in.reset(new ifstream(periods_file));
+
+	if (!in->is_open()) {
+
+		throw runtime_error("failed to open the input file");
+	}
+
+	in->exceptions(ios_base::failbit | ios_base::badbit);
+
+	push_back_periods();
+
+	in->close();
+}
+
+void SampleReader::push_back_periods() {
+
+	periods.clear();
+
+	line = 1;
+
+	while (!in->eof()) {
+
+		int marker;
+
+		*in >> marker;
+
+		periods.push_back(marker);
+
+		++line;
+	}
 }
 
 SampleReader::~SampleReader() {

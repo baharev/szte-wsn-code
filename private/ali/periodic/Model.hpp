@@ -273,11 +273,13 @@ public:
 
 		const Vector<T> record_avg = average_in_window(0, N);
 
+		const int WINDOW_SIZE = variables.lpf_win_size();
+
 		T sum(0.0);
 
-		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
+		for (int i=0; i<N-WINDOW_SIZE; ++i) {
 
-			Vector<T> average = average_in_window(i, PERIOD_LENGTH);
+			Vector<T> average = average_in_window(i, WINDOW_SIZE);
 
 			sum += sqr(average-record_avg);
 		}
@@ -293,11 +295,13 @@ public:
 
 		out << record_avg << '\n';
 
+		const int WINDOW_SIZE = variables.lpf_win_size();
+
 		T sum(0.0);
 
-		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
+		for (int i=0; i<N-WINDOW_SIZE; ++i) {
 
-			Vector<T> average = average_in_window(i, PERIOD_LENGTH);
+			Vector<T> average = average_in_window(i, WINDOW_SIZE);
 
 			sum += sqr(average-record_avg);
 
@@ -312,11 +316,13 @@ public:
 
 	const T integrate_rotation() {
 
+		const int WINDOW_SIZE = variables.lpf_win_size();
+
 		T integral(0.0);
 
-		for (int i=0; i<N-PERIOD_LENGTH; ++i) {
+		for (int i=0; i<N-WINDOW_SIZE; ++i) {
 
-			integral += distance(rotmat.at(i), rotmat.at(i+PERIOD_LENGTH));
+			integral += distance(rotmat.at(i), rotmat.at(i+WINDOW_SIZE));
 		}
 
 		return integral;

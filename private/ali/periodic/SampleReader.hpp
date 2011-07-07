@@ -46,7 +46,8 @@ class SampleReader {
 
 public:
 
-	SampleReader(const char* input, std::vector<Sample>& samples);
+	SampleReader(const char* samples_file, std::vector<Sample>& samples,
+			     const char* periods_file, std::vector<int>& periods);
 
 	~SampleReader();
 
@@ -54,17 +55,21 @@ private:
 
 	void init();
 
-	void read_all();
+	void read_all_samples();
 
 	void push_back_sample();
+
+	void read_periods(const char* periods_file);
+
+	void push_back_periods();
 
 	const Sample parse_buffer() const;
 
 	std::vector<Sample>& samples;
 
-	std::auto_ptr<std::ifstream> ptr_in;
+	std::vector<int>& periods;
 
-	std::ifstream& in;
+	std::auto_ptr<std::ifstream> in;
 
 	std::string buffer;
 

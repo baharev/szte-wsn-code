@@ -250,7 +250,7 @@ public:
 
 		out << std::setprecision(16) << std::scientific;
 
-		out << 0 << '\t' << 0.0 << '\t' << v << '\t' << r << '\n';
+		out << 0 << '\t' << 0.0 << '\t' << v << '\t' << r << "\t###\n";
 
 		for (int i=1; i<N; ++i) {
 
@@ -264,6 +264,11 @@ public:
 		}
 
 		out << std::flush;
+	}
+
+	std::vector<T> d_beg_equals_d_end() const {
+
+		return as_std_vector(d_beg - d_end);
 	}
 
 	const T rotation_angle_deg(const int i) const {
@@ -831,6 +836,12 @@ private:
 		std::vector<T> cons_rot = Model<T>::delta_rotation_periods();
 
 		cons.insert( cons.end(), cons_rot.begin(), cons_rot.end() );
+
+		std::vector<T> con_offset = Model<T>::d_beg_equals_d_end();
+
+		cons.insert( cons.end(), con_offset.begin(), con_offset.end() );
+
+		ASSERT(cons.size()==number_of_constraints());
 
 		return cons;
 	}

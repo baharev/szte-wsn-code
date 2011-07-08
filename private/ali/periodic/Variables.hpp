@@ -40,13 +40,17 @@
 
 namespace gyro {
 
-const int N_PERIODS = 2;
+const int N_PERIODS = 1;
 
-const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_offsets)
+const int N_VARS = 9;
+
+const int N_CONS = 9;
+
+//const int N_VARS = 3*(1+(N_PERIODS+1)); // (3 coordinates)*(v_initial + gyro_offsets)
 
 //const int N_CONS = 3*N_PERIODS;
 
-const int N_CONS = 3*N_PERIODS + 3*N_PERIODS; // delta_x,y,z = 0;  delta_rot_x,y,z = 0
+//const int N_CONS = 3*N_PERIODS + 3*N_PERIODS; // delta_x,y,z = 0;  delta_rot_x,y,z = 0
 
 class Variables {
 

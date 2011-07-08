@@ -67,6 +67,8 @@ const string avg_file_name(size_t i) {
 	return "avg_"+str(i)+".csv";
 }
 
+ofstream outfile;
+
 void write_results(const vector<Sample>& slice, const double* x, size_t i) {
 
 //	Variables estimates;
@@ -92,17 +94,17 @@ void write_results(const vector<Sample>& slice, const double* x, size_t i) {
 
 	cout << endl;
 
-	ofstream outfile(path_file_name(i).c_str());
+//	ofstream outfile(path_file_name(i).c_str());
 
 	obj->dump_recomputed_path(x, outfile);
 
-	outfile.close();
-
-	outfile.open(avg_file_name(i).c_str());
-
-	obj->store_path();
-
-	obj->dump_moving_averages(outfile);
+//	outfile.close();
+//
+//	outfile.open(avg_file_name(i).c_str());
+//
+//	obj->store_path();
+//
+//	obj->dump_moving_averages(outfile);
 
 	delete obj;
 }
@@ -154,7 +156,11 @@ void real_main(const char* input, const char* output) {
 
 	SampleReader read(input, samples, "periods.txt", periods);
 
+	outfile.open("path.csv", ios_base::out);
+
 	run_for_each_window(samples, periods);
+
+	outfile.close();
 }
 
 int main(int argc, char* argv[]) {

@@ -76,6 +76,8 @@ public:
 
 	friend const T distance<>(const Matrix& A, const Matrix& B);
 
+	const T trace() const { return m[0][0]+m[1][1]+m[2][2]; }
+
 	template <typename>	friend class Matrix; // templated copy ctor needs this
 
 	std::ostream& print(std::ostream& os) const;

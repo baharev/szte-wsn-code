@@ -232,18 +232,38 @@ public:
 
 		out << std::setprecision(16) << std::scientific;
 
-		out << 0 << '\t' << v << '\t' << r << '\n';
+		out << 0 << '\t' << 0.0 << '\t' << v << '\t' << r << '\n';
 
 		for (int i=1; i<N; ++i) {
+
+			T theta = rotation_angle_deg(i);
 
 			v += delta_v(i);
 
 			r += v*time_step(i);
 
-			out << i << '\t' << v << '\t' << r << '\n';
+			out << i << '\t' << theta << '\t' << v << '\t' << r << '\n';
 		}
 
 		out << std::flush;
+	}
+
+	const T rotation_angle_deg(const int i) const {
+
+		const T trace = rotmat.at(i).trace();
+
+		T cos_theta = (trace-1)/2;
+
+		if (cos_theta > 1.0) {
+			cos_theta = 1.0;
+		}
+		else if (cos_theta < -1.0) {
+			cos_theta = -1.0;
+		}
+
+		const T RAD2DEG(57.2957795130823);
+
+		return std::acos(cos_theta)*RAD2DEG;
 	}
 
 	const T minimize_bumps() {

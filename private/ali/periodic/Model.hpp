@@ -191,9 +191,27 @@ public:
 			variables.increment_period_counter();
 		}
 
-		const int size = static_cast<size_t>(constraints.size());
+		return constraints;
+	}
 
-		ASSERT2(size==N_CONS,"size, N_CONS: "<<size<<", "<<N_CONS);
+	const std::vector<T> delta_rotation_periods() {
+
+		std::vector<T> constraints;
+
+		variables.reset_period_position();
+
+		for (int i=0; i<N_PERIODS; ++i) {
+
+			int k = variables.end_period();
+
+			const Matrix<T>& R = rotmat.at(k);
+
+			constraints.push_back(R[X][X]-1.0);
+			constraints.push_back(R[Y][Y]-1.0);
+			constraints.push_back(R[Z][Z]-1.0);
+
+			variables.increment_period_counter();
+		}
 
 		return constraints;
 	}
@@ -792,6 +810,8 @@ private:
 
 	T objective(const T* x) {
 
+		return T(0.0);
+
 		set_used_variables(x);
 
 		return Model<T>::minimize_bumps();
@@ -806,7 +826,13 @@ private:
 
 		set_used_variables(x);
 
-		return Model<T>::delta_r_periods();
+		std::vector<T> cons     = Model<T>::delta_r_periods();
+
+		std::vector<T> cons_rot = Model<T>::delta_rotation_periods();
+
+		cons.insert( cons.end(), cons_rot.begin(), cons_rot.end() );
+
+		return cons;
 	}
 };
 

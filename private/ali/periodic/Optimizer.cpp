@@ -49,7 +49,13 @@ Optimizer::Optimizer(ModelType type, const std::vector<Sample>& samples)
 
 	SmartPtr<OptionsList> opt = app->Options();
 
-	//opt->SetNumericValue("tol", 1.0e-6);
+	opt->SetNumericValue("tol",             1.0e-3);
+	opt->SetNumericValue("acceptable_tol",  1.0e-3);
+
+	opt->SetNumericValue("constr_viol_tol", 1.0e-3);
+
+	opt->SetIntegerValue("acceptable_iter", 3);
+
 	opt->SetIntegerValue("print_level", 0);
 	opt->SetStringValue("output_file", "ipopt.log");
 	opt->SetIntegerValue("file_print_level", 5);

@@ -115,8 +115,9 @@ void run_optimizer(const vector<Sample>& slice, size_t i) {
 
 		write_results(slice, opt.solution(), i);
 	}
-	catch (...) {
+	catch (exception& e) {
 
+		cout << "Optimization failed: " << e.what() << endl;
 	}
 }
 

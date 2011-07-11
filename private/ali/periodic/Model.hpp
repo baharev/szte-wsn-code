@@ -250,11 +250,11 @@ public:
 
 		out << std::setprecision(16) << std::scientific;
 
-		out << 0 << '\t' << 0.0 << '\t' << v << '\t' << r << "\t###\n";
+		out << 0 << '\t' << Vector<T>() << '\t' << v << '\t' << r << "\t###\n";
 
 		for (int i=1; i<N; ++i) {
 
-			T theta = rotation_angle_deg(i);
+			Vector<T> theta = rotation_XYZ(i);
 
 			v += delta_v(i);
 
@@ -275,7 +275,21 @@ public:
 
 		const T trace = rotmat.at(i).trace();
 
-		T cos_theta = (trace-1)/2;
+		const T cos_theta = (trace-1)/2;
+
+		return acos_deg(cos_theta);
+	}
+
+	const Vector<T> rotation_XYZ(const int i) const {
+
+		const Matrix<T>& R = rotmat.at(i);
+
+		return Vector<T>(acos_deg(R[X][X]), acos_deg(R[Y][Y]), acos_deg(R[Z][Z]));
+	}
+
+	const T acos_deg(const T& x) const {
+
+		T cos_theta(x);
 
 		if (cos_theta > 1.0) {
 			cos_theta = 1.0;

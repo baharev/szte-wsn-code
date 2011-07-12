@@ -164,6 +164,20 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
 }
 
 template <typename T>
+const Matrix<T> Matrix<T>::transponse() const {
+
+	Matrix<T> res;
+
+	for (int i=0; i<3; ++i) {
+		for (int j=0; j<3; ++j) {
+			res.m[j][i] = m[i][j];
+		}
+	}
+
+	return res;
+}
+
+template <typename T>
 const T distance(const Matrix<T>& A, const Matrix<T>& B) {
 
 	T trace(0.0); // of A^T*B

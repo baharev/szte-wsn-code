@@ -78,6 +78,8 @@ public:
 
 	const T trace() const { return m[0][0]+m[1][1]+m[2][2]; }
 
+	const Matrix<T> transponse() const;
+
 	template <typename>	friend class Matrix; // templated copy ctor needs this
 
 	std::ostream& print(std::ostream& os) const;

@@ -122,8 +122,10 @@ void BlockChecker::check_first_block() const {
 
 	if (local_start != block_offset) {
 
-		cout << "Warning: found a new record at block " << block_offset;
+		cout << "Error: found a new record at block " << block_offset;
 		cout << " but the block field in the header is " << local_start << endl;
+
+		throw std::runtime_error("corrupted data on SD card (forgot to format?)");
 	}
 }
 

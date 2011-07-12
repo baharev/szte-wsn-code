@@ -42,8 +42,6 @@ module SyncMsgReceiverP {
 		interface Receive;
 		interface AMPacket;
 		interface TimeSyncPacket<TMilli, uint32_t>;
-		interface LedHandler;
-		interface BufferedFlash;
 	}
 }
 
@@ -51,21 +49,14 @@ implementation {
 	
 	timesync_info_t timesync_info;
 	
-	task void informBufferedFlash() {
-		
-		call BufferedFlash.updateTimeSyncInfo(&timesync_info);
-	}
-	
 	event message_t * Receive.receive(message_t *msg, void *payload, uint8_t len) {
 		
 		SyncMsg* data = 0;
-			
-		call LedHandler.led2On();
 		
 		ASSERT(len==PAYLOAD_LENGTH);
 		
 		if (call TimeSyncPacket.isValid(msg)) {
-						
+			
 			timesync_info.local_time = call TimeSyncPacket.eventTime(msg);
 			
 			data = (SyncMsg*) payload;
@@ -73,10 +64,8 @@ implementation {
 			timesync_info.remote_time = data->event_time;
 			
 			timesync_info.remote_start = data->first_block;
-					
-			timesync_info.remote_id = call AMPacket.source(msg);
 			
-			post informBufferedFlash();
+			timesync_info.remote_id = call AMPacket.source(msg);
 		}
 		
 		return msg;

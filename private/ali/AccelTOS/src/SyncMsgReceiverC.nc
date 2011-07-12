@@ -40,13 +40,9 @@ configuration SyncMsgReceiverC {
 implementation {
 	
 	components TimeSyncMessageC;
-	components LedHandlerC;
-	components BufferedFlashC;
 	components SyncMsgReceiverP;
 	
 	SyncMsgReceiverP.Receive -> TimeSyncMessageC.Receive[AM_SYNCMSG];
 	SyncMsgReceiverP.AMPacket -> TimeSyncMessageC;
 	SyncMsgReceiverP.TimeSyncPacket -> TimeSyncMessageC.TimeSyncPacketMilli;
-	SyncMsgReceiverP.LedHandler -> LedHandlerC;
-	SyncMsgReceiverP.BufferedFlash -> BufferedFlashC;
 }

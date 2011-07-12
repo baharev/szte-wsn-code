@@ -155,7 +155,7 @@ bool BlockChecker::finished() const {
 	return header.data_length()==0;
 }
 
-bool BlockChecker::datalength() const {
+bool BlockChecker::datalength_OK() const {
 
 	bool is_ok = true;
 

@@ -250,7 +250,7 @@ public:
 
 		out << std::setprecision(16) << std::scientific;
 
-		out << 0 << '\t' << Vector<T>() << '\t' << v << '\t' << r << "\t###\n";
+		out << 0 << '\t' << rotation_XYZ(0) << '\t' << v << '\t' << r << "\t###\n";
 
 		for (int i=1; i<N; ++i) {
 
@@ -282,9 +282,21 @@ public:
 
 	const Vector<T> rotation_XYZ(const int i) const {
 
-		const Matrix<T>& R = rotmat.at(i);
+		using std::atan2;
 
-		return Vector<T>(acos_deg(R[X][X]), acos_deg(R[Y][Y]), acos_deg(R[Z][Z]));
+		Matrix<T> R = M*rotmat.at(i);
+
+		R = R.transponse();
+
+		const T x = atan2(R[Z][X], R[Y][X]);
+		const T y = atan2(R[Z][X], R[X][X]);
+		const T z = atan2(R[Y][Y], R[X][Y]);
+
+		Vector<T> res(x, y, z);
+
+		const T RAD2DEG(57.2957795130823);
+
+		return res*=RAD2DEG;
 	}
 
 	const T acos_deg(const T& x) const {
@@ -855,7 +867,7 @@ private:
 
 		cons.insert( cons.end(), con_offset.begin(), con_offset.end() );
 
-		ASSERT(cons.size()==number_of_constraints());
+		ASSERT(number_of_constraints()==static_cast<int>(cons.size()));
 
 		return cons;
 	}

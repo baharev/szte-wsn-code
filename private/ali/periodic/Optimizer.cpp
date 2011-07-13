@@ -49,8 +49,8 @@ Optimizer::Optimizer(ModelType type, const std::vector<Sample>& samples)
 
 	SmartPtr<OptionsList> opt = app->Options();
 
-//	opt->SetNumericValue("tol",             1.0e-3);
-//	opt->SetNumericValue("acceptable_tol",  1.0e-3);
+	opt->SetNumericValue("tol",             1.0e-6);
+	opt->SetNumericValue("acceptable_tol",  1.0e-6);
 //
 //	opt->SetNumericValue("constr_viol_tol", 1.0e-3);
 //
@@ -90,8 +90,10 @@ void Optimizer::check_return_code(int status) const {
 
 		throw std::runtime_error("function or derivative evaluation failed (NaN?)");
 	}
-	else if (status != Solve_Succeeded && status != Solved_To_Acceptable_Level) {
-
+	else if (status != Solve_Succeeded &&
+			 status != Solved_To_Acceptable_Level &&
+			 status != Feasible_Point_Found )
+	{
 		throw std::runtime_error("optimization failed, check the log");
 	}
 }

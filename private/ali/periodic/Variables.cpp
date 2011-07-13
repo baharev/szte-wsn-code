@@ -35,13 +35,25 @@
 
 namespace {
 
+//---
+// Calibration from April
+//double accel_gain[] = {
+//		0.0211877,    0.000196498, -0.000102888,
+//		-0.000392152, 0.0217456,   -3.38839e-05,
+//		0.000161889,  1.20452e-06,  0.0221908
+//};
+//
+//double accel_offset[] = { -49.7793, -50.9205, -53.8249 };
+//---
+
+// Calibration in July
 double accel_gain[] = {
-		0.0211877,    0.000196498, -0.000102888,
-		-0.000392152, 0.0217456,   -3.38839e-05,
-		0.000161889,  1.20452e-06,  0.0221908
+		0.0212822,		-1.00586e-05,	-9.25613e-05,
+		-0.000304954,	0.0217671,		-4.35519e-05,
+		0.000313866,	-5.65814e-05,	0.0222094
 };
 
-double accel_offset[] = { -49.7793, -50.9205, -53.8249 };
+double accel_offset[] = { -50.498, -51.0964, -54.3594 };
 
 // Gyro is left-handed: y -> -y to make it right handed!!!
 double gyro_gain[] = {
@@ -53,11 +65,6 @@ double gyro_gain[] = {
 // Gyro is left-handed: y -> -y to make it right handed!!!
 
 double gyro_offset[] = {-13.2207, 18.3094, -14.7302 }; // TODO Check bound inflation!
-
-//const int period_end[] = { 0, 193, 392, 585, 776, 969 };
-//const int period_end[] = { 0, 193, 392 };
-
-//const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
 
 double v0[] = { 0.0, 0.0, 0.0 };
 

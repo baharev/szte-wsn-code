@@ -47,50 +47,46 @@ namespace {
 //---
 
 // Calibration in July
-double accel_gain[] = {
-		0.0212822,		-1.00586e-05,	-9.25613e-05,
-		-0.000304954,	0.0217671,		-4.35519e-05,
-		0.000313866,	-5.65814e-05,	0.0222094
-};
+//double accel_gain[] = {
+//		0.0212822,		-1.00586e-05,	-9.25613e-05,
+//		-0.000304954,	0.0217671,		-4.35519e-05,
+//		0.000313866,	-5.65814e-05,	0.0222094
+//};
+//
+//double accel_offset[] = { -50.498, -51.0964, -54.3594 };
 
-double accel_offset[] = { -50.498, -51.0964, -54.3594 };
+//// Gyro is left-handed: y -> -y to make it right handed!!!
+//double gyro_gain[] = {
+//		0.00592978,  -2.96852e-05, -0.000268771,
+//	   -9.88625e-05, -0.00617284,  0.000253044,
+//		0.000914252, -0.00142428,   0.00620373
+//};
+//
+//// Gyro is left-handed: y -> -y to make it right handed!!!
+//
+//double gyro_offset[] = {-13.2207, 18.3094, -14.7302 }; // TODO Check bound inflation!
+//
+//double v0[] = { 0.0, 0.0, 0.0 };
 
-// Gyro is left-handed: y -> -y to make it right handed!!!
-double gyro_gain[] = {
-		0.00592978,  -2.96852e-05, -0.000268771,
-	   -9.88625e-05, -0.00617284,  0.000253044,
-		0.000914252, -0.00142428,   0.00620373
-};
 
-// Gyro is left-handed: y -> -y to make it right handed!!!
-
-double gyro_offset[] = {-13.2207, 18.3094, -14.7302 }; // TODO Check bound inflation!
-
-double v0[] = { 0.0, 0.0, 0.0 };
-
-/*
 double accel_gain[] = {
 		1.0, 0.0, 0.0,
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0
 };
 
-double accel_offset[] = { 0.0,0.0, 0.0 };
+double accel_offset[] = { 0.0, 0.0, 0.0 };
 
 double gyro_gain[] = {
 		1.0, 0.0, 0.0,
 	    0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0
+		0.0, 0.0,-1.0
 };
 
 double gyro_offset[] = { 0.0, 0.0, 0.0 }; // TODO Check bound inflation!
 
 double v0[] = { 0, 0, 0 };
 
-const int period_end[] = { 0, 200, 400, 600, 800, 1000, 1200 };
-
-const int period_end_size = sizeof (period_end) / sizeof (period_end[0]);
-*/
 }
 
 namespace gyro {
@@ -150,8 +146,8 @@ void Variables::set_bounds() {
 
 	for (int i=3; i<N_VARS; ++i) {
 
-		x_L.push_back(x_0.at(i) - 30); // gyro_offsets
-		x_U.push_back(x_0.at(i) + 30);
+		x_L.push_back(x_0.at(i) - 1); // gyro_offsets
+		x_U.push_back(x_0.at(i) + 1);
 	}
 }
 

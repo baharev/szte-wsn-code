@@ -51,7 +51,7 @@ line(1)
 {
 	init();
 
-	try {
+//	try {
 
 		read_all_samples();
 
@@ -61,13 +61,13 @@ line(1)
 
 		cout << "Number of periods: " << periods.size()-1 << endl;
 
-	}
-	catch (...) {
-
-		cerr << "Fatal error occured when reading line " << line << endl;
-
-		throw;
-	}
+//	}
+//	catch (...) {
+//
+//		cerr << "Fatal error occured when reading line " << line << endl;
+//
+//		throw;
+//	}
 }
 
 void SampleReader::init() {

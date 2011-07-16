@@ -72,9 +72,14 @@ ofstream outfile;
 void write_results(const vector<Sample>& slice, const double* x, size_t i) {
 
 //	Variables estimates;
-
+//
 //	const double* const xL = estimates.lower_bounds();
 //	const double* const xU = estimates.upper_bounds();
+//
+//	for (int i=0; i<N_VARS; ++i) {
+//
+//		cout << i << ":\t" << x[i] << '\t' << xL[i] << '\t' << xU[i] << endl;
+//	}
 
 	Model<double>* obj = Model<double>::newInstance(PWL_GYRO_OFFSET, slice);
 

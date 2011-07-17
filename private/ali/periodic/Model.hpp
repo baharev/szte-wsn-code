@@ -465,7 +465,7 @@ protected:
 		M = Matrix<T>(v, w, u*(-1));
 
 		gravity = M*(s/N); //-9.747827
-		//gravity = Vector<T>( T(0.020), T(0.0), T(-9.748));
+		//gravity = Vector<T>( T(0.0), T(0.0), T(-9.81));
 	}
 
 	void reset_period_position() {

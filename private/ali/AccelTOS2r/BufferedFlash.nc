@@ -49,7 +49,4 @@ interface BufferedFlash
 	 */
 	command void flush();
 	
-	/** Just a messy workaround. */
-	command void updateTimeSyncInfo(timesync_info_t* );
-	
 }

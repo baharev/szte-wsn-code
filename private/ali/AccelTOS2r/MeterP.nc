@@ -158,13 +158,13 @@ implementation
 
 		error = call BufferedFlash.send(data, 2*length);
 		
-		// FIXME Add check when debugging is done.
-		//if (error==EBUSY) {
-		//	dump("BF_EBUSY");
-		//}
-		//else if (error==FAIL) {
-		//	dump("BF_FAIL");
-		//}
+		ASSERT(!error);
+//		if (error==EBUSY) {
+//			dump("BF_EBUSY");
+//		}
+//		else if (error==FAIL) {
+//			dump("BF_FAIL");
+//		}
 	}
 
 	task void signalStartDone() {

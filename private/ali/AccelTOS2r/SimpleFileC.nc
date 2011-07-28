@@ -1,4 +1,4 @@
-/** Copyright (c) 2010, University of Szeged
+/** Copyright (c) 2010, 2011 University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,16 +52,11 @@ implementation
 #endif
 
 	components LedHandlerC;
-	
-	// TODO Clean-up this mess
 	components ShimmerAdcC;
-	components SyncMsgSenderC;
 
 	SplitControl = SimpleFileP;
-	SimpleFile = SimpleFileP;
+	SimpleFile   = SimpleFileP;
 
-	SimpleFileP.LedHandler -> LedHandlerC;
-	
+	SimpleFileP.LedHandler -> LedHandlerC;	
 	SimpleFileP.ADC -> ShimmerAdcC;
-	SimpleFileP.SyncMsgControl -> SyncMsgSenderC;
 }

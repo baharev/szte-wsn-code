@@ -55,20 +55,19 @@ implementation
 	enum
 	{
 		BUFFER_SIZE = 2,
-		MAX_DATA_LENGTH = 502 // FIXME It should not know this implementation detail
+		 // FIXME It should not know these implementation details
 		// ((block size) - (header length) - (sizeof time sync msg) ) / (sample size) 
-		// (512 - 6 - 18)/22 = 22
-		// 22*22 + 18 = 502
+		// (512 - 10 - 14)/22 = 22
+		// 22*22 + 14 = 498; dataloss if not exactly set!!!
+		MAX_DATA_LENGTH = 498
 	};
 	
-	typedef struct buffer_t {
+	typedef struct {
 		uint16_t length;
 		uint8_t data[MAX_DATA_LENGTH];
 	} buffer_t;
 
 	buffer_t messages[BUFFER_SIZE];
-	
-	timesync_info_t timesync_info;
 
 	uint8_t current;	// the currently recorded message buffer
 	uint16_t position;	// the write position in the current buffer
@@ -99,25 +98,6 @@ implementation
 			call DiagMsg.uint16(line);
 			call DiagMsg.send();
 		}		
-	}
-
-	// TODO Implement these two with memset and memcpy?
-	event void SimpleFile.booted(uint32_t starting_at_block) {
-		
-		timesync_info.local_start  = starting_at_block;
-		timesync_info.local_time   = 0;
-		timesync_info.remote_id    = 0;
-		timesync_info.remote_start = 0;
-		timesync_info.remote_time  = 0;
-	}
-	
-	command void BufferedFlash.updateTimeSyncInfo(timesync_info_t* data) {
-		
-		timesync_info.local_time   = data->local_time;
-		timesync_info.remote_id    = data->remote_id;
-		timesync_info.remote_start = data->remote_start;
-		timesync_info.remote_time  = data->remote_time;
-		call LedHandler.led2Off();
 	}
 
 	task void sendMessage()
@@ -180,10 +160,11 @@ implementation
 			return FAIL;	
 		}
 		
-
 		if (position==0) {
-			memcpy(messages[current].data, &timesync_info, sizeof(timesync_info));
-			position = sizeof(timesync_info);
+			// TODO ask SyncMsgReceiver for timesync_info
+			// memcpy(messages[current].data, &timesync_info, sizeof(timesync_info));
+			memset(messages[current].data, 0, sizeof(timesync_info_t));
+			position = sizeof(timesync_info_t);
 		}
 		
 		// FIXME Should properly check if the size of buffer is enough		

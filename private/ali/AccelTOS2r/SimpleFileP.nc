@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2010, University of Szeged
+* Copyright (c) 2010, 2011 University of Szeged
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,6 @@
 * Author: Miklos Maroti, Ali Baharev
 */
 
-// TODO Introduce a function to read from a position, it is in RadioHandler now 
-
-// TODO Make it possible to start everything from sector N
 #include "Assert.h"
 
 module SimpleFileP
@@ -44,11 +41,9 @@ module SimpleFileP
 		interface LedHandler;
 		interface SD;
 		interface StdControl as SDControl;
-		interface ShimmerAdc as ADC;
-		interface StdControl as SyncMsgControl;
+		interface ShimmerAdc as ADC; // FIXME A new component to force shutdown
 	}
 
-	// TODO A deep format functionality?
 	provides
 	{
 		interface SplitControl;
@@ -67,18 +62,19 @@ implementation
 		STATE_READ = 4,
 		STATE_WRITE = 5,
 		END_OF_DATA = 127,
-		BUFFSIZE = 506
+		BUFFSIZE = 502 // 512 - header length, check BufferSendP too!!!
+		               // Should not use 2 buffers in the first place...
 	};
 
 	uint8_t state = STATE_OFF;
 	// FIXME We got available==true with SD card out!
 	norace bool available = TRUE;
 
-	struct buffer
-	{
+	struct {
 		uint16_t formatID;
 		uint16_t moteID;
 		uint16_t length;
+		uint32_t start_sector;
 		uint8_t data[BUFFSIZE];
 	} buffer;
 
@@ -94,16 +90,11 @@ implementation
 
 	task void executeCommand();
 
-	// TODO Do not restart!
+	// Do not restart -- messes up PC's database of records!
 	async event void SD.available()
 	{
 		//available = TRUE;
 		//post executeCommand();
-	}
-	
-	task void stopSendingSyncMsg() {
-	 
-		call SyncMsgControl.stop();
 	}
 
 	async event void SD.unavailable()
@@ -111,10 +102,8 @@ implementation
 		available = FALSE;
 		call ADC.forceStopSampling();
 		call LedHandler.error();
-		post stopSendingSyncMsg();
 	}
-	
-	// TODO These indicate a need for a new / different interface
+
 	event void ADC.stopDone() {
 		// DUMMY
 	}
@@ -135,14 +124,14 @@ implementation
 	}
 	
 	void ready() {
+	  
+		buffer.start_sector = writePos;
 
 		state = STATE_READY;
 		
-		signal SimpleFile.booted(writePos); // Messy workaround
-		
 		signal SplitControl.startDone(SUCCESS);
 	}
-
+	      
 	// FIXME Assumes a deep formatted card
 	void findLastSector()
 	{				
@@ -186,7 +175,7 @@ implementation
 			}
 			
 			if ((formID != buffer.formatID) || (buffer.length == 0)) {
-				
+		
 				high = mid;
 			}
 			else {
@@ -198,6 +187,9 @@ implementation
 		if ((formID != buffer.formatID) || (buffer.length == 0)) {
 			ASSERT(low==mid && mid==high);
 			writePos = mid;
+			// Check if previous sector is not empty
+			error = call SD.readBlock(writePos-1, (uint8_t*) &buffer);
+			ASSERT(!error && buffer.length!=0);
 			ready();
 		}
 		else {
@@ -248,6 +240,7 @@ implementation
 		buffer.formatID = formID;
 		buffer.moteID   = TOS_NODE_ID;
 		buffer.length   = 0;
+		buffer.start_sector = 0;
 
 		error = call SD.writeBlock(0, (uint8_t*) &buffer);
 
@@ -256,8 +249,11 @@ implementation
 			writePos = 0;
 			readPos = 0;
 		}
+		else {
+		        ASSERT(FALSE);
+		}
 		
-		state = STATE_READY; // TODO What if write fails (not EBUSY)?
+		state = STATE_READY;
 		signal SimpleFile.formatDone(error);
 	}
 
@@ -329,6 +325,8 @@ implementation
 			buffer.data[i] = packetPtr[i];
 
 		buffer.length = packetLen;
+		
+		ASSERT(buffer.length > 0);
 
 		error = call SD.writeBlock(writePos, (uint8_t*) &buffer);
 		if( error == SUCCESS )

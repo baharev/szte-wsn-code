@@ -49,6 +49,7 @@ implementation {
 	components MeterC;
 	//components SyncMsgSenderC;
 	//components SyncMsgReceiverC;
+	components new TimerMilliC() as LagTimer;	
 	
 	AccelAppP.Boot -> MainC;	
 	AccelAppP.DiskCtrl -> SimpleFileC;
@@ -56,5 +57,7 @@ implementation {
 	AccelAppP.LedHandler -> LedHandlerC;
 	AccelAppP.Sampling -> MeterC.Sampling;
 	AccelAppP.MeterCtrl -> MeterC.StdControl;
-	//AccelAppP.SyncMsgCtrl -> SyncMsgSenderC;	
+	//AccelAppP.SyncMsgCtrl -> SyncMsgSenderC;
+	AccelAppP.AutoZero -> MeterC.AutoZero;
+	AccelAppP.LagTimer -> LagTimer;
 }

@@ -39,8 +39,10 @@ module AccelAppP {
 		//interface SplitControl as TimeSyncMsg;
 		interface SplitControl as DiskCtrl;
 		interface StdControl as MeterCtrl;
+		interface Timer<TMilli> as LagTimer;
 		interface SplitControl as Sampling;
 		//interface StdControl as SyncMsgCtrl;
+		interface Init as AutoZero;
    }
 }
 
@@ -70,14 +72,26 @@ implementation {
 		
 		if (error) {
 			call LedHandler.error();
-			return;
+		}
+		else {
+			call LagTimer.startOneShot(3000);
 		}
 		
+
+	}
+	
+	event void LagTimer.fired() {
+	  
+		error_t error;
+	  
+		call AutoZero.init();	  // gyro autozero, hopes it is stationary now
+	
 		error = call Sampling.start();
 		
 		if (error) {
 			call LedHandler.error();
 		}
+		
 	}
 	
 	event void Sampling.startDone(error_t error) {

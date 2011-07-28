@@ -35,6 +35,7 @@ configuration MeterC
 { 
 	provides interface StdControl;
 	provides interface SplitControl as Sampling;
+	provides interface Init as AutoZero;
 
 } 
 
@@ -47,6 +48,7 @@ implementation
 	
 	StdControl = MeterP.StdControl;
 	Sampling = MeterP.Sampling;
+	AutoZero = MeterP.AutoZero;
 	
 	MeterP.LedHandler -> LedHandlerC;
 
@@ -60,6 +62,7 @@ implementation
 	components GyroBoardC;
 	MeterP.GyroStdControl -> GyroBoardC;
 	MeterP.GyroInit -> GyroBoardC;
+	MeterP.GyroBoard -> GyroBoardC;
 
     // FIXME Turn off the disc? (Data corruption)
 	components BufferedFlashC;

@@ -43,6 +43,7 @@ module MeterP
 	provides {
 		interface StdControl;
 		interface SplitControl as Sampling;
+		interface Init as AutoZero;
 	}
 	
 	uses
@@ -53,6 +54,7 @@ module MeterP
 		interface Mma_Accel as Accel;
 		interface StdControl as GyroStdControl;
 		interface Init as GyroInit;
+		interface GyroBoard;
 		
 		interface LedHandler;
 		interface BufferedFlash;
@@ -98,7 +100,7 @@ implementation
 		return FAIL;
 	}
 
-	command error_t StdControl.start(){
+	command error_t StdControl.start() {
 		
 		error_t error = SUCCESS;
 		
@@ -109,7 +111,7 @@ implementation
 			return FAIL;
 		}
 
-		call Accel.setSensitivity(RANGE_1_5G);
+		call Accel.setSensitivity(RANGE_6_0G);
 		call Accel.wake(TRUE);
 		
 		call GyroInit.init();
@@ -132,7 +134,18 @@ implementation
 		
 		return error;
 	}
-
+	
+	command error_t AutoZero.init() {
+		
+		call GyroBoard.autoZero();
+		
+		return SUCCESS;
+	}
+	
+	async event void GyroBoard.buttonPressed() {
+	  
+	}
+	
 	//message_t msgBuffer; FIXME Unused in TestShimmer?
 
 	event void ShimmerAdc.sampleDone(uint16_t* data, uint8_t length)

@@ -35,11 +35,10 @@
 #define TIME_SYNC_INFO_H
 
 typedef struct {
-	uint16_t remote_id;
 	uint32_t local_time;
 	uint32_t remote_time;
-	uint32_t local_start;
 	uint32_t remote_start;
+	uint16_t remote_id;
 } timesync_info_t;
 
 #endif /* TIME_SYNC_INFO_H */

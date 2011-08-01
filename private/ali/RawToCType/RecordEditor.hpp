@@ -49,11 +49,13 @@ public:
 
 private:
 
-	void get_start();
+	void set_record_start();
 
-	bool ask_for_start();
+	bool set_start();
 
-	bool get_markers();
+	bool create_new_record();
+
+	bool set_start_marker();
 
 	void get_output_name();
 

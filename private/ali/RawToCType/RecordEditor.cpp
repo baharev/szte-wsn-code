@@ -36,10 +36,14 @@
 #include <sstream>
 #include <stdexcept>
 #include "RecordEditor.hpp"
+#include "Constants.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
 namespace sdc {
+
+// TODO Move to Utility
 
 // returns true if failed, false if everything is OK
 template <typename T>
@@ -105,23 +109,32 @@ RecordEditor::RecordEditor(const char* input_record_name) {
 	}
 
 	cout << "Read " << samples.size() << " lines" << endl;
+
+	unsigned int ticks = SAMPLING_RATE*samples.size();
+
+	cout << "Approximate length is " << ticks2time(ticks) << endl;
 }
 
 void RecordEditor::run() {
 
-	get_start();
+	set_record_start();
 
-}
-
-void RecordEditor::get_start() {
-
-	while (ask_for_start()) {
+	while (create_new_record()) {
 
 		;
 	}
+
 }
 
-bool RecordEditor::ask_for_start() {
+void RecordEditor::set_record_start() {
+
+	while (set_start()) {
+
+		; // TODO Write: invalid string entered
+	}
+}
+
+bool RecordEditor::set_start() {
 
 	cout << "Enter the time of start in hh:mm:ss format or hit enter for 00:00:00" << endl;
 
@@ -141,6 +154,42 @@ bool RecordEditor::ask_for_start() {
 	}
 
 	return ask_again;
+}
+
+bool RecordEditor::create_new_record() {
+
+	bool ask_for_new = set_start_marker();
+
+	if (!ask_for_new) {
+
+		return false;
+	}
+
+	// set_end_marker, output name, dump selected samples
+
+	return true;
+}
+
+bool RecordEditor::set_start_marker() {
+
+	// TODO Loop until a correct format is received
+
+	cout << "Enter start marker in hh:mm:ss or mm:ss format ";
+
+	cout << "or quit to terminate the application" << endl;
+
+	string buffer;
+
+	getline(cin, buffer);
+
+	if (buffer == "quit") {
+
+		return false;
+	}
+
+	// parse the hh:mm:ss or mm:ss string
+
+	return true;
 }
 
 }

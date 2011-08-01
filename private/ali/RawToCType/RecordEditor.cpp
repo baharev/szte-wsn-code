@@ -33,139 +33,114 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include "Utility.hpp"
-
-#include <exception>
-#include <typeinfo>
+#include <sstream>
+#include <stdexcept>
 #include "RecordEditor.hpp"
 
 using namespace std;
 
-namespace {
+namespace sdc {
 
-const char infile_name[]  = "record.csv";
+// returns true if failed, false if everything is OK
+template <typename T>
+bool from_string(const string& s, T& value) {
 
-const char outfile_name[] = "record_cut.csv";
+	istringstream is(s);
 
-const unsigned int TICKS_PER_SEC = 32768;
+	is >> value;
 
-const unsigned int SAMPLING_RATE = 160;
-
-const double sampling_rate_hz = 204.8;
-
+	return ( is.fail() || !is.eof() ) ? true : false;
 }
 
-int count_lines() {
+// hh:mm:ss to uint seconds, true if failed, false if everything is OK
+bool hh_mm_ss_2_uint(const string& s, unsigned int& value) {
 
-	int lines = 0;
+	bool failed = true;
 
-	ifstream in(infile_name);
+	if (s.size() != 8) {
+
+		return failed;
+	}
+
+	unsigned int hour(0), min(0), sec(0);
+
+	bool error_h(false), error_m(false), error_s(false);
+
+	error_h = from_string(s.substr(0, 2), hour);
+
+	error_m = from_string(s.substr(3, 2), min);
+
+	error_s = from_string(s.substr(6, 2), sec);
+
+	if (!error_h && !error_m && !error_s) {
+
+		value = 3600*hour + 60*min + sec;
+
+		failed = false;
+	}
+
+	return failed;
+}
+
+RecordEditor::RecordEditor(const char* input_record_name) {
+
+	ifstream in(input_record_name);
+
+	if (!in.good()) {
+
+		throw runtime_error("failed to open the input file");
+	}
+
+	start_at_global_time = 0;
+
+	samples.reserve(1500000);
 
 	while (in.good()) {
-
-		string dummy;
-
-		getline(in, dummy);
-
-		++lines;
-	}
-
-	return lines;
-}
-
-int lines_to_skip(int seconds_to_keep_from_the_back) {
-
-	int lines = count_lines();
-
-	int lines_to_keep = sampling_rate_hz * seconds_to_keep_from_the_back;
-
-	int skip = lines - lines_to_keep;
-
-	if (skip < 0) {
-
-		skip = 0;
-	}
-
-	return skip;
-}
-
-void skip_lines(ifstream& in, int lines_to_skip) {
-
-	for (int i=0; i<lines_to_skip; ++i) {
-
-		string dummy;
-
-		getline(in, dummy);
-	}
-}
-
-void dump_lines_until_eof(ifstream& in) {
-
-	int counter = 0;
-
-	ofstream out(outfile_name);
-
-	while (!in.eof()) {
 
 		string buffer;
 
 		getline(in, buffer);
 
-		out << counter << ',' << buffer << '\n';
-
-		++counter;
+		samples.push_back(buffer);
 	}
 
-	cout << "Lines written: " << counter << endl;
+	cout << "Read " << samples.size() << " lines" << endl;
 }
 
-void dump_last_seconds(int sec) {
+void RecordEditor::run() {
 
-	int lines_skipped = lines_to_skip(sec);
-
-	ifstream in(infile_name);
-
-	skip_lines(in, lines_skipped);
-
-	dump_lines_until_eof(in);
-}
-
-void show_approx_lenght() {
-
-	int lines = count_lines();
-
-	unsigned int ticks = SAMPLING_RATE*lines;
-
-	string length = sdc::ticks2time(ticks);
-
-	cout << "Approximate length is " << length << endl;
+	get_start();
 
 }
 
-int main(int argc, char* argv[]) {
+void RecordEditor::get_start() {
 
-	enum { SUCCESS, FAILURE };
+	while (ask_for_start()) {
 
-	if (argc != 2) {
+		;
+	}
+}
 
-		clog << "Usage: " << argv[0] << " record_to_cut.csv" << endl;
+bool RecordEditor::ask_for_start() {
 
-		return FAILURE;
+	cout << "Enter the time of start in hh:mm:ss format or hit enter for 00:00:00" << endl;
+
+	bool ask_again = false;
+
+	string buffer;
+
+	getline(cin, buffer);
+
+	if (buffer.empty()) {
+
+		start_at_global_time = 0;
+	}
+	else {
+
+		ask_again = hh_mm_ss_2_uint(buffer, start_at_global_time);
 	}
 
-	try {
+	return ask_again;
+}
 
-		sdc::RecordEditor rec_editor(argv[1]);
-
-		rec_editor.run();
-	}
-	catch (exception& e) {
-
-		clog << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
 }

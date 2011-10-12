@@ -12,14 +12,14 @@ CFLAGS += -DASSERT_LEDON
 #CFLAGS += -DSHIMMER_ADC_TEST
 #CFLAGS += -DSHIMMER_MEMORY_FILE
 
-BUILD_EXTRA_DEPS = CtrlMsg.class ReportMsg.class
-CLEAN_EXTRA = *.class CtrlMsg.java ReportMsg.java
+#BUILD_EXTRA_DEPS = CtrlMsg.class ReportMsg.class
+#CLEAN_EXTRA = *.class CtrlMsg.java ReportMsg.java
 
-CtrlMsg.class: CtrlMsg.java
-	javac CtrlMsg.java
+#CtrlMsg.class: CtrlMsg.java
+#	javac CtrlMsg.java
 
-CtrlMsg.java:
-	mig java -target=shimmer2 -java-classname=CtrlMsg CtrlMsg.h CtrlMsg -o $@
+#CtrlMsg.java:
+#	mig java -target=shimmer2 -java-classname=CtrlMsg CtrlMsg.h CtrlMsg -o $@
 
 #DataMsg.class: DataMsg.java
 #	javac DataMsg.java
@@ -27,10 +27,10 @@ CtrlMsg.java:
 #DataMsg.java:
 #	mig java -target=shimmer2 -java-classname=DataMsg DataMsg.h DataMsg -o $@
 
-ReportMsg.class: ReportMsg.java
-	javac ReportMsg.java
+#ReportMsg.class: ReportMsg.java
+#	javac ReportMsg.java
 
-ReportMsg.java:
-	mig java -target=shimmer2 -java-classname=ReportMsg ReportMsg.h ReportMsg -o $@ 
+#ReportMsg.java:
+#	mig java -target=shimmer2 -java-classname=ReportMsg ReportMsg.h ReportMsg -o $@ 
 
 include $(MAKERULES) 

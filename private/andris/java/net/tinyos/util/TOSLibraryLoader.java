@@ -129,6 +129,8 @@ public class TOSLibraryLoader {
 					//libFile = "linux_ppc_" + libName;
 				} else if(arch.toLowerCase().equals("amd64")) {
 					libFile = "linux_amd64_" + libName;
+				}  else if(arch.toLowerCase().startsWith("arm")) {
+					libFile = "linux_arm_" + libName;
 				}
 			} else if(os.toLowerCase().startsWith("windows")) {
 				// Windows

@@ -1,0 +1,56 @@
+TEMPERATURE
+===========
+
+/* dT = rawTemp - (c5 << 8);
+TEMP = 2000 + (dT * (uint32_t)c6 >> 23);
+*/
+tmpt= c5;
+tmpt <<= 8;
+dT = rawTemp - tmpt; 
+
+tmp= c6;
+mul= dT;
+mul *= tmp;
+mul >>= 23;
+
+
+TEMP = 2000;
+TEMP += mul;
+
+if(TEMP<2000) {
+	int32_t T2 = ((int64_t)dT * dT) >> 31;
+	TEMP -= T2;
+
+PRESSURE
+========
+
+int64_t offset, sensitivity;
+/*offset = ((uint64_t)c2 << 17) + (((int64_t)c4 * dT) >> 6); // <<17     >>6
+sensitivity = ((uint32_t)c1 << 16) + (( (int64_t)c3 * dT) >> 7);// <<16   >>7
+P = ( (int64_t)val * (sensitivity >> 21) - offset) >> 15;// >>21    >>15
+*/
+tmp64 = c2;
+tmp64 <<= 17;
+
+mul64 = c4;
+mul64 *= dT;
+mul64 >>= 6;
+
+offset = mul64;
+offset += tmp64;
+tmp64 = c1;
+tmp64 <<= 16;
+
+mul64 = c3;
+mul64 *= dT;
+mul64 >>= 7;
+sensitivity = tmp64;
+sensitivity += mul64;
+//sensitivity = ((uint32_t)c1 << 16) + (((int64_t)c3 * dT) >> 7);
+
+tmp64 = sensitivity;
+tmp64 >>= 21;
+tmp64 *= rawpress;
+tmp64 -= offset;
+tmp64 >>= 15;
+P = tmp64;

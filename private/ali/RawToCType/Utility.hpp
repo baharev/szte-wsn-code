@@ -62,9 +62,11 @@ const std::string rdb_file_name(int mote_id);
 
 const std::string int2str(int i);
 
-const std::string double2str_2decimals(double x);
-
 unsigned int GB();
+
+bool is_drive(const char* source);
+
+const std::string card_size_GB(double size);
 
 }
 

@@ -46,13 +46,11 @@ class SDCard {
 
 public:
 
-	static SDCard* from_file(const char* filename);
-
-	static SDCard* from_win32_drive(const char* drive);
-
-	double size_GB() const;
+	static SDCard* new_instance(const char* binary_file_or_win32_drive);
 
 	void process_new_measurements();
+
+	void format();
 
 	~SDCard();
 

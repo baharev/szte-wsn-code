@@ -56,7 +56,7 @@ Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_S
 	int64_t size = card_size_in_bytes(path.c_str(), &hDevice);
 
 	if (size==0) {
-		string msg("Failed to open block device: ");
+		string msg("failed to open block device: ");
 		msg += source;
 		throw runtime_error(msg);
 	}
@@ -65,7 +65,7 @@ Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_S
 
 	if (size >= intmax || size < 0) {
 		close_device(&hDevice);
-		throw runtime_error("Card size is larger than 2GB");
+		throw runtime_error("card size is larger than 2GB");
 	}
 
 	int size_in_bytes = static_cast<int> (size);

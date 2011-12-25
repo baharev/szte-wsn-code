@@ -41,7 +41,7 @@ namespace sdc {
 
 void Console::start(double card_size, int mote_id, int first_block, int reboot) {
 
-	cout << "Card size is " << double2str_2decimals(card_size) << " GB" << endl;
+	cout << "Card size is " << card_size_GB(card_size) << endl;
 	cout << "Mote ID: " << mote_id << endl;
 	cout << "Starting at block " << first_block << ", ";
 	cout << "previous reboot sequence number is " << reboot << endl;

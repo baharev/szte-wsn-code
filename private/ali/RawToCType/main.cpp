@@ -40,39 +40,51 @@
 using namespace std;
 using namespace sdc;
 
-int Main(const char* source) {
+void download_new_records(const char* source) {
 
-	//auto_ptr<SDCard> sd(SDCard::from_win32_drive(source));
-	
-	//sd->process_new_measurements();
-
-	auto_ptr<SDCard> bd(SDCard::from_file(source));
+	auto_ptr<SDCard> bd(SDCard::new_instance(source));
 
 	bd->process_new_measurements();
+}
 
-	bd.reset();
+void format(const char* device) {
 
-	return 0;
+	auto_ptr<SDCard> bd(SDCard::new_instance(device));
+
+	bd->format();
+}
+
+void print_usage(const char* program_name) {
+
+}
+
+void real_main(int argc, char* argv[]) {
+
+	if (argc == 2) {
+
+		download_new_records(argv[1]);
+	}
+	else if (argc == 3) {
+
+		format(argv[2]);
+	}
+	else {
+
+		print_usage(argv[0]);
+	}
 }
 
 int main(int argc, char* argv[]) {
 
 	enum { SUCCESS, FAILURE };
 
-	if (argc != 2) {
-
-		clog << "Error: source not specified or too many arguments!" << endl;
-
-		return FAILURE;
-	}
-
 	try {
 
-		Main(argv[1]);
+		real_main(argc, argv);
 	}
 	catch (exception& e) {
 
-		clog << e.what() << " (" << typeid(e).name() << ")" << endl;
+		cout << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
 
 		return FAILURE;
 	}

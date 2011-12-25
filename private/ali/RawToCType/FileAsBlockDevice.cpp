@@ -50,7 +50,7 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 	in->open(source, ios::binary);
 
 	if (!in->good()) {
-		string msg("Failed to open file ");
+		string msg("failed to open file ");
 		msg += source;
 		throw runtime_error(msg);
 	}
@@ -72,7 +72,7 @@ void FileAsBlockDevice::setBlockOffsetMax() {
 
 	if (size_in_bytes >= numeric_limits<int>::max() || size_in_bytes < 0) {
 
-		throw runtime_error("Card size is larger than 2GB");
+		throw runtime_error("card size is larger than 2GB");
 	}
 
 	int size = static_cast<int> (size_in_bytes);

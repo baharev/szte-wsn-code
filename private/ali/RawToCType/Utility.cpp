@@ -208,4 +208,20 @@ unsigned int GB() {
 	return (one << 30);
 }
 
+bool is_drive(const char* source) {
+
+	const std::string src(source);
+
+	return (src.size()==2 && src.at(1)==':');
+}
+
+const std::string card_size_GB(double size) {
+
+	oss os;
+
+	os << double2str_2decimals(size) << " GB" << flush;
+
+	return os.str();
+}
+
 }

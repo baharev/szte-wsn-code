@@ -35,21 +35,24 @@
 #include "SDCardImpl.hpp"
 #include "FileAsBlockDevice.hpp"
 #include "Win32BlockDevice.hpp"
+#include "Utility.hpp"
 
 namespace sdc {
 
-SDCard* SDCard::from_file(const char* filename) {
+SDCard* SDCard::new_instance(const char* source) {
 
-	BlockDevice* source = new FileAsBlockDevice(filename);
+	BlockDevice* block_device = 0;
 
-	return new SDCard(source);
-}
+	if (is_drive(source)) {
 
-SDCard* SDCard::from_win32_drive(const char* drive) {
+		block_device = new Win32BlockDevice(source);
+	}
+	else {
 
-	BlockDevice* source = new Win32BlockDevice(drive);
+		block_device = new FileAsBlockDevice(source);
+	}
 
-	return new SDCard(source);
+	return new SDCard(block_device);
 }
 
 SDCard::SDCard(BlockDevice* source) : impl(new SDCardImpl(source)) {
@@ -61,9 +64,8 @@ void SDCard::process_new_measurements() {
 	impl->process_new_measurements();
 }
 
-double SDCard::size_GB() const {
+void SDCard::format() {
 
-	return impl->size_GB();
 }
 
 SDCard::~SDCard() {

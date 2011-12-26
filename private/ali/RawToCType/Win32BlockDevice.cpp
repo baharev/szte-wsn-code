@@ -53,6 +53,7 @@ Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_S
 	path += drive_letter;
 	path += ':';
 
+	// Side effect: sets the device handle
 	int64_t size = card_size_in_bytes(path.c_str(), &hDevice);
 
 	if (size==0) {

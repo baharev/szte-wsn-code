@@ -31,88 +31,31 @@
 * Author: Ali Baharev
 */
 
-#include <exception>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
-#include "SDCard.hpp"
+#ifndef DEVICEFORMATTER_HPP_
+#define DEVICEFORMATTER_HPP_
 
-using namespace std;
-using namespace sdc;
+namespace sdc {
 
-void download_new_records(const char* source) {
+class DeviceFormatter {
 
-	auto_ptr<SDCard> bd(SDCard::new_instance(source));
+public:
 
-	bd->process_new_measurements();
+	virtual void format() const = 0;
+
+	virtual ~DeviceFormatter() { }
+
+protected:
+
+	DeviceFormatter() { }
+
+private:
+
+	DeviceFormatter(const DeviceFormatter& );
+
+	DeviceFormatter& operator=(const DeviceFormatter& );
+
+};
+
 }
 
-void format(const string& flag, const char* device) {
-
-	if (flag != "-format") {
-
-		throw runtime_error("unrecognized flag " + flag);
-	}
-
-
-	// TODO Call device formatter
-}
-
-void print_usage(const char* program_name) {
-
-	cout << "Type the following to download the new records:" << endl;
-
-	cout << program_name << " path_to_device" << endl;
-
-	cout << "To format device type this:" << endl;
-
-	cout << program_name << " -format path_to_device" << endl;
-
-#ifdef _WIN32
-	cout << "The device path is the letter of the drive followed by a colon, like F:" << endl;
 #endif
-}
-
-void real_main(int argc, char* argv[]) {
-
-	if (argc == 2) {
-
-		const char* device = argv[1];
-
-		download_new_records(device);
-	}
-	else if (argc == 3) {
-
-		const char* flag   = argv[1];
-
-		const char* device = argv[2];
-
-		format(flag, device);
-	}
-	else {
-
-		print_usage(argv[0]);
-	}
-}
-
-int main(int argc, char* argv[]) {
-
-	cout << "This program comes with absolutely no warranty!" << endl;
-
-	enum { SUCCESS, FAILURE };
-
-	try {
-
-		real_main(argc, argv);
-	}
-	catch (exception& e) {
-
-		cout << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
-}

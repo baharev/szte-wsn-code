@@ -64,10 +64,6 @@ void SDCard::process_new_measurements() {
 	impl->process_new_measurements();
 }
 
-void SDCard::format() {
-
-}
-
 SDCard::~SDCard() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }

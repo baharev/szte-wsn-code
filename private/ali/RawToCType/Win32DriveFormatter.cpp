@@ -31,43 +31,34 @@
 * Author: Ali Baharev
 */
 
-#ifndef WIN32FILEFORMATTER_HPP_
-#define WIN32FILEFORMATTER_HPP_
-
+#include <stdexcept>
+#include "Win32DriveFormatter.hpp"
 #ifdef _WIN32
-#include <memory>
-#include <windows.h>
+#include <limits>
+#include "BlockRelatedConsts.hpp"
+#include "Utility.hpp"
+#include "WinBlockDevice.h"
 #endif
-#include "DeviceFormatter.hpp"
+
+using namespace std;
 
 namespace sdc {
 
-class Win32DriveFormatter : public DeviceFormatter {
-
-public:
-
-	explicit Win32DriveFormatter(const char* source);
-
-private:
-
-	virtual void format();
-
-	virtual void write_block(int i);
-
-	virtual ~Win32DriveFormatter();
-
 #ifdef _WIN32
 
-	const std::auto_ptr<char> buffer;
+#else
 
-	HANDLE hDevice;
+Win32DriveFormatter::Win32DriveFormatter(const char* ) {
 
-	int BLOCK_OFFSET_MAX;
-
-#endif
-
-};
-
+	throw logic_error("Win32 block device is not implemented!");
 }
 
+void Win32DriveFormatter::write_block(int ) { }
+
+void Win32DriveFormatter::format() { }
+
+Win32DriveFormatter::~Win32DriveFormatter() { }
+
 #endif
+
+}

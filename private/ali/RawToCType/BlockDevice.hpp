@@ -42,6 +42,7 @@ public:
 
 	// Pointer to the device's internal buffer, do not delete it
 	virtual const char* read_block(int i) = 0;
+	// FIXME It seems as if the last block is never read, see BinaryFileFormatter
 
 	virtual int end() const = 0;
 

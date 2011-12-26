@@ -82,7 +82,7 @@ void SDCardImpl::process_new_measurements() {
 
 	Console::start(device->size_GB(), tracker->mote_id(), block_offset, reboot_seq_num);
 
-	const int end = device->end();
+	const int end = device->end(); 	// FIXME It seems as if the last block is never read
 
 	for (bool finished=false; !finished && (block_offset<end); ++block_offset) {
 

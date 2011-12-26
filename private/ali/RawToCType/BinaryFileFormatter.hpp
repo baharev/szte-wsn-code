@@ -36,7 +36,7 @@
 
 #include <iosfwd>
 #include <memory>
-#include "DeviceFomatter.hpp"
+#include "DeviceFormatter.hpp"
 
 namespace sdc {
 
@@ -48,11 +48,13 @@ public:
 
 private:
 
-	virtual const char* write_block(int i);
+	virtual void format();
+
+	virtual void write_block(int i);
 
 	virtual ~BinaryFileFormatter();
 
-	const std::auto_ptr<std::ofstream> out;
+	const std::auto_ptr<std::fstream> out;
 
 	const std::auto_ptr<char> buffer;
 

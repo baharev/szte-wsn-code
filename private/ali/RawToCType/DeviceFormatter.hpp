@@ -40,7 +40,7 @@ class DeviceFormatter {
 
 public:
 
-	virtual void format() const = 0;
+	virtual void format() = 0;
 
 	virtual ~DeviceFormatter() { }
 

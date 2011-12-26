@@ -31,90 +31,80 @@
 * Author: Ali Baharev
 */
 
-#include <exception>
+#include <cstring>
+#include <fstream>
 #include <iostream>
-#include <memory>
+#include <limits>
 #include <stdexcept>
-#include <string>
-#include <typeinfo>
+#include <stdint.h>
 #include "BinaryFileFormatter.hpp"
-#include "SDCard.hpp"
+#include "BlockRelatedConsts.hpp"
+#include "Utility.hpp"
 
 using namespace std;
-using namespace sdc;
 
-void download_new_records(const char* source) {
+namespace sdc {
 
-	auto_ptr<SDCard> bd(SDCard::new_instance(source));
-
-	bd->process_new_measurements();
-}
-
-void format(const string& flag, const char* device) {
-
-	if (flag != "-format") {
-
-		throw runtime_error("unrecognized flag " + flag);
+BinaryFileFormatter::BinaryFileFormatter(const char* source)
+: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary)),
+  buffer(new char[BLOCK_SIZE])
+{
+	if (!out->good()) {
+		string msg("failed to open file ");
+		msg += source;
+		throw runtime_error(msg);
 	}
 
-	DeviceFormatter* df = new BinaryFileFormatter(device);
+	out->exceptions(ios_base::failbit | ios_base::badbit);
 
-	df->format();
+	out->seekg(0, ios_base::end);
+
+	int64_t size_in_bytes = static_cast<int64_t> (out->tellg());
+
+	if (size_in_bytes >= numeric_limits<int32_t>::max() || size_in_bytes < 0) {
+
+		throw runtime_error("card size is larger than 2GB");
+	}
+
+	int32_t size = static_cast<int32_t> (size_in_bytes);
+
+	BLOCK_OFFSET_MAX = size/BLOCK_SIZE; // TODO Is it safe?
+
+	memset(buffer.get(), '\0', BLOCK_SIZE);
 }
 
-void print_usage(const char* program_name) {
+void BinaryFileFormatter::format() {
 
-	cout << "Type the following to download the new records:" << endl;
+	for (int i=0; i<=BLOCK_OFFSET_MAX; ++i) {
 
-	cout << program_name << " path_to_device" << endl;
+		write_block(i);
+	}
 
-	cout << "To format device type this:" << endl;
+	cout << "Successfully formatted " << BLOCK_OFFSET_MAX << " blocks, ";
 
-	cout << program_name << " -format path_to_device" << endl;
-
-#ifdef _WIN32
-	cout << "The device path is the letter of the drive followed by a colon, like F:" << endl;
-#endif
+	cout << BLOCK_OFFSET_MAX*BLOCK_SIZE << " bytes" << endl;
 }
 
-void real_main(int argc, char* argv[]) {
+void BinaryFileFormatter::write_block(int i) {
 
-	if (argc == 2) {
-
-		const char* device = argv[1];
-
-		download_new_records(device);
+	if (i<0 || i>BLOCK_OFFSET_MAX) {
+		throw out_of_range("block index");
 	}
-	else if (argc == 3) {
-
-		const char* flag   = argv[1];
-
-		const char* device = argv[2];
-
-		format(flag, device);
-	}
-	else {
-
-		print_usage(argv[0]);
-	}
-}
-
-int main(int argc, char* argv[]) {
-
-	cout << "This program comes with absolutely no warranty!" << endl;
-
-	enum { SUCCESS, FAILURE };
 
 	try {
 
-		real_main(argc, argv);
+		out->seekg(i*BLOCK_SIZE);
+
+		out->write(buffer.get(), BLOCK_SIZE);
 	}
-	catch (exception& e) {
+	catch (ios_base::failure& ) {
 
-		cout << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
-
-		return FAILURE;
+		throw runtime_error("failed to write block "+int2str(i));
 	}
+}
 
-	return SUCCESS;
+BinaryFileFormatter::~BinaryFileFormatter() {
+	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+}
+
 }

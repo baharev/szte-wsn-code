@@ -52,7 +52,7 @@ private:
 
 	virtual int end() const;
 
-	virtual double size_GB() const;
+	virtual int64_t size_in_bytes() const;
 
 	virtual unsigned long error_code() const;
 
@@ -66,7 +66,7 @@ private:
 
 	int BLOCK_OFFSET_MAX;
 
-	double card_size;
+	int64_t card_size;
 
 };
 

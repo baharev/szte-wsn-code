@@ -68,9 +68,26 @@ const char* read_device_block(PHANDLE pHandle, int i, char* buffer, const unsign
 	return ret_val;
 }
 
+int write_device_block(PHANDLE pHandle, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+
+	int err = 0;
+
+	return err;
+}
+
+
 void close_device(PHANDLE pHandle) {
 
 	CloseHandle(*pHandle);
+}
+
+HANDLE open_device(const wchar_t* drive) {
+
+}
+
+int32_t size_in_bytes(PHANDLE pHandle) {
+
+	;
 }
 
 int64_t card_size_in_bytes(const wchar_t* drive, PHANDLE pHandle)

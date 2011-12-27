@@ -215,11 +215,19 @@ bool is_drive(const char* source) {
 	return (src.size()==2 && src.at(1)==':');
 }
 
-const std::string card_size_GB(double size) {
+
+double byte_to_GB(int64_t size) {
+
+	return static_cast<double>(size)/GB();
+}
+
+const std::string card_size_GB(int64_t size) {
+
+	double size_in_GB = byte_to_GB(size);
 
 	oss os;
 
-	os << double2str_2decimals(size) << " GB" << flush;
+	os << double2str_2decimals(size_in_GB) << " GB" << flush;
 
 	return os.str();
 }

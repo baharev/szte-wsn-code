@@ -53,8 +53,6 @@ public:
 
 	void process_new_measurements();
 
-	double size_GB() const;
-
 	~SDCardImpl();
 
 private:

@@ -66,7 +66,9 @@ unsigned int GB();
 
 bool is_drive(const char* source);
 
-const std::string card_size_GB(double size);
+double byte_to_GB(int64_t size);
+
+const std::string card_size_GB(int64_t size);
 
 }
 

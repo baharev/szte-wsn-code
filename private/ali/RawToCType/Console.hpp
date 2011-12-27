@@ -34,6 +34,7 @@
 #ifndef CONSOLE_HPP_
 #define CONSOLE_HPP_
 
+#include <stdint.h>
 #include "TypeDefs.hpp"
 
 namespace sdc {
@@ -42,9 +43,9 @@ class Console {
 
 public:
 
-	static void start(double card_size, int mote_id, int first_block, int reboot);
+	static void start(int64_t card_size, int mote_id, int first_block, int reboot);
 
-	static void finished(double card_size, int last_block);
+	static void finished(int64_t card_size, int last_block);
 
 	static void record_start(int reboot_id, int first_offset);
 

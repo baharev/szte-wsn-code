@@ -69,18 +69,13 @@ void SDCardImpl::init_tracker() {
 	tracker.reset(new Tracker(zeroth_block));
 }
 
-double SDCardImpl::size_GB() const {
-
-	return device->size_GB();
-}
-
 void SDCardImpl::process_new_measurements() {
 
 	block_offset = tracker->start_from_here();
 
 	reboot_seq_num = tracker->reboot();
 
-	Console::start(device->size_GB(), tracker->mote_id(), block_offset, reboot_seq_num);
+	Console::start(device->size_in_bytes(), tracker->mote_id(), block_offset, reboot_seq_num);
 
 	const int end = device->end(); 	// FIXME It seems as if the last block is never read
 
@@ -91,7 +86,7 @@ void SDCardImpl::process_new_measurements() {
 		finished = process_block(block);
 	}
 
-	Console::finished(device->size_GB(), block_offset);
+	Console::finished(device->size_in_bytes(), block_offset);
 }
 
 void SDCardImpl::close_out_if_open() {

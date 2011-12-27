@@ -34,6 +34,8 @@
 #ifndef BLOCKDEVICE_HPP_
 #define BLOCKDEVICE_HPP_
 
+#include <stdint.h>
+
 namespace sdc {
 
 class BlockDevice {
@@ -46,7 +48,7 @@ public:
 
 	virtual int end() const = 0;
 
-	virtual double size_GB() const = 0;
+	virtual int64_t size_in_bytes() const = 0; // FIXME Make it int32_t
 
 	virtual unsigned long error_code() const = 0;
 

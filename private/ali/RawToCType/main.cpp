@@ -38,6 +38,7 @@
 #include <string>
 #include <typeinfo>
 #include "BinaryFileFormatter.hpp"
+#include "Win32DriveFormatter.hpp"
 #include "SDCard.hpp"
 
 using namespace std;
@@ -57,7 +58,9 @@ void format(const string& flag, const char* device) {
 		throw runtime_error("unrecognized flag " + flag);
 	}
 
-	DeviceFormatter* df = new BinaryFileFormatter(device);
+	//DeviceFormatter* df = new BinaryFileFormatter(device);
+
+	DeviceFormatter* df = new Win32DriveFormatter(device);
 
 	df->format();
 }
@@ -74,7 +77,7 @@ void print_usage(const char* program_name) {
 
 	cout << program_name << " path_to_device" << endl << endl;
 
-	cout << "To format device type this:" << endl;
+	cout << "To format the device type this:" << endl;
 
 	cout << program_name << " -format path_to_device" << endl << endl;
 
@@ -118,6 +121,8 @@ int main(int argc, char* argv[]) {
 		real_main(argc, argv);
 	}
 	catch (exception& e) {
+
+		// TODO Demangle exception
 
 		cout << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
 

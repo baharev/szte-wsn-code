@@ -33,12 +33,9 @@
 
 #include <stdexcept>
 #include "Win32BlockDevice.hpp"
-#ifdef _WIN32
-#include <limits>
+#include "Win32DeviceHelper.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
-#include "WinBlockDevice.h"
-#endif
 
 using namespace std;
 
@@ -48,32 +45,13 @@ namespace sdc {
 
 Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_SIZE]) {
 
-	const char drive_letter = string(source).at(0);
-	wstring path(L"\\\\.\\");
-	path += drive_letter;
-	path += ':';
+	const device_data dat = open_device(source);
 
-	// Side effect: sets the device handle
-	int64_t size = card_size_in_bytes(path.c_str(), &hDevice);
+	hDevice = dat.hDevice;
 
-	if (size==0) {
-		string msg("failed to open block device: ");
-		msg += source;
-		throw runtime_error(msg);
-	}
+	card_size = dat.size;
 
-	int intmax = (numeric_limits<int>::max)(); // Otherwise error C2589
-
-	if (size >= intmax || size < 0) {
-		close_device(&hDevice);
-		throw runtime_error("card size is larger than 2GB");
-	}
-
-	int size_in_bytes = static_cast<int> (size);
-
-	BLOCK_OFFSET_MAX = size_in_bytes/BLOCK_SIZE;
-
-	card_size = static_cast<double>(size_in_bytes)/GB();
+	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
 }
 
 int Win32BlockDevice::end() const {
@@ -99,14 +77,14 @@ const char* Win32BlockDevice::read_block(int i) {
 	return block;
 }
 
-double Win32BlockDevice::size_GB() const {
+int64_t Win32BlockDevice::size_in_bytes() const {
 
 	return card_size;
 }
 
 unsigned long Win32BlockDevice::error_code() const {
 
-	return error_code();
+	return sdc::error_code();
 }
 
 Win32BlockDevice::~Win32BlockDevice() {

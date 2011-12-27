@@ -60,7 +60,7 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 	in->seekg(0, ios::end);
 
 	// FIXME Is it safe?
-	card_size = static_cast<double> (in->tellg()) / GB();
+	card_size = in->tellg();
 
 	setBlockOffsetMax();
 }
@@ -105,7 +105,7 @@ const char* FileAsBlockDevice::read_block(int i) {
 	return buffer.get();
 }
 
-double FileAsBlockDevice::size_GB() const {
+int64_t FileAsBlockDevice::size_in_bytes() const {
 
 	return card_size;
 }

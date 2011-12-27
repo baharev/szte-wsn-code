@@ -64,13 +64,19 @@ void format(const string& flag, const char* device) {
 
 void print_usage(const char* program_name) {
 
+	cout << endl;
+
+	cout << "USAGE" << endl;
+
+	cout << "=====" << endl;
+
 	cout << "Type the following to download the new records:" << endl;
 
-	cout << program_name << " path_to_device" << endl;
+	cout << program_name << " path_to_device" << endl << endl;
 
 	cout << "To format device type this:" << endl;
 
-	cout << program_name << " -format path_to_device" << endl;
+	cout << program_name << " -format path_to_device" << endl << endl;
 
 #ifdef _WIN32
 	cout << "The device path is the letter of the drive followed by a colon, like F:" << endl;
@@ -100,6 +106,8 @@ void real_main(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+
+	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
 
 	cout << "This program comes with absolutely no warranty!" << endl;
 

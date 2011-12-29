@@ -45,13 +45,13 @@ namespace sdc {
 
 Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_SIZE]) {
 
-	const device_data dat = open_device(source);
+	hDevice = open_device(source);
 
-	hDevice = dat.hDevice;
+	card_size = sdc::size_in_bytes(hDevice);
 
-	card_size = dat.size;
+	int32_t size32 = cast_to_int32(card_size);
 
-	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
+	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
 }
 
 int Win32BlockDevice::end() const {
@@ -65,16 +65,7 @@ const char* Win32BlockDevice::read_block(int i) {
 		throw out_of_range("block index");
 	}
 
-	unsigned int size = static_cast<unsigned int> (BLOCK_SIZE);
-
-	const char* const block = read_device_block(&hDevice, i, buffer.get(), size);
-
-	if (block==0) {
-
-		throw runtime_error(failed_to_read_block(i));
-	}
-
-	return block;
+	return sdc::read_block(hDevice, i, buffer.get(), BLOCK_SIZE);
 }
 
 int64_t Win32BlockDevice::size_in_bytes() const {
@@ -82,14 +73,9 @@ int64_t Win32BlockDevice::size_in_bytes() const {
 	return card_size;
 }
 
-unsigned long Win32BlockDevice::error_code() const {
-
-	return sdc::error_code();
-}
-
 Win32BlockDevice::~Win32BlockDevice() {
 
-	close_device(&hDevice);
+	sdc::close_device(hDevice);
 }
 
 #else

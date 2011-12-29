@@ -110,11 +110,6 @@ int64_t FileAsBlockDevice::size_in_bytes() const {
 	return card_size;
 }
 
-unsigned long FileAsBlockDevice::error_code() const {
-
-	return 0;
-}
-
 FileAsBlockDevice::~FileAsBlockDevice() {
 	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
 }

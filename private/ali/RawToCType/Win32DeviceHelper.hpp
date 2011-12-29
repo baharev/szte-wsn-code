@@ -51,20 +51,15 @@ namespace sdc {
 // - compare reader and formatter, try to factor out common code
 // - error msg instead of last_error()?
 
-struct device_data {
-	HANDLE hDevice;
-	int32_t size;
-};
+HANDLE open_device(const char* path, DWORD access = GENERIC_READ);
 
-const device_data open_device(const char* source);
+int64_t size_in_bytes(HANDLE hDevice);
 
-const char* read_device_block(PHANDLE pHandle, int i, char* buffer, const unsigned int BLOCK_SIZE);
+const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE);
 
-void write_device_block(PHANDLE pHandle, int i, char* buffer, const unsigned int BLOCK_SIZE);
+void write_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE);
 
-void close_device(PHANDLE pHandle);
-
-unsigned long error_code();
+void close_device(HANDLE hDevice);
 
 }
 

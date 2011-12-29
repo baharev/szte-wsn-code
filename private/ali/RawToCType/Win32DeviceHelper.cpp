@@ -33,10 +33,12 @@
 
 #ifdef _WIN32
 
+#include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <windows.h>
+#include <winioctl.h>
 #include "Win32DeviceHelper.hpp"
-#include "WinBlockDevice.h"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
 
@@ -44,58 +46,138 @@ using namespace std;
 
 namespace sdc {
 
-const device_data open_device(const char* source) {
+const string error_message() {
 
-	const char drive_letter = string(source).at(0);
-	wstring path(L"\\\\.\\");
-	path += drive_letter;
-	path += ':';
+    LPVOID lpMsgBuf;
+    DWORD dw = GetLastError();
 
-	device_data ret;
+    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0,
+        NULL );
 
-	int64_t size = card_size_in_bytes(path.c_str(), &ret.hDevice);
+    ostringstream os;
 
-	if (size==0) {
-		string msg("failed to open block device ");
-		msg += source;
+    os << static_cast<char*>(lpMsgBuf) << " (code: " << dw << ")";
+
+    LocalFree(lpMsgBuf);
+
+    string msg(os.str());
+
+    replace(msg, '\n', ' ');
+
+    replace(msg, '\r', ' ');
+
+    return msg;
+}
+
+
+HANDLE open_device(const char* path, DWORD access) {
+
+	HANDLE hDevice;
+
+	hDevice = CreateFileA(path,  // drive to open
+		access,                // access to the drive
+		FILE_SHARE_READ | // share mode
+		FILE_SHARE_WRITE,
+		NULL,             // default security attributes
+		OPEN_EXISTING,    // disposition
+		FILE_FLAG_NO_BUFFERING,                // file attributes
+		NULL);            // do not copy file attributes
+
+	if (hDevice == INVALID_HANDLE_VALUE) // cannot open the drive
+	{
+		const string msg = error_message();
+
 		throw runtime_error(msg);
 	}
 
-	int32_t intmax = (numeric_limits<int32_t>::max)(); // Otherwise error C2589
+	return hDevice;
+}
 
-	if (size >= intmax || size < 0) {
-		close_device(&ret.hDevice);
-		throw runtime_error("card size is larger than 2GB");
+int64_t size_in_bytes(HANDLE hDevice) {
+
+	DISK_GEOMETRY pdg;
+	BOOL bResult;
+	DWORD junk;
+	int64_t ret_val = 0;
+
+	bResult = DeviceIoControl(hDevice,  // device to be queried
+		IOCTL_DISK_GET_DRIVE_GEOMETRY,  // operation to perform
+		NULL, 0, // no input buffer
+		&pdg, sizeof(pdg),     // output buffer
+		&junk,                 // # bytes returned
+		(LPOVERLAPPED) NULL);  // synchronous I/O
+
+	if (FALSE == bResult) {
+
+		const string msg = error_message();
+
+		throw runtime_error(msg);
 	}
 
-	ret.size = static_cast<int32_t>(size);
+	ret_val = ((int64_t) pdg.Cylinders.QuadPart) * (int64_t)pdg.TracksPerCylinder *
+		(int64_t)pdg.SectorsPerTrack * (int64_t)pdg.BytesPerSector;
 
-	return ret;
+	return ret_val;
 }
 
-const char* read_device_block(PHANDLE pHandle, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+void write_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
 
-	return ::read_device_block(pHandle, i, buffer, BLOCK_SIZE);
-}
+	DWORD  dwBytesWritten = 0;
+	BOOL success = FALSE;
 
-void write_device_block(PHANDLE pHandle, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+	OVERLAPPED ol;
 
-	int error = ::write_device_block(pHandle, i, buffer, BLOCK_SIZE);
+	ol.hEvent = 0;
+	ol.Internal = 0;
+	ol.InternalHigh = 0;
+	ol.Offset = (DWORD) BLOCK_SIZE*i;
+	ol.OffsetHigh = 0;
 
-	if (error) {
+	success = WriteFile(hDevice, buffer, BLOCK_SIZE, &dwBytesWritten, (LPOVERLAPPED) &ol);
 
-		throw runtime_error("failed to write block "+int2str(i));
+	if ((success==FALSE)||(dwBytesWritten!=BLOCK_SIZE)) {
+
+		string msg("writing block "+int2str(i)+" failed, "+error_message());
+
+		throw runtime_error(msg);
 	}
 }
 
-void close_device(PHANDLE pHandle) {
+const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
 
-	::close_device(pHandle);
+	DWORD  dwBytesRead = 0;
+	BOOL success = FALSE;
+	OVERLAPPED ol;
+
+	ol.hEvent = 0;
+	ol.Internal = 0;
+	ol.InternalHigh = 0;
+	ol.Offset = (DWORD) BLOCK_SIZE*i;
+	ol.OffsetHigh = 0;
+
+	success = ReadFile(hDevice, buffer, BLOCK_SIZE, &dwBytesRead, (LPOVERLAPPED) &ol);
+
+	if((FALSE==success) || (dwBytesRead!=BLOCK_SIZE)) {
+
+		string msg("reading block "+int2str(i)+" failed, "+error_message());
+
+		throw runtime_error(msg);
+	}
+
+	return buffer;
 }
 
-unsigned long error_code() {
+void close_device(HANDLE hDevice) {
 
-	return ::error_code();
+	CloseHandle(hDevice);
 }
 
 }

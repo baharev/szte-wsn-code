@@ -70,6 +70,10 @@ double byte_to_GB(int64_t size);
 
 const std::string card_size_GB(int64_t size);
 
+int32_t cast_to_int32(int64_t size); // throws if size is larger than 2GB
+
+void replace(std::string& s, const char old, const char new_char);
+
 }
 
 #endif

@@ -34,7 +34,9 @@
 #include <ctime>
 #include <cmath>
 #include <iomanip>
+#include <limits>
 #include <sstream>
+#include <stdexcept>
 #include "Constants.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
@@ -230,6 +232,33 @@ const std::string card_size_GB(int64_t size) {
 	os << double2str_2decimals(size_in_GB) << " GB" << flush;
 
 	return os.str();
+}
+
+void throw_if_larger_than_2GB(const int64_t size) {
+
+	int64_t int32_max = (numeric_limits<int32_t>::max)(); // Otherwise error C2589
+
+	if (size > int32_max || size <= 0) {
+
+		throw runtime_error("card size is larger than 2 GB");
+	}
+}
+
+int32_t cast_to_int32(int64_t size) {
+
+	throw_if_larger_than_2GB(size);
+
+	return size;
+}
+
+void replace(string& s, const char old, const char new_char) {
+
+    string::size_type pos = 0;
+
+    while ((pos = s.find(old, pos)) != string::npos) {
+
+    	s.at(pos) = new_char;
+    }
 }
 
 }

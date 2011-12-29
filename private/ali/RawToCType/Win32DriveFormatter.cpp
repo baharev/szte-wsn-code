@@ -37,6 +37,7 @@
 #include "Win32DriveFormatter.hpp"
 #include "Win32DeviceHelper.hpp"
 #include "BlockRelatedConsts.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
@@ -47,11 +48,14 @@ namespace sdc {
 Win32DriveFormatter::Win32DriveFormatter(const char* source)
 : buffer(new char[BLOCK_SIZE])
 {
-	const device_data dat = open_device(source);
 
-	hDevice = dat.hDevice;
+	hDevice = open_device(source, GENERIC_WRITE);
 
-	BLOCK_OFFSET_MAX = dat.size/BLOCK_SIZE;
+	int64_t size64 = size_in_bytes(hDevice);
+
+	int32_t size32 = cast_to_int32(size64);
+
+	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
 
 	memset(buffer.get(), '\0', BLOCK_SIZE);
 }
@@ -62,7 +66,7 @@ void Win32DriveFormatter::write_block(int i) {
 		throw out_of_range("block index");
 	}
 
-	sdc::write_device_block(&hDevice, i, buffer.get(), BLOCK_SIZE);
+	sdc::write_block(hDevice, i, buffer.get(), BLOCK_SIZE);
 }
 
 void Win32DriveFormatter::format() {
@@ -79,7 +83,7 @@ void Win32DriveFormatter::format() {
 
 Win32DriveFormatter::~Win32DriveFormatter() {
 
-	close_device(&hDevice);
+	sdc::close_device(hDevice);
 }
 
 #else

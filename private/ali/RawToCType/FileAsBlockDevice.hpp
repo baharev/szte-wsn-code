@@ -54,8 +54,6 @@ private:
 
 	virtual int64_t size_in_bytes() const;
 
-	virtual unsigned long error_code() const;
-
 	virtual ~FileAsBlockDevice();
 
 	void setBlockOffsetMax();

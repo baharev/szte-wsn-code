@@ -41,15 +41,12 @@
 
 namespace sdc {
 // FIXME List of todos
-// - query the handle and the size separately
-// - create the handle according to read OR write
 // - block index check, 2GB check should be factored out
 // - format should be moved to base class
 // - buffer and its initialization could be moved to the format function
 // - fix bug in read, test with binary file
 // - Move all stdio into Console
 // - compare reader and formatter, try to factor out common code
-// - error msg instead of last_error()?
 
 HANDLE open_device(const char* path, DWORD access = GENERIC_READ);
 

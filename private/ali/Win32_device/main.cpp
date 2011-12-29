@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <stdint.h>
@@ -51,12 +52,12 @@ const string error_message() {
     return msg;
 }
 
-HANDLE open_for_reading(const char* path) {
+HANDLE open_device(const char* path, DWORD access = GENERIC_READ) {
 
 	HANDLE hDevice;
 
 	hDevice = CreateFileA(path,  // drive to open
-		GENERIC_READ,                // access to the drive
+		access,                // access to the drive
 		FILE_SHARE_READ | // share mode
 		FILE_SHARE_WRITE,
 		NULL,             // default security attributes
@@ -108,12 +109,12 @@ unsigned int GB() {
 	return (one << 30);
 }
 
-double byte_to_GB(int64_t size) {
+double byte_to_GB(const int64_t size) {
 
 	return static_cast<double>(size)/GB();
 }
 
-const std::string card_size_GB(int64_t size) {
+const std::string card_size_GB(const int64_t size) {
 
 	double size_in_GB = byte_to_GB(size);
 
@@ -124,15 +125,27 @@ const std::string card_size_GB(int64_t size) {
 	return os.str();
 }
 
+void throw_if_larger_than_2GB(const int64_t size) {
+
+	int64_t int32_max = (numeric_limits<int32_t>::max)(); // Otherwise error C2589
+
+	if (size > int32_max || size <= 0) {
+
+		throw runtime_error("card size is larger than 2 GB");
+	}
+}
+
 int main() {
 
 	try {
 
-		HANDLE hDevice = open_for_reading("\\\\.\\C:");
+		HANDLE hDevice = open_device("\\\\.\\C:", GENERIC_WRITE);
 
 		int64_t size = size_in_bytes(hDevice);
 
 		cout << card_size_GB(size) << endl;
+
+		throw_if_larger_than_2GB(size);
 	}
 	catch (runtime_error& e) {
 

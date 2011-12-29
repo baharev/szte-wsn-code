@@ -11,6 +11,15 @@
 
 using namespace std;
 
+const std::string int2str(int i) {
+
+	ostringstream os;
+
+	os << i << flush;
+
+	return os.str();
+}
+
 void replace(string& s, const char old, const char new_char) {
 
     string::size_type pos = 0;
@@ -102,6 +111,53 @@ int64_t size_in_bytes(HANDLE hDevice) {
 	return ret_val;
 }
 
+void write_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+
+	DWORD  dwBytesWritten = 0;
+	BOOL success = FALSE;
+
+	OVERLAPPED ol;
+
+	ol.hEvent = 0;
+	ol.Internal = 0;
+	ol.InternalHigh = 0;
+	ol.Offset = (DWORD) BLOCK_SIZE*i;
+	ol.OffsetHigh = 0;
+
+	success = WriteFile(hDevice, buffer, BLOCK_SIZE, &dwBytesWritten, (LPOVERLAPPED) &ol);
+
+	if ((success==FALSE)||(dwBytesWritten!=BLOCK_SIZE)) {
+
+		string msg("writing block "+int2str(i)+" failed, "+error_message());
+
+		throw runtime_error(msg);
+	}
+}
+
+const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+
+	DWORD  dwBytesRead = 0;
+	BOOL success = FALSE;
+	OVERLAPPED ol;
+
+	ol.hEvent = 0;
+	ol.Internal = 0;
+	ol.InternalHigh = 0;
+	ol.Offset = (DWORD) BLOCK_SIZE*i;
+	ol.OffsetHigh = 0;
+
+	success = ReadFile(hDevice, buffer, BLOCK_SIZE, &dwBytesRead, (LPOVERLAPPED) &ol);
+
+	if((FALSE==success) || (dwBytesRead!=BLOCK_SIZE)) {
+
+		string msg("reading block "+int2str(i)+" failed, "+error_message());
+
+		throw runtime_error(msg);
+	}
+
+	return buffer;
+}
+
 unsigned int GB() {
 
 	unsigned int one = 1;
@@ -133,6 +189,13 @@ void throw_if_larger_than_2GB(const int64_t size) {
 
 		throw runtime_error("card size is larger than 2 GB");
 	}
+}
+
+int32_t cast_to_int32(int64_t size) {
+
+	throw_if_larger_than_2GB(size);
+
+	return size;
 }
 
 int main() {

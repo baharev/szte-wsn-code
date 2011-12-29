@@ -35,6 +35,7 @@
 #define UTILITY_HPP_
 
 #include <string>
+#include <stdint.h>
 
 namespace sdc {
 

@@ -95,12 +95,7 @@ int Win32BlockDevice::end() const {
 	return 0;
 }
 
-double Win32BlockDevice::size_GB() const {
-
-	return 0;
-}
-
-unsigned long Win32BlockDevice::error_code() const {
+int64_t Win32BlockDevice::size_in_bytes() const {
 
 	return 0;
 }

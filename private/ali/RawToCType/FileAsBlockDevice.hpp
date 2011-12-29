@@ -56,8 +56,6 @@ private:
 
 	virtual ~FileAsBlockDevice();
 
-	void setBlockOffsetMax();
-
 	const std::auto_ptr<std::ifstream> in;
 
 	const std::auto_ptr<char> buffer;

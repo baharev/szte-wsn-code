@@ -59,23 +59,9 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 
 	in->seekg(0, ios::end);
 
-	// FIXME Is it safe?
 	card_size = in->tellg();
 
-	setBlockOffsetMax();
-}
-
-void FileAsBlockDevice::setBlockOffsetMax() {
-
-	// FIXME Is it safe?
-	int64_t size_in_bytes = static_cast<int64_t> (in->tellg());
-
-	if (size_in_bytes >= numeric_limits<int>::max() || size_in_bytes < 0) {
-
-		throw runtime_error("card size is larger than 2GB");
-	}
-
-	int size = static_cast<int> (size_in_bytes);
+	int32_t size = cast_to_int32(card_size);
 
 	BLOCK_OFFSET_MAX = size/BLOCK_SIZE;
 }

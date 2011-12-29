@@ -61,12 +61,7 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 
 	int64_t size_in_bytes = static_cast<int64_t> (out->tellg());
 
-	if (size_in_bytes >= numeric_limits<int32_t>::max() || size_in_bytes < 0) {
-
-		throw runtime_error("card size is larger than 2GB");
-	}
-
-	int32_t size = static_cast<int32_t> (size_in_bytes);
+	int32_t size = cast_to_int32(size_in_bytes);
 
 	BLOCK_OFFSET_MAX = size/BLOCK_SIZE; // TODO Is it safe?
 

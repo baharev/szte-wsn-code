@@ -41,7 +41,7 @@
 
 namespace sdc {
 // FIXME List of todos
-// - block index check, 2GB check should be factored out
+// - block index check should be factored out
 // - format should be moved to base class
 // - buffer and its initialization could be moved to the format function
 // - fix bug in read, test with binary file

@@ -34,19 +34,29 @@
 #ifndef DEVICEFORMATTER_HPP_
 #define DEVICEFORMATTER_HPP_
 
+#include <stdint.h>
+
 namespace sdc {
 
 class DeviceFormatter {
 
 public:
 
-	virtual void format() = 0;
+	void format();
 
 	virtual ~DeviceFormatter() { }
 
 protected:
 
-	DeviceFormatter() { }
+	virtual void write_block(int i, const char* buffer) = 0;
+
+	virtual int32_t device_size() = 0;
+
+	void check_index(int i) const;
+
+	int BLOCK_OFFSET_MAX;
+
+	DeviceFormatter() : BLOCK_OFFSET_MAX(-1) { }
 
 private:
 

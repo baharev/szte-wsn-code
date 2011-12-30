@@ -43,34 +43,27 @@ namespace sdc {
 
 #ifdef _WIN32
 
-Win32BlockDevice::Win32BlockDevice(const char* source) : buffer(new char[BLOCK_SIZE]) {
+Win32BlockDevice::Win32BlockDevice(const char* source) {
 
 	hDevice = open_device(source);
 
-	card_size = sdc::size_in_bytes(hDevice);
-
-	int32_t size32 = cast_to_int32(card_size);
+	int32_t size32 = set_card_size();
 
 	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
 }
 
-int Win32BlockDevice::end() const {
+virtual int32_t FileAsBlockDevice::set_card_size() {
 
-	return BLOCK_OFFSET_MAX;
+	card_size = sdc::size_in_bytes(hDevice);
+
+	return cast_to_int32(card_size);
 }
 
 const char* Win32BlockDevice::read_block(int i) {
 
-	if (i<0 || i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index");
-	}
+	check_index(i);
 
 	return sdc::read_block(hDevice, i, buffer.get(), BLOCK_SIZE);
-}
-
-int64_t Win32BlockDevice::size_in_bytes() const {
-
-	return card_size;
 }
 
 Win32BlockDevice::~Win32BlockDevice() {
@@ -85,17 +78,12 @@ Win32BlockDevice::Win32BlockDevice(const char* ) {
 	throw logic_error("Win32 block device is not implemented!");
 }
 
+int32_t Win32BlockDevice::set_card_size() {
+
+	return 0;
+}
+
 const char* Win32BlockDevice::read_block(int ) {
-
-	return 0;
-}
-
-int Win32BlockDevice::end() const {
-
-	return 0;
-}
-
-int64_t Win32BlockDevice::size_in_bytes() const {
 
 	return 0;
 }

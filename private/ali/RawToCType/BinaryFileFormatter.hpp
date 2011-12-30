@@ -48,17 +48,13 @@ public:
 
 private:
 
-	virtual void format();
+	virtual int32_t device_size();
 
-	virtual void write_block(int i);
+	virtual void write_block(int i, const char* buffer);
 
 	virtual ~BinaryFileFormatter();
 
 	const std::auto_ptr<std::fstream> out;
-
-	const std::auto_ptr<char> buffer;
-
-	int BLOCK_OFFSET_MAX;
 
 };
 

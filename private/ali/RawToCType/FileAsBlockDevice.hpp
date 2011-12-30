@@ -35,7 +35,6 @@
 #define FILEASBLOCKDEVICE_HPP_
 
 #include <iosfwd>
-#include <memory>
 #include "BlockDevice.hpp"
 
 namespace sdc {
@@ -50,19 +49,11 @@ private:
 
 	virtual const char* read_block(int i);
 
-	virtual int end() const;
-
-	virtual int64_t size_in_bytes() const;
+	virtual int32_t set_card_size();
 
 	virtual ~FileAsBlockDevice();
 
 	const std::auto_ptr<std::ifstream> in;
-
-	const std::auto_ptr<char> buffer;
-
-	int BLOCK_OFFSET_MAX;
-
-	int64_t card_size;
 
 };
 

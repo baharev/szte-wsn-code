@@ -31,8 +31,6 @@
 * Author: Ali Baharev
 */
 
-#include <cstring>
-#include <iostream>
 #include <stdexcept>
 #include "Win32DriveFormatter.hpp"
 #include "Win32DeviceHelper.hpp"
@@ -45,40 +43,25 @@ namespace sdc {
 
 #ifdef _WIN32
 
-Win32DriveFormatter::Win32DriveFormatter(const char* source)
-: buffer(new char[BLOCK_SIZE])
-{
+Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
 	hDevice = open_device(source, GENERIC_WRITE);
 
+	BLOCK_OFFSET_MAX = device_size()/BLOCK_SIZE;
+}
+
+int32_t Win32DriveFormatter::device_size() {
+
 	int64_t size64 = size_in_bytes(hDevice);
 
-	int32_t size32 = cast_to_int32(size64);
-
-	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
-
-	memset(buffer.get(), '\0', BLOCK_SIZE);
+	return cast_to_int32(size64);
 }
 
-void Win32DriveFormatter::write_block(int i) {
+void Win32DriveFormatter::write_block(int i, const char* buffer) {
 
-	if (i<0 || i>BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index");
-	}
+	check_index(i)
 
-	sdc::write_block(hDevice, i, buffer.get(), BLOCK_SIZE);
-}
-
-void Win32DriveFormatter::format() {
-
-	for (int i=0; i<=BLOCK_OFFSET_MAX; ++i) {
-
-		write_block(i);
-	}
-
-	cout << "Successfully formatted " << BLOCK_OFFSET_MAX << " blocks, ";
-
-	cout << BLOCK_OFFSET_MAX*BLOCK_SIZE << " bytes" << endl;
+	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
 }
 
 Win32DriveFormatter::~Win32DriveFormatter() {
@@ -93,9 +76,9 @@ Win32DriveFormatter::Win32DriveFormatter(const char* ) {
 	throw logic_error("Win32 block device is not implemented!");
 }
 
-void Win32DriveFormatter::write_block(int ) { }
+int32_t Win32DriveFormatter::device_size() { return 0; }
 
-void Win32DriveFormatter::format() { }
+void Win32DriveFormatter::write_block(int , const char* ) { }
 
 Win32DriveFormatter::~Win32DriveFormatter() { }
 

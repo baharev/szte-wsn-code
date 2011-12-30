@@ -34,6 +34,7 @@
 #ifndef BLOCKDEVICE_HPP_
 #define BLOCKDEVICE_HPP_
 
+#include <memory>
 #include <stdint.h>
 
 namespace sdc {
@@ -44,17 +45,26 @@ public:
 
 	// Pointer to the device's internal buffer, do not delete it
 	virtual const char* read_block(int i) = 0;
-	// FIXME It seems as if the last block is never read, see BinaryFileFormatter
 
-	virtual int end() const = 0;
+	int last_block() const {return BLOCK_OFFSET_MAX; } // FIXME Valid or invalid?
 
-	virtual int64_t size_in_bytes() const = 0;
+	virtual int64_t size_in_bytes() const { return card_size; }
 
 	virtual ~BlockDevice() { }
 
 protected:
 
-	BlockDevice() { }
+	BlockDevice();
+
+	virtual int32_t set_card_size() = 0;
+
+	void check_index(int i) const;
+
+	const std::auto_ptr<char> buffer;
+
+	int BLOCK_OFFSET_MAX;
+
+	int64_t card_size;
 
 private:
 

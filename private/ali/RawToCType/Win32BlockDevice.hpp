@@ -35,7 +35,6 @@
 #define WIN32BLOCKDEVICE_HPP_
 
 #ifdef _WIN32
-#include <memory>
 #include <windows.h>
 #endif
 #include "BlockDevice.hpp"
@@ -52,21 +51,13 @@ private:
 
 	virtual const char* read_block(int i);
 
-	virtual int end() const;
-
-	virtual int64_t size_in_bytes() const;
+	virtual int32_t set_card_size();
 
 	virtual ~Win32BlockDevice();
 
 #ifdef _WIN32
 
-	const std::auto_ptr<char> buffer;
-
 	HANDLE hDevice;
-
-    int64_t card_size;
-
-    int BLOCK_OFFSET_MAX;
 
 #endif
 };

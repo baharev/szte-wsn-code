@@ -31,12 +31,8 @@
 * Author: Ali Baharev
 */
 
-#include <cstring>
 #include <fstream>
-#include <iostream>
-#include <limits>
 #include <stdexcept>
-#include <stdint.h>
 #include "BinaryFileFormatter.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
@@ -46,8 +42,7 @@ using namespace std;
 namespace sdc {
 
 BinaryFileFormatter::BinaryFileFormatter(const char* source)
-: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary)),
-  buffer(new char[BLOCK_SIZE])
+: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary))
 {
 	if (!out->good()) {
 		string msg("failed to open file ");
@@ -57,40 +52,27 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 
 	out->exceptions(ios_base::failbit | ios_base::badbit);
 
+	BLOCK_OFFSET_MAX = device_size()/BLOCK_SIZE;
+}
+
+int32_t BinaryFileFormatter::device_size() {
+
 	out->seekg(0, ios_base::end);
 
 	int64_t size_in_bytes = static_cast<int64_t> (out->tellg());
 
-	int32_t size = cast_to_int32(size_in_bytes);
-
-	BLOCK_OFFSET_MAX = size/BLOCK_SIZE; // TODO Is it safe?
-
-	memset(buffer.get(), '\0', BLOCK_SIZE);
+	return cast_to_int32(size_in_bytes);
 }
 
-void BinaryFileFormatter::format() {
+void BinaryFileFormatter::write_block(int i, const char* buffer) {
 
-	for (int i=0; i<=BLOCK_OFFSET_MAX; ++i) {
-
-		write_block(i);
-	}
-
-	cout << "Successfully formatted " << BLOCK_OFFSET_MAX << " blocks, ";
-
-	cout << BLOCK_OFFSET_MAX*BLOCK_SIZE << " bytes" << endl;
-}
-
-void BinaryFileFormatter::write_block(int i) {
-
-	if (i<0 || i>BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index");
-	}
+	check_index(i);
 
 	try {
 
 		out->seekg(i*BLOCK_SIZE);
 
-		out->write(buffer.get(), BLOCK_SIZE);
+		out->write(buffer, BLOCK_SIZE);
 	}
 	catch (ios_base::failure& ) {
 

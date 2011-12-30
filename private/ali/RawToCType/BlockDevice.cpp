@@ -31,39 +31,24 @@
 * Author: Ali Baharev
 */
 
-#ifndef WIN32FILEFORMATTER_HPP_
-#define WIN32FILEFORMATTER_HPP_
+#include <stdexcept>
+#include "BlockDevice.hpp"
+#include "BlockRelatedConsts.hpp"
 
-#ifdef _WIN32
-#include <memory>
-#include <windows.h>
-#endif
-#include "DeviceFormatter.hpp"
+using namespace std;
 
 namespace sdc {
 
-class Win32DriveFormatter : public DeviceFormatter {
+BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(-1), card_size(0) {
 
-public:
-
-	explicit Win32DriveFormatter(const char* source);
-
-private:
-
-	virtual int32_t device_size();
-
-	virtual void write_block(int i, const char* );
-
-	virtual ~Win32DriveFormatter();
-
-#ifdef _WIN32
-
-	HANDLE hDevice;
-
-#endif
-
-};
 
 }
 
-#endif
+void BlockDevice::check_index(int i) const {
+
+	if (i<0 || i>=BLOCK_OFFSET_MAX) {
+		throw out_of_range("block index");
+	}
+}
+
+}

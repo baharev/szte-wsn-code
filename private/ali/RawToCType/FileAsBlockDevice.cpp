@@ -33,8 +33,6 @@
 
 #include <fstream>
 #include <stdexcept>
-#include <limits>
-#include <stdint.h>
 #include "BlockRelatedConsts.hpp"
 #include "FileAsBlockDevice.hpp"
 #include "Utility.hpp"
@@ -44,11 +42,8 @@ using namespace std;
 namespace sdc {
 
 FileAsBlockDevice::FileAsBlockDevice(const char* source)
-	: in(new ifstream()), buffer(new char[BLOCK_SIZE])
+	: in(new ifstream(source, ios::binary))
 {
-
-	in->open(source, ios::binary);
-
 	if (!in->good()) {
 		string msg("failed to open file ");
 		msg += source;
@@ -57,25 +52,23 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 
 	in->exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
 
-	in->seekg(0, ios::end);
-
-	card_size = in->tellg();
-
-	int32_t size = cast_to_int32(card_size);
+	int32_t size = set_card_size();
 
 	BLOCK_OFFSET_MAX = size/BLOCK_SIZE;
 }
 
-int FileAsBlockDevice::end() const {
+int32_t FileAsBlockDevice::set_card_size() {
 
-	return BLOCK_OFFSET_MAX;
+	in->seekg(0, ios::end);
+
+	card_size = in->tellg();
+
+	return cast_to_int32(card_size);
 }
 
 const char* FileAsBlockDevice::read_block(int i) {
 
-	if (i<0 || i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index");
-	}
+	check_index(i);
 
 	try {
 
@@ -89,11 +82,6 @@ const char* FileAsBlockDevice::read_block(int i) {
 	}
 
 	return buffer.get();
-}
-
-int64_t FileAsBlockDevice::size_in_bytes() const {
-
-	return card_size;
 }
 
 FileAsBlockDevice::~FileAsBlockDevice() {

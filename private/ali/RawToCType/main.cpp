@@ -36,10 +36,10 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <typeinfo>
 #include "BinaryFileFormatter.hpp"
 #include "Win32DriveFormatter.hpp"
 #include "SDCard.hpp"
+#include "demangle.hpp"
 
 using namespace std;
 using namespace sdc;
@@ -110,9 +110,9 @@ void real_main(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 
-	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
-
 	cout << "This program comes with absolutely no warranty!" << endl;
+
+	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
 
 	enum { SUCCESS, FAILURE };
 
@@ -122,9 +122,7 @@ int main(int argc, char* argv[]) {
 	}
 	catch (exception& e) {
 
-		// TODO Demangle exception
-
-		cout << "Error: " << e.what() << " (" << typeid(e).name() << ")" << endl;
+		cout << "Error: " << e.what() << " (" << name(e) << ")" << endl;
 
 		return FAILURE;
 	}

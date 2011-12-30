@@ -34,6 +34,7 @@
 #include <stdexcept>
 #include "BlockDevice.hpp"
 #include "BlockRelatedConsts.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
@@ -47,7 +48,7 @@ BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(-1),
 void BlockDevice::check_index(int i) const {
 
 	if (i<0 || i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index");
+		throw out_of_range("block index "+int2str(i));
 	}
 }
 

@@ -56,7 +56,7 @@ SDCardImpl::SDCardImpl(BlockDevice* source)
 
 	init_tracker();
 
-	MoteRegistrar(tracker->mote_id(), device->last_block());
+	MoteRegistrar(tracker->mote_id(), device->end());
 
 	check.reset(new BlockChecker(tracker->mote_id()));
 }
@@ -78,7 +78,7 @@ void SDCardImpl::process_new_measurements() {
 
 	Console::start(device->size_in_bytes(), tracker->mote_id(), block_offset, reboot_seq_num);
 
-	const int end = device->last_block(); 	// FIXME It seems as if the last block is never read
+	const int end = device->end();
 
 	for (bool finished=false; !finished && (block_offset<end); ++block_offset) {
 
@@ -86,6 +86,8 @@ void SDCardImpl::process_new_measurements() {
 
 		finished = process_block(block);
 	}
+
+	close_out_if_open();
 
 	Console::finished(device->size_in_bytes(), block_offset);
 }
@@ -163,8 +165,6 @@ bool SDCardImpl::process_block(const char* block) {
 	if (check->finished()) {
 
 		finished = true;
-
-		close_out_if_open();
 	}
 	else if (check->datalength_OK()) {
 

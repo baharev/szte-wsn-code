@@ -46,7 +46,7 @@ public:
 	// Pointer to the device's internal buffer, do not delete it
 	virtual const char* read_block(int i) = 0;
 
-	int last_block() const {return BLOCK_OFFSET_MAX; } // FIXME Valid or invalid?
+	int end() const {return BLOCK_OFFSET_MAX; } // First invalid block index
 
 	virtual int64_t size_in_bytes() const { return card_size; }
 

@@ -63,7 +63,7 @@ void Console::record_start(int reboot_id, int first_block) {
 	cout << "Reboot " << reboot_id << " at block " << first_block << endl;
 }
 
-void Console::record_end(int last_block, uint32 length) {
+void Console::record_end(int last_block, uint32_t length) {
 
 	cout << "Record length " << ticks2time(length) << ", last block ";
 	cout << last_block << endl;

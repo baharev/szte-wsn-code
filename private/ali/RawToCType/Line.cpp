@@ -66,7 +66,7 @@ Line::Line(const string& line) {
 	getline(in, date);
 }
 
-Line::Line(int first, int last, int reboot_id, unsigned int time_len)
+Line::Line(int first, int last, int reboot_id, uint32_t time_len)
 	: date(current_time())
 {
 	first_block = first;

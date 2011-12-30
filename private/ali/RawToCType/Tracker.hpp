@@ -37,6 +37,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <stdint.h>
 
 namespace sdc {
 
@@ -56,7 +57,7 @@ public:
 
 	void mark_beginning(int block_beg, int reboot);
 
-	void append_to_db(int block_end, unsigned int time_len);
+	void append_to_db(int block_end, uint32_t time_len);
 
 	~Tracker();
 

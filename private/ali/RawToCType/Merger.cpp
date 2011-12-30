@@ -215,8 +215,8 @@ void Merger::drop_not_from_mote1() {
 
 void Merger::handle_conflicting_keys(mi& pos, const Pair& sync_point) {
 
-	uint32 point1 = sync_point.second;
-	uint32 point2 = pos->second;
+	uint32_t point1 = sync_point.second;
+	uint32_t point2 = pos->second;
 
 	cout << "Warning: conflicting keys in time pairs " << endl;
 	cout << sync_point.first << '\t' << point1 << endl;
@@ -226,9 +226,9 @@ void Merger::handle_conflicting_keys(mi& pos, const Pair& sync_point) {
 		swap(point1, point2);
 	}
 
-	uint32 diff = point2-point1;
+	uint32_t diff = point2-point1;
 
-	if (diff > static_cast<uint32>(OFFSET_TOLERANCE)) {
+	if (diff > static_cast<uint32_t>(OFFSET_TOLERANCE)) {
 		cout << "they differ too much, dropping both" << endl;
 		merged.erase(pos);
 	}

@@ -39,7 +39,7 @@
 
 namespace sdc {
 
-const std::string ticks2time(unsigned int t);
+const std::string ticks2time(uint32_t t);
 
 const std::string current_time();
 

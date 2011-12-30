@@ -44,6 +44,7 @@ BlockIterator::BlockIterator(const char* block)
 }
 
 // TODO Runtime check for header and sample length?
+// FIXME check range never called!
 void BlockIterator::check_range() {
 	// TODO Also out of range if itr==end-1
 	if (itr >= end) {
@@ -51,14 +52,14 @@ void BlockIterator::check_range() {
 	}
 }
 
-uint16 BlockIterator::next_uint16() {
-	uint16 x = *reinterpret_cast<const uint16*> (itr);
+uint16_t BlockIterator::next_uint16() {
+	uint16_t x = *reinterpret_cast<const uint16_t*> (itr);
 	itr += 2;
 	return x;
 }
 
-uint32 BlockIterator::next_uint32() {
-	uint32 x = *reinterpret_cast<const uint32*> (itr);
+uint32_t BlockIterator::next_uint32() {
+	uint32_t x = *reinterpret_cast<const uint32_t*> (itr);
 	itr += 4;
 	return x;
 }

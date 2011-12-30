@@ -34,7 +34,7 @@
 #ifndef BLOCKITERATOR_HPP_
 #define BLOCKITERATOR_HPP_
 
-#include "TypeDefs.hpp"
+#include <stdint.h>
 
 namespace sdc {
 
@@ -44,9 +44,9 @@ public:
 
 	explicit BlockIterator(const char* block);
 
-	uint16 next_uint16();
+	uint16_t next_uint16();
 
-	uint32 next_uint32();
+	uint32_t next_uint32();
 
 private:
 

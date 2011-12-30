@@ -225,7 +225,7 @@ void BlockChecker::check_counter() const {
 
 void BlockChecker::check_timestamp() const {
 
-	uint32 expected = previous.timestamp() + SAMPLING_RATE;
+	uint32_t expected = previous.timestamp() + SAMPLING_RATE;
 
 	int error_in_ticks = current.timestamp() - expected;
 

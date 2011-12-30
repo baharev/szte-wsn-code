@@ -47,11 +47,11 @@ typedef ostringstream oss;
 
 namespace sdc {
 
-const string ticks2time(unsigned int t) {
+const string ticks2time(uint32_t t) {
 
 	oss os;
 
-	unsigned int hour, min, sec, milli;
+	uint32_t hour, min, sec, milli;
 
 	hour = t/(3600*TICKS_PER_SEC);
 	t =    t%(3600*TICKS_PER_SEC);
@@ -62,7 +62,7 @@ const string ticks2time(unsigned int t) {
 	sec = t/TICKS_PER_SEC;
 	t   = t%TICKS_PER_SEC;
 
-	milli = static_cast<unsigned int> ( t/(TICKS_PER_SEC/1000.0) );
+	milli = static_cast<uint32_t> ( t/(TICKS_PER_SEC/1000.0) );
 
 	os << setfill('0') << setw(2) << hour << ":";
 	os << setfill('0') << setw(2) << min  << ":";

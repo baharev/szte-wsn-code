@@ -35,7 +35,7 @@
 #define HEADER_HPP_
 
 #include <iosfwd>
-#include "TypeDefs.hpp"
+#include <stdint.h>
 
 namespace sdc {
 
@@ -49,11 +49,11 @@ public:
 
 	explicit Header(BlockIterator& itr);
 
-	uint16 data_length() const { return length; }
+	uint16_t data_length() const { return length; }
 
-	uint16 mote() const { return mote_id; }
+	uint16_t mote() const { return mote_id; }
 
-	uint32 first_block() const { return local_start; }
+	uint32_t first_block() const { return local_start; }
 
 	void set_timesync_zero();
 
@@ -65,14 +65,14 @@ public:
 
 private:
 
-	uint16 format_id;
-	uint16 mote_id;
-	uint16 length;
-	uint32 local_start; // end of SimpleFileP.nc header
-	uint32 local_time;  // struct timesync_info_t starts here
-	uint32 remote_time;
-	uint32 remote_start;
-	uint16 remote_id;
+	uint16_t format_id;
+	uint16_t mote_id;
+	uint16_t length;
+	uint32_t local_start; // end of SimpleFileP.nc header
+	uint32_t local_time;  // struct timesync_info_t starts here
+	uint32_t remote_time;
+	uint32_t remote_start;
+	uint16_t remote_id;
 };
 
 }

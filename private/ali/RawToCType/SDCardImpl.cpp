@@ -32,6 +32,7 @@
 */
 
 #include <stdexcept>
+#include <stdint.h>
 #include "SDCardImpl.hpp"
 #include "BlockDevice.hpp"
 #include "BlockIterator.hpp"
@@ -93,7 +94,7 @@ void SDCardImpl::close_out_if_open() {
 
 	if (out->is_open()) {
 
-		uint32 length_in_ticks = check->length_in_ticks();
+		uint32_t length_in_ticks = check->length_in_ticks();
 
 		tracker->append_to_db(block_offset-1, length_in_ticks);
 

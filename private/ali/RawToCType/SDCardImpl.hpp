@@ -35,7 +35,6 @@
 #define SDCARDIMPL_HPP_
 
 #include <memory>
-#include "TypeDefs.hpp"
 
 namespace sdc {
 

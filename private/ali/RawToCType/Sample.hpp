@@ -35,7 +35,7 @@
 #define SAMPLE_HPP_
 
 #include <iosfwd>
-#include "TypeDefs.hpp"
+#include <stdint.h>
 
 namespace sdc {
 
@@ -49,26 +49,26 @@ public:
 
 	explicit Sample(BlockIterator& itr);
 
-	void shift_timestamp(uint32 time_start) { time_stamp -= time_start; }
+	void shift_timestamp(uint32_t time_start) { time_stamp -= time_start; }
 
-	uint32 timestamp() const { return time_stamp; }
+	uint32_t timestamp() const { return time_stamp; }
 
-	uint16 counter() const { return seq_num; }
+	uint16_t counter() const { return seq_num; }
 
 	friend std::ostream& operator<<(std::ostream& , const Sample& );
 
 private:
 
-	uint32 time_stamp;
-	uint16 seq_num;
-	uint16 acc_x;
-	uint16 acc_y;
-	uint16 acc_z;
-	uint16 gyro_x;
-	uint16 gyro_y;
-	uint16 gyro_z;
-	uint16 volt;
-	uint16 temp;
+	uint32_t time_stamp;
+	uint16_t seq_num;
+	uint16_t acc_x;
+	uint16_t acc_y;
+	uint16_t acc_z;
+	uint16_t gyro_x;
+	uint16_t gyro_y;
+	uint16_t gyro_z;
+	uint16_t volt;
+	uint16_t temp;
 };
 
 }

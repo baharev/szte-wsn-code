@@ -124,7 +124,7 @@ void Tracker::mark_beginning(int block_beg, int reboot) {
 	reboot_id = reboot;
 }
 
-void Tracker::append_to_db(int last_block, unsigned int time_len) {
+void Tracker::append_to_db(int last_block, uint32_t time_len) {
 	
 	*db << Line(first_block, last_block, reboot_id, time_len) << flush;
 }

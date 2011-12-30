@@ -37,11 +37,11 @@
 #include <iosfwd>
 #include <utility>
 #include <string>
-#include "TypeDefs.hpp"
+#include <stdint.h>
 
 namespace sdc {
 
-typedef std::pair<uint32, uint32> Pair;
+typedef std::pair<uint32_t, uint32_t> Pair;
 
 class TimeSyncInfo {
 
@@ -65,12 +65,12 @@ public:
 
 private:
 
-	uint32 local_time;
-	uint32 remote_time;
+	uint32_t local_time;
+	uint32_t remote_time;
 	int remote_id;
 	int remote_start;
 };
 
 }
 
-#endif /* TIMESYNCINFO_HPP_ */
+#endif // TIMESYNCINFO_HPP_

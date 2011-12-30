@@ -35,7 +35,6 @@
 #define CONSOLE_HPP_
 
 #include <stdint.h>
-#include "TypeDefs.hpp"
 
 namespace sdc {
 
@@ -49,7 +48,7 @@ public:
 
 	static void record_start(int reboot_id, int first_offset);
 
-	static void record_end(int last_block, uint32 length_in_ticks);
+	static void record_end(int last_block, uint32_t length_in_ticks);
 
 	static void error_impossible_state();
 
@@ -65,4 +64,4 @@ public:
 
 }
 
-#endif /* CONSOLE_HPP_ */
+#endif // CONSOLE_HPP_

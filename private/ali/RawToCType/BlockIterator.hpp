@@ -54,7 +54,8 @@ private:
 
 	BlockIterator& operator=(const BlockIterator& );
 
-	void check_range();
+	template <typename T>
+	T read_next();
 
 	const char* const end;
 

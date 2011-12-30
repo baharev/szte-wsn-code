@@ -43,24 +43,30 @@ BlockIterator::BlockIterator(const char* block)
 
 }
 
-// TODO Runtime check for header and sample length?
-// FIXME check range never called!
-void BlockIterator::check_range() {
-	// TODO Also out of range if itr==end-1
-	if (itr >= end) {
-		throw std::out_of_range("block iterator");
-	}
-}
-
 uint16_t BlockIterator::next_uint16() {
-	uint16_t x = *reinterpret_cast<const uint16_t*> (itr);
-	itr += 2;
-	return x;
+
+	return read_next<uint16_t>();
 }
 
 uint32_t BlockIterator::next_uint32() {
-	uint32_t x = *reinterpret_cast<const uint32_t*> (itr);
-	itr += 4;
+
+	return read_next<uint32_t>();
+}
+
+template <typename T>
+T BlockIterator::read_next() {
+
+	const int size = sizeof(T);
+
+	if (itr+size > end) {
+
+		throw std::out_of_range("block iterator");
+	}
+
+	T x = *reinterpret_cast<const T*> (itr);
+
+	itr += size;
+
 	return x;
 }
 

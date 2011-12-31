@@ -182,19 +182,21 @@ void MoteRegistrar::check_size(const MoteID_Size& current) const {
 
 void MoteRegistrar::process(MoteID_Size& previous, const MoteID_Size& current) {
 
-	if (current.mote_id() <= previous.mote_id()) {
+	const int current_id = current.mote_id();
 
-		throw runtime_error("invalid mote id found in the DB");
+	if (current_id <= previous.mote_id()) {
+
+		throw runtime_error("invalid mote id "+int2str(current_id)+" found in the DB");
 	}
 
-	if ( current.mote_id() == mote_ID ) {
+	if ( current_id == mote_ID ) {
 
 		check_size(current);
 
 		new_id = false;
 	}
 
-	if (previous.mote_id() < mote_ID && mote_ID < current.mote_id()) {
+	if (previous.mote_id() < mote_ID && mote_ID < current_id) {
 
 		push_back();
 	}

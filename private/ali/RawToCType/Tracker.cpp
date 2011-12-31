@@ -32,6 +32,7 @@
 */
 
 #include <fstream>
+#include <stdexcept>
 #include "Tracker.hpp"
 #include "BlockIterator.hpp"
 #include "Header.hpp"
@@ -93,6 +94,11 @@ void Tracker::set_first_block_reboot_id() {
 Tracker::Tracker(BlockIterator& zeroth_block) : db(new ofstream()) {
 
 	mote_ID = Header(zeroth_block).mote();
+
+	if (mote_ID==0) {
+
+		throw runtime_error("0 is an invalid mote ID");
+	}
 
 	set_filename(mote_ID);
 

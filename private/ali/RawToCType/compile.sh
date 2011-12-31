@@ -44,8 +44,8 @@ Win32DeviceHelper.o \
 Win32DriveFormatter.o \
 Writer.o \
 main.o \
--o sd_card -Wl,-static,--gc-sections
+-o sd_card.exe -Wl,-static,--gc-sections
 
-strip --strip-all -R.comment -R.note sd_card
+strip --strip-all -R.comment -R.note sd_card.exe
 
-upx --overlay=strip --lzma sd_card
+upx --overlay=strip --lzma sd_card.exe

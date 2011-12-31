@@ -36,8 +36,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include "BinaryFileFormatter.hpp"
-#include "Win32DriveFormatter.hpp"
+#include "DeviceFormatter.hpp"
 #include "SDCard.hpp"
 #include "demangle.hpp"
 
@@ -58,9 +57,7 @@ void format(const string& flag, const char* device) {
 		throw runtime_error("unrecognized flag " + flag);
 	}
 
-	//auto_ptr<DeviceFormatter> df(new BinaryFileFormatter(device));
-
-	auto_ptr<DeviceFormatter> df(new Win32DriveFormatter(device));
+	auto_ptr<DeviceFormatter> df(DeviceFormatter::new_instance(device));
 
 	df->format();
 }

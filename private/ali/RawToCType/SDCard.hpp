@@ -50,8 +50,6 @@ public:
 
 	void process_new_measurements();
 
-	void format();
-
 	~SDCard();
 
 private:

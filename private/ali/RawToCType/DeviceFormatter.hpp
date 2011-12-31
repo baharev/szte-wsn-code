@@ -42,6 +42,8 @@ class DeviceFormatter {
 
 public:
 
+	static DeviceFormatter* new_instance(const char* binary_file_or_win32_drive);
+
 	void format();
 
 	virtual ~DeviceFormatter() { }

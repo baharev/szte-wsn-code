@@ -34,12 +34,34 @@
 #include <iostream>
 #include <stdexcept>
 #include "DeviceFormatter.hpp"
+#include "BinaryFileFormatter.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
+#include "Win32DriveFormatter.hpp"
 
 using namespace std;
 
 namespace sdc {
+
+DeviceFormatter* DeviceFormatter::new_instance(const char* path) {
+
+	DeviceFormatter* df = 0;
+
+	if (is_drive(path)) {
+
+		string full_path("\\\\.\\");
+
+		full_path += path;
+
+		df = new Win32DriveFormatter(full_path.c_str());
+	}
+	else {
+
+		df = new BinaryFileFormatter(path);
+	}
+
+	return df;
+}
 
 void DeviceFormatter::format() {
 

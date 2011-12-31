@@ -110,7 +110,7 @@ int64_t size_in_bytes(HANDLE hDevice) {
 	DISK_GEOMETRY pdg;
 	BOOL bResult;
 	DWORD junk;
-	int64_t ret_val = 0;
+	ULONGLONG DiskSize = 0;    // size of the drive, in bytes
 
 	bResult = DeviceIoControl(hDevice,  // device to be queried
 		IOCTL_DISK_GET_DRIVE_GEOMETRY,  // operation to perform
@@ -126,10 +126,10 @@ int64_t size_in_bytes(HANDLE hDevice) {
 		throw runtime_error(msg);
 	}
 
-	ret_val = ((int64_t) pdg.Cylinders.QuadPart) * (int64_t)pdg.TracksPerCylinder *
-		(int64_t)pdg.SectorsPerTrack * (int64_t)pdg.BytesPerSector;
+    DiskSize = pdg.Cylinders.QuadPart * (ULONG)pdg.TracksPerCylinder *
+               (ULONG)pdg.SectorsPerTrack * (ULONG)pdg.BytesPerSector;
 
-	return ret_val;
+	return DiskSize;
 }
 
 void write_block(HANDLE hDevice, int i, const char* buffer, const unsigned int BLOCK_SIZE) {

@@ -128,7 +128,7 @@ int64_t size_in_bytes(HANDLE hDevice) {
 	return ret_val;
 }
 
-void write_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+void write_block(HANDLE hDevice, int i, const char* buffer, const unsigned int BLOCK_SIZE) {
 
 	DWORD  dwBytesWritten = 0;
 	BOOL success = FALSE;

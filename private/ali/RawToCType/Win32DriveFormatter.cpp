@@ -59,7 +59,7 @@ int32_t Win32DriveFormatter::device_size() {
 
 void Win32DriveFormatter::write_block(int i, const char* buffer) {
 
-	check_index(i)
+	check_index(i);
 
 	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
 }

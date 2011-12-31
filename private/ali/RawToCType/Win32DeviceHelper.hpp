@@ -47,7 +47,7 @@ int64_t size_in_bytes(HANDLE hDevice);
 
 const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE);
 
-void write_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE);
+void write_block(HANDLE hDevice, int i, const char* buffer, const unsigned int BLOCK_SIZE);
 
 void close_device(HANDLE hDevice);
 

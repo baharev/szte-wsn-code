@@ -52,7 +52,7 @@ Win32BlockDevice::Win32BlockDevice(const char* source) {
 	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
 }
 
-virtual int32_t FileAsBlockDevice::set_card_size() {
+int32_t Win32BlockDevice::set_card_size() {
 
 	card_size = sdc::size_in_bytes(hDevice);
 

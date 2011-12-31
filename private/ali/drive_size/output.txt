@@ -1,0 +1,35 @@
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>d:
+
+D:\>cd D:\projects\drive_size\Debug
+
+D:\projects\drive_size\Debug>drive_size.exe \\.\C:
+Drive path      = \\.\C:
+Cylinders       = 41345
+Tracks/cylinder = 240
+Sectors/track   = 63
+Bytes/sector    = 512
+Disk size       = 320069836800 (Bytes)
+                = 298.09 (Gb)
+
+D:\projects\drive_size\Debug>drive_size.exe \\.\D:
+Drive path      = \\.\D:
+Cylinders       = 41345
+Tracks/cylinder = 240
+Sectors/track   = 63
+Bytes/sector    = 512
+Disk size       = 320069836800 (Bytes)
+                = 298.09 (Gb)
+
+D:\projects\drive_size\Debug>drive_size.exe \\.\F:
+Drive path      = \\.\F:
+Cylinders       = 1
+Tracks/cylinder = 255
+Sectors/track   = 63
+Bytes/sector    = 512
+Disk size       = 8225280 (Bytes)
+                = 0.01 (Gb)
+
+D:\projects\drive_size\Debug>

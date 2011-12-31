@@ -49,11 +49,7 @@ DeviceFormatter* DeviceFormatter::new_instance(const char* path) {
 
 	if (is_drive(path)) {
 
-		string full_path("\\\\.\\");
-
-		full_path += path;
-
-		df = new Win32DriveFormatter(full_path.c_str());
+		df = new Win32DriveFormatter(path);
 	}
 	else {
 

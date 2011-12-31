@@ -80,15 +80,19 @@ const string error_message() {
 
 HANDLE open_device(const char* path, DWORD access) {
 
+	string full_path("\\\\.\\");
+
+	full_path += path;
+
 	HANDLE hDevice;
 
-	hDevice = CreateFileA(path,  // drive to open
-		access,                // access to the drive
+	hDevice = CreateFileA(full_path.c_str(), // drive to open
+		access,           // access to the drive
 		FILE_SHARE_READ | // share mode
 		FILE_SHARE_WRITE,
 		NULL,             // default security attributes
 		OPEN_EXISTING,    // disposition
-		FILE_FLAG_NO_BUFFERING,                // file attributes
+		FILE_FLAG_NO_BUFFERING, // file attributes
 		NULL);            // do not copy file attributes
 
 	if (hDevice == INVALID_HANDLE_VALUE) // cannot open the drive

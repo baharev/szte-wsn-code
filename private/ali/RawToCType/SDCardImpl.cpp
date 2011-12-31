@@ -165,6 +165,8 @@ bool SDCardImpl::process_block(const char* block) {
 	if (check->finished()) {
 
 		finished = true;
+
+		--block_offset; // to compensate for for-loop increment...
 	}
 	else if (check->datalength_OK()) {
 

@@ -58,7 +58,7 @@ void format(const string& flag, const char* device) {
 		throw runtime_error("unrecognized flag " + flag);
 	}
 
-	DeviceFormatter* df = new BinaryFileFormatter(device);
+	auto_ptr<DeviceFormatter> df(new BinaryFileFormatter(device));
 
 	//DeviceFormatter* df = new Win32DriveFormatter(device);
 

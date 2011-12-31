@@ -31,9 +31,7 @@
 * Author: Ali Baharev
 */
 
-#include <cstring>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 #include "DeviceFormatter.hpp"
 #include "BlockRelatedConsts.hpp"
@@ -45,14 +43,16 @@ namespace sdc {
 
 void DeviceFormatter::format() {
 
-	auto_ptr<char> buffer(new char[BLOCK_SIZE]);
+	cout << "Started, please be patient, it will take a while..." << endl;
 
-	memset(buffer.get(), '\0', BLOCK_SIZE);
+	char buffer[BLOCK_SIZE] = { 0 };
 
-	for (int i=0; i<=BLOCK_OFFSET_MAX; ++i) {
+	for (int i=0; i<BLOCK_OFFSET_MAX; ++i) {
 
-		write_block(i, buffer.get());
+		write_block(i, buffer);
 	}
+
+	flush_to_device();
 
 	cout << "Successfully formatted " << BLOCK_OFFSET_MAX << " blocks, ";
 
@@ -61,7 +61,7 @@ void DeviceFormatter::format() {
 
 void DeviceFormatter::check_index(int i) const {
 
-	if (i<0 || i>BLOCK_OFFSET_MAX) {
+	if (i<0 || i>=BLOCK_OFFSET_MAX) {
 		throw out_of_range("block index "+int2str(i));
 	}
 }

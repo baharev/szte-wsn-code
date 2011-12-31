@@ -64,6 +64,12 @@ void Win32DriveFormatter::write_block(int i, const char* buffer) {
 	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
 }
 
+
+void Win32DriveFormatter::flush_to_device() {
+	//  FILE_FLAG_NO_BUFFERING is used in CreateFile,
+	//  otherwise call FlushFileBuffers(hDevice);
+}
+
 Win32DriveFormatter::~Win32DriveFormatter() {
 
 	sdc::close_device(hDevice);
@@ -79,6 +85,8 @@ Win32DriveFormatter::Win32DriveFormatter(const char* ) {
 int32_t Win32DriveFormatter::device_size() { return 0; }
 
 void Win32DriveFormatter::write_block(int , const char* ) { }
+
+void Win32DriveFormatter::flush_to_device() { }
 
 Win32DriveFormatter::~Win32DriveFormatter() { }
 

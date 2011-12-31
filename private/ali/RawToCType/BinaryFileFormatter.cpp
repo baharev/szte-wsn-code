@@ -57,9 +57,11 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 
 int32_t BinaryFileFormatter::device_size() {
 
-	out->seekg(0, ios_base::end);
+	out->seekp(0, ios_base::end);
 
-	int64_t size_in_bytes = static_cast<int64_t> (out->tellg());
+	int64_t size_in_bytes = static_cast<int64_t> (out->tellp());
+
+	out->seekp(0, ios_base::beg);
 
 	return cast_to_int32(size_in_bytes);
 }
@@ -70,7 +72,7 @@ void BinaryFileFormatter::write_block(int i, const char* buffer) {
 
 	try {
 
-		out->seekg(i*BLOCK_SIZE);
+		out->seekp(i*BLOCK_SIZE, ios_base::beg);
 
 		out->write(buffer, BLOCK_SIZE);
 	}
@@ -80,8 +82,13 @@ void BinaryFileFormatter::write_block(int i, const char* buffer) {
 	}
 }
 
+void BinaryFileFormatter::flush_to_device() {
+
+	out->flush();
+}
+
 BinaryFileFormatter::~BinaryFileFormatter() {
-	// Do NOT remove this empty dtor: required to generate the dtor of auto_ptr
+	// Do NOT remove: required to generate the dtor of auto_ptr
 }
 
 }

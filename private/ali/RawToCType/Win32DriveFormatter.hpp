@@ -54,6 +54,8 @@ private:
 
 	virtual void write_block(int i, const char* );
 
+	virtual void flush_to_device();
+
 	virtual ~Win32DriveFormatter();
 
 #ifdef _WIN32

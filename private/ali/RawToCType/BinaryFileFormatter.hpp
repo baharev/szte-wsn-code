@@ -52,6 +52,8 @@ private:
 
 	virtual void write_block(int i, const char* buffer);
 
+	virtual void flush_to_device();
+
 	virtual ~BinaryFileFormatter();
 
 	const std::auto_ptr<std::fstream> out;

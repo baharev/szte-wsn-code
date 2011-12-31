@@ -40,9 +40,6 @@
 #include <windows.h>
 
 namespace sdc {
-// FIXME List of todos
-// - fix bug in read, test with binary file
-// - Move all stdio into Console
 
 HANDLE open_device(const char* path, DWORD access = GENERIC_READ);
 

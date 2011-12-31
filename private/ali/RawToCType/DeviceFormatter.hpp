@@ -52,6 +52,8 @@ protected:
 
 	virtual int32_t device_size() = 0;
 
+	virtual void flush_to_device() = 0;
+
 	void check_index(int i) const;
 
 	int BLOCK_OFFSET_MAX;

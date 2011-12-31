@@ -100,7 +100,7 @@ Tracker::Tracker(BlockIterator& zeroth_block) : db(new ofstream()) {
 
 	db->exceptions(ofstream::failbit | ofstream::badbit);
 
-	db->open(filename.c_str(), ofstream::app);
+	db->open(filename.c_str(), ofstream::app | ofstream::binary);
 }
 
 int Tracker::start_from_here() const {

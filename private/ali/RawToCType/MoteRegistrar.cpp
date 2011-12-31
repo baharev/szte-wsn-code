@@ -135,7 +135,7 @@ void MoteRegistrar::register_id() {
 
 	db->exceptions(fstream::failbit | fstream::badbit);
 
-	db->open(MOTE_ID_DB, fstream::out | fstream::trunc);
+	db->open(MOTE_ID_DB, fstream::out | fstream::trunc | fstream::binary);
 
 	const int n = static_cast<int> (motes.size());
 

@@ -53,8 +53,8 @@ void Writer::start_new_record(int mote_id, int reboot_id, int first_block) {
 	string fsamples(get_filename(mote_id, reboot_id, first_block));
 	string ftimesync(fsamples);
 
-	samples->open(  fsamples.append(".csv").c_str());
-	timesync->open(ftimesync.append(".tsm").c_str());
+	samples->open(  fsamples.append(".csv").c_str(), ofstream::binary);
+	timesync->open(ftimesync.append(".tsm").c_str(), ofstream::binary);
 }
 
 bool Writer::is_open() const {

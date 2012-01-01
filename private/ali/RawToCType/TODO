@@ -1,0 +1,5 @@
+- formatted error messages on GNU, errno 
+- rescue option, dd like tool copying the full device
+- binary search tool, looking for the first unused block
+- checking tool: all zeros / comparing two files bitwise
+- creating valid blocks and writing to binary file

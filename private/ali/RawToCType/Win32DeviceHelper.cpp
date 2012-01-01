@@ -51,7 +51,7 @@ const string error_message() {
     LPVOID lpMsgBuf;
     DWORD dw = GetLastError();
 
-    FormatMessage(
+    FormatMessageA(
         FORMAT_MESSAGE_ALLOCATE_BUFFER |
         FORMAT_MESSAGE_FROM_SYSTEM |
         FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -64,7 +64,10 @@ const string error_message() {
 
     ostringstream os;
 
-    os << static_cast<char*>(lpMsgBuf) << " (code: " << dw << ")";
+    const char* fmsg = (lpMsgBuf!=NULL) ?
+    		static_cast<char*>(lpMsgBuf) : "(formatted message not available)";
+
+    os << fmsg << " (code: " << dw << ")";
 
     LocalFree(lpMsgBuf);
 
@@ -107,29 +110,25 @@ HANDLE open_device(const char* path, DWORD access) {
 
 int64_t size_in_bytes(HANDLE hDevice) {
 
-	DISK_GEOMETRY pdg;
-	BOOL bResult;
-	DWORD junk;
-	ULONGLONG DiskSize = 0;    // size of the drive, in bytes
+	GET_LENGTH_INFORMATION len;
+	BOOL bResult = FALSE;
+	DWORD bytesReturned = 0;
 
-	bResult = DeviceIoControl(hDevice,  // device to be queried
-		IOCTL_DISK_GET_DRIVE_GEOMETRY,  // operation to perform
-		NULL, 0, // no input buffer
-		&pdg, sizeof(pdg),     // output buffer
-		&junk,                 // # bytes returned
-		(LPOVERLAPPED) NULL);  // synchronous I/O
+	bResult = DeviceIoControl(hDevice,   // device to be queried
+							  IOCTL_DISK_GET_LENGTH_INFO, // operation to perform
+	                          NULL, 0,   // no input buffer
+	                          (LPVOID*)&len, sizeof(len), // output buffer
+	                          &bytesReturned,       // # bytes returned
+	                          (LPOVERLAPPED) NULL); // synchronous I/O
 
-	if (FALSE == bResult) {
+	if (bResult == FALSE) {
 
 		const string msg = error_message();
 
 		throw runtime_error(msg);
 	}
 
-    DiskSize = pdg.Cylinders.QuadPart * (ULONG)pdg.TracksPerCylinder *
-               (ULONG)pdg.SectorsPerTrack * (ULONG)pdg.BytesPerSector;
-
-	return DiskSize;
+	return len.Length.QuadPart;
 }
 
 void write_block(HANDLE hDevice, int i, const char* buffer, const unsigned int BLOCK_SIZE) {

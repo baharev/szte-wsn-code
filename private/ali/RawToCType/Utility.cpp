@@ -248,7 +248,7 @@ int32_t cast_to_int32(int64_t size) {
 
 	throw_if_larger_than_2GB(size);
 
-	return size;
+	return static_cast<int32_t>(size);
 }
 
 void replace(string& s, const char old, const char new_char) {

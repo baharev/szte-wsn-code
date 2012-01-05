@@ -45,7 +45,7 @@ namespace sdc {
 
 Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
-	hDevice = open_device(source, GENERIC_WRITE);
+	hDevice = open_device(source, GENERIC_READ | GENERIC_WRITE);
 
 	BLOCK_OFFSET_MAX = device_size()/BLOCK_SIZE;
 }

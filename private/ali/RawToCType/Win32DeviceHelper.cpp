@@ -91,8 +91,7 @@ HANDLE open_device(const char* path, DWORD access) {
 
 	hDevice = CreateFileA(full_path.c_str(), // drive to open
 		access,           // access to the drive
-		FILE_SHARE_READ | // share mode
-		FILE_SHARE_WRITE,
+		0, // share mode
 		NULL,             // default security attributes
 		OPEN_EXISTING,    // disposition
 		FILE_FLAG_NO_BUFFERING, // file attributes

@@ -47,23 +47,21 @@ Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
 	hDevice = open_device(source, GENERIC_READ | GENERIC_WRITE);
 
-	BLOCK_OFFSET_MAX = device_size()/BLOCK_SIZE;
-}
-
-int32_t Win32DriveFormatter::device_size() {
-
 	uint64_t size64 = size_in_bytes(hDevice);
 
-	return cast_to_int32(size64);
+	cast_to_int32(size64);
+
+	BLOCK_OFFSET_MAX = size64/BLOCK_SIZE;
 }
 
 void Win32DriveFormatter::write_block(uint64_t i, const char* buffer) {
 
 	check_index(i);
 
+	cast_to_int32(i*BLOCK_OFFSET_MAX);
+
 	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
 }
-
 
 void Win32DriveFormatter::flush_to_device() {
 	//  FILE_FLAG_NO_BUFFERING is used in CreateFile,

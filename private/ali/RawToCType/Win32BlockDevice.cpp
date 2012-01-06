@@ -47,21 +47,16 @@ Win32BlockDevice::Win32BlockDevice(const char* source) {
 
 	hDevice = open_device(source);
 
-	int32_t size32 = set_card_size();
-
-	BLOCK_OFFSET_MAX = size32/BLOCK_SIZE;
-}
-
-int32_t Win32BlockDevice::set_card_size() {
-
 	card_size = sdc::size_in_bytes(hDevice);
 
-	return cast_to_int32(card_size);
+	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
 }
 
-const char* Win32BlockDevice::read_block(int i) {
+const char* Win32BlockDevice::read_block(uint64_t i) {
 
 	check_index(i);
+
+	cast_to_int32(card_size);
 
 	return sdc::read_block(hDevice, i, buffer.get(), BLOCK_SIZE);
 }

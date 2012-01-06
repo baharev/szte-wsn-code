@@ -49,16 +49,12 @@ Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
 	uint64_t size64 = size_in_bytes(hDevice);
 
-	cast_to_int32(size64);
-
 	BLOCK_OFFSET_MAX = size64/BLOCK_SIZE;
 }
 
 void Win32DriveFormatter::write_block(uint64_t i, const char* buffer) {
 
 	check_index(i);
-
-	cast_to_int32(i*BLOCK_OFFSET_MAX);
 
 	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
 }

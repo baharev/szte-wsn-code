@@ -80,7 +80,6 @@ const string error_message() {
     return msg;
 }
 
-
 HANDLE open_device(const char* path, DWORD access) {
 
 	string full_path("\\\\.\\");
@@ -130,46 +129,59 @@ uint64_t size_in_bytes(HANDLE hDevice) {
 	return len.Length.QuadPart;
 }
 
-void write_block(HANDLE hDevice, int i, const char* buffer, const unsigned int BLOCK_SIZE) {
+uint32_t lower_bytes(uint64_t x) {
+
+	return x & 0x00000000FFFFFFFF;
+}
+
+uint32_t upper_bytes(uint64_t x) {
+
+	return x >> 32;
+}
+
+void set_position(OVERLAPPED& ol, uint64_t block) {
+
+	const uint64_t pos = block*BLOCK_SIZE;
+
+	ol.hEvent = 0;
+	ol.Internal = 0;
+	ol.InternalHigh = 0;
+	ol.Offset = lower_bytes(pos);
+	ol.OffsetHigh = upper_bytes(pos);
+}
+
+void write_block(HANDLE hDevice,  uint64_t block_offset, const char* buffer, const unsigned int BLOCK_SIZE) {
 
 	DWORD  dwBytesWritten = 0;
 	BOOL success = FALSE;
 
 	OVERLAPPED ol;
 
-	ol.hEvent = 0;
-	ol.Internal = 0;
-	ol.InternalHigh = 0;
-	ol.Offset = (DWORD) BLOCK_SIZE*i;
-	ol.OffsetHigh = 0;
+	set_position(ol, block_offset);
 
 	success = WriteFile(hDevice, buffer, BLOCK_SIZE, &dwBytesWritten, (LPOVERLAPPED) &ol);
 
 	if ((success==FALSE)||(dwBytesWritten!=BLOCK_SIZE)) {
 
-		string msg("writing block "+int2str(i)+" failed, "+error_message());
+		string msg("writing block "+uint2str(block_offset)+" failed, "+error_message());
 
 		throw runtime_error(msg);
 	}
 }
 
-const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE) {
+const char* read_block(HANDLE hDevice,  uint64_t block_offset, char* buffer, const unsigned int BLOCK_SIZE) {
 
 	DWORD  dwBytesRead = 0;
 	BOOL success = FALSE;
 	OVERLAPPED ol;
 
-	ol.hEvent = 0;
-	ol.Internal = 0;
-	ol.InternalHigh = 0;
-	ol.Offset = (DWORD) BLOCK_SIZE*i;
-	ol.OffsetHigh = 0;
+	set_position(ol, block_offset);
 
 	success = ReadFile(hDevice, buffer, BLOCK_SIZE, &dwBytesRead, (LPOVERLAPPED) &ol);
 
 	if((FALSE==success) || (dwBytesRead!=BLOCK_SIZE)) {
 
-		string msg("reading block "+int2str(i)+" failed, "+error_message());
+		string msg("reading block "+uint2str(block_offset)+" failed, "+error_message());
 
 		throw runtime_error(msg);
 	}

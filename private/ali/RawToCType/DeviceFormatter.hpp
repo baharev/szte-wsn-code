@@ -62,6 +62,8 @@ protected:
 
 private:
 
+	void show_progress(uint64_t) const;
+
 	DeviceFormatter(const DeviceFormatter& );
 
 	DeviceFormatter& operator=(const DeviceFormatter& );

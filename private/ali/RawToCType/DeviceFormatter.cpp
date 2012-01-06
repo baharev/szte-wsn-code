@@ -32,6 +32,7 @@
 */
 
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include "DeviceFormatter.hpp"
 #include "BinaryFileFormatter.hpp"
@@ -61,6 +62,8 @@ DeviceFormatter* DeviceFormatter::new_instance(const char* path) {
 
 void DeviceFormatter::format() {
 
+	cout << "Card size is " <<  card_size_GB(BLOCK_OFFSET_MAX*BLOCK_SIZE) << endl;
+
 	cout << "Started, please be patient, it will take a while..." << endl;
 
 	char buffer[BLOCK_SIZE] = { 0 };
@@ -68,6 +71,8 @@ void DeviceFormatter::format() {
 	for (uint64_t i=0; i<BLOCK_OFFSET_MAX; ++i) {
 
 		write_block(i, buffer);
+
+		show_progress(i);
 	}
 
 	flush_to_device();
@@ -81,6 +86,17 @@ void DeviceFormatter::check_index(uint64_t i) const {
 
 	if (i>=BLOCK_OFFSET_MAX) {
 		throw out_of_range("block index "+uint2str(i));
+	}
+}
+
+void DeviceFormatter::show_progress(uint64_t i) const {
+
+	++i;
+
+	if (!(i%500)) {
+		cout << "progress made so far: written " << i << " blocks (approx. ";
+		cout << setprecision(2) << fixed << (((double)i)/BLOCK_OFFSET_MAX*100.0);
+		cout << "% ready)" << endl;
 	}
 }
 

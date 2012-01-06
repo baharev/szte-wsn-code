@@ -56,8 +56,6 @@ const char* Win32BlockDevice::read_block(uint64_t i) {
 
 	check_index(i);
 
-	cast_to_int32(card_size);
-
 	return sdc::read_block(hDevice, i, buffer.get(), BLOCK_SIZE);
 }
 

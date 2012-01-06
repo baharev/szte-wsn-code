@@ -1,6 +1,8 @@
 
 - Remove 2GB limit
 
+- Check FILE_SHARE_WRITE / exclusive access, write FAT32, read non-admin
+
 - formatted error messages on GNU, errno
   http://www.cplusplus.com/reference/clibrary/cerrno/errno/
   http://www.cplusplus.com/reference/clibrary/cstring/strerror/

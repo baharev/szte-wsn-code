@@ -52,12 +52,12 @@ Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
 int32_t Win32DriveFormatter::device_size() {
 
-	int64_t size64 = size_in_bytes(hDevice);
+	uint64_t size64 = size_in_bytes(hDevice);
 
 	return cast_to_int32(size64);
 }
 
-void Win32DriveFormatter::write_block(int i, const char* buffer) {
+void Win32DriveFormatter::write_block(uint64_t i, const char* buffer) {
 
 	check_index(i);
 
@@ -82,9 +82,7 @@ Win32DriveFormatter::Win32DriveFormatter(const char* ) {
 	throw logic_error("Win32 block device is not implemented!");
 }
 
-int32_t Win32DriveFormatter::device_size() { return 0; }
-
-void Win32DriveFormatter::write_block(int , const char* ) { }
+void Win32DriveFormatter::write_block(uint64_t , const char* ) { }
 
 void Win32DriveFormatter::flush_to_device() { }
 

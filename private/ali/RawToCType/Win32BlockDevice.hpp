@@ -49,9 +49,7 @@ public:
 
 private:
 
-	virtual const char* read_block(int i);
-
-	virtual int32_t set_card_size();
+	virtual const char* read_block(uint64_t i);
 
 	virtual ~Win32BlockDevice();
 

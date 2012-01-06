@@ -48,9 +48,7 @@ public:
 
 private:
 
-	virtual int32_t device_size();
-
-	virtual void write_block(int i, const char* buffer);
+	virtual void write_block(uint64_t i, const char* buffer);
 
 	virtual void flush_to_device();
 

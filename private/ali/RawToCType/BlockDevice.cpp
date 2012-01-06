@@ -40,15 +40,20 @@ using namespace std;
 
 namespace sdc {
 
-BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(-1), card_size(0) {
+BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(0), card_size(0) {
 
 
 }
 
-void BlockDevice::check_index(int i) const {
+int32_t BlockDevice::end_int32() const {
 
-	if (i<0 || i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index "+int2str(i));
+	return cast_to_int32(BLOCK_OFFSET_MAX); // throws if > 2GB
+}
+
+void BlockDevice::check_index(uint64_t i) const {
+
+	if (i>=BLOCK_OFFSET_MAX) {
+		throw out_of_range("block index "+uint2str(i));
 	}
 }
 

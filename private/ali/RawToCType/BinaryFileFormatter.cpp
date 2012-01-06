@@ -52,21 +52,14 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 
 	out->exceptions(ios_base::failbit | ios_base::badbit);
 
-	BLOCK_OFFSET_MAX = device_size()/BLOCK_SIZE;
-}
-
-int32_t BinaryFileFormatter::device_size() {
-
 	out->seekp(0, ios_base::end);
 
-	int64_t size_in_bytes = static_cast<int64_t> (out->tellp());
+	uint64_t size_in_bytes = static_cast<uint64_t> (out->tellp());
 
-	out->seekp(0, ios_base::beg);
-
-	return cast_to_int32(size_in_bytes);
+	BLOCK_OFFSET_MAX = size_in_bytes/BLOCK_SIZE;
 }
 
-void BinaryFileFormatter::write_block(int i, const char* buffer) {
+void BinaryFileFormatter::write_block(uint64_t i, const char* buffer) {
 
 	check_index(i);
 
@@ -78,7 +71,7 @@ void BinaryFileFormatter::write_block(int i, const char* buffer) {
 	}
 	catch (ios_base::failure& ) {
 
-		throw runtime_error("failed to write block "+int2str(i));
+		throw runtime_error("failed to write block "+uint2str(i));
 	}
 }
 

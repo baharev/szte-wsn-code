@@ -43,7 +43,7 @@ namespace sdc {
 
 HANDLE open_device(const char* path, DWORD access = GENERIC_READ);
 
-int64_t size_in_bytes(HANDLE hDevice);
+uint64_t size_in_bytes(HANDLE hDevice);
 
 const char* read_block(HANDLE hDevice, int i, char* buffer, const unsigned int BLOCK_SIZE);
 

@@ -175,7 +175,7 @@ int recorded_length_in_ms(int first_block, int last_block) {
 	return round(length/(TICKS_PER_SEC/1024.0));
 }
 
-const string failed_to_read_block(int i) {
+const string failed_to_read_block(uint64_t i) {
 
 	oss os;
 
@@ -203,9 +203,18 @@ const std::string int2str(int i) {
 	return os.str();
 }
 
-unsigned int GB() {
+const std::string uint2str(uint64_t i) {
 
-	unsigned int one = 1;
+	oss os;
+
+	os << i << flush;
+
+	return os.str();
+}
+
+uint32_t GB() {
+
+	uint32_t one = 1;
 
 	return (one << 30);
 }
@@ -218,12 +227,12 @@ bool is_drive(const char* source) {
 }
 
 
-double byte_to_GB(int64_t size) {
+double byte_to_GB(uint64_t size) {
 
 	return static_cast<double>(size)/GB();
 }
 
-const std::string card_size_GB(int64_t size) {
+const std::string card_size_GB(uint64_t size) {
 
 	double size_in_GB = byte_to_GB(size);
 
@@ -234,17 +243,17 @@ const std::string card_size_GB(int64_t size) {
 	return os.str();
 }
 
-void throw_if_larger_than_2GB(const int64_t size) {
+void throw_if_larger_than_2GB(const uint64_t size) {
 
-	int64_t int32_max = (numeric_limits<int32_t>::max)(); // Otherwise error C2589
+	uint64_t int32_max = (numeric_limits<int32_t>::max)(); // Otherwise error C2589
 
-	if (size > int32_max || size <= 0) {
+	if (size > int32_max) {
 
 		throw runtime_error("card size is larger than 2 GB");
 	}
 }
 
-int32_t cast_to_int32(int64_t size) {
+int32_t cast_to_int32(uint64_t size) {
 
 	throw_if_larger_than_2GB(size);
 

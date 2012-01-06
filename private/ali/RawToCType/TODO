@@ -1,4 +1,6 @@
 
+- Remove 2GB limit
+
 - formatted error messages on GNU, errno
   http://www.cplusplus.com/reference/clibrary/cerrno/errno/
   http://www.cplusplus.com/reference/clibrary/cstring/strerror/
@@ -10,4 +12,7 @@
 - checking tool: all zeros / comparing two files bitwise
 
 - binary search tool, looking for the first unused block
+
 - creating valid blocks and writing to binary file
+
+- SQLite DB

@@ -43,12 +43,12 @@ class BlockDevice {
 
 public:
 
-	// Pointer to the device's internal buffer, do not delete it
-	virtual const char* read_block(int i) = 0;
+	// Pointer to the device's internal buffer, do NOT delete it
+	virtual const char* read_block(uint64_t i) = 0;
 
-	int end() const {return BLOCK_OFFSET_MAX; } // First invalid block index
+	int32_t end_int32() const; // First invalid block index, throws if > 2GB
 
-	virtual int64_t size_in_bytes() const { return card_size; }
+	virtual uint64_t size_in_bytes() const { return card_size; }
 
 	virtual ~BlockDevice() { }
 
@@ -56,15 +56,13 @@ protected:
 
 	BlockDevice();
 
-	virtual int32_t set_card_size() = 0;
-
-	void check_index(int i) const;
+	void check_index(uint64_t i) const;
 
 	const std::auto_ptr<char> buffer;
 
-	int BLOCK_OFFSET_MAX;
+	uint64_t BLOCK_OFFSET_MAX;
 
-	int64_t card_size;
+	uint64_t card_size;
 
 private:
 

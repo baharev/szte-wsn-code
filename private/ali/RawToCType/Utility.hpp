@@ -57,21 +57,23 @@ int round(double x);
 
 int recorded_length_in_ms(int first_block, int last_block);
 
-const std::string failed_to_read_block(int i);
+const std::string failed_to_read_block(uint64_t i);
 
 const std::string rdb_file_name(int mote_id);
 
 const std::string int2str(int i);
 
-unsigned int GB();
+const std::string uint2str(uint64_t i);
+
+uint32_t GB();
 
 bool is_drive(const char* source);
 
-double byte_to_GB(int64_t size);
+double byte_to_GB(uint64_t size);
 
-const std::string card_size_GB(int64_t size);
+const std::string card_size_GB(uint64_t size);
 
-int32_t cast_to_int32(int64_t size); // throws if size is larger than 2GB
+int32_t cast_to_int32(uint64_t size); // throws if size is larger than 2GB
 
 void replace(std::string& s, const char old, const char new_char);
 

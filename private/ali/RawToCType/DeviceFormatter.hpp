@@ -46,21 +46,19 @@ public:
 
 	void format();
 
+	virtual void write_block(uint64_t i, const char* buffer) = 0;
+
+	virtual void flush_to_device() = 0;
+
 	virtual ~DeviceFormatter() { }
 
 protected:
 
-	virtual void write_block(int i, const char* buffer) = 0;
+	void check_index(uint64_t i) const;
 
-	virtual int32_t device_size() = 0;
+	uint64_t BLOCK_OFFSET_MAX;
 
-	virtual void flush_to_device() = 0;
-
-	void check_index(int i) const;
-
-	int BLOCK_OFFSET_MAX;
-
-	DeviceFormatter() : BLOCK_OFFSET_MAX(-1) { }
+	DeviceFormatter() : BLOCK_OFFSET_MAX(0) { }
 
 private:
 

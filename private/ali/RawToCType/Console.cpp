@@ -39,7 +39,7 @@ using namespace std;
 
 namespace sdc {
 
-void Console::start(int64_t card_size, int mote_id, int first_block, int reboot) {
+void Console::start(uint64_t card_size, int mote_id, int first_block, int reboot) {
 
 	cout << "Card size is " << card_size_GB(card_size) << endl;
 	cout << "Mote ID: " << mote_id << endl;
@@ -48,7 +48,7 @@ void Console::start(int64_t card_size, int mote_id, int first_block, int reboot)
 	cout << "---------------------------------------------------------" << endl;
 }
 
-void Console::finished(int64_t size, int last_block) {
+void Console::finished(uint64_t size, int last_block) {
 
 	double card_size = byte_to_GB(size);
 

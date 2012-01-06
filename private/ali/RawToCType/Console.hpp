@@ -42,9 +42,9 @@ class Console {
 
 public:
 
-	static void start(int64_t card_size, int mote_id, int first_block, int reboot);
+	static void start(uint64_t card_size, int mote_id, int first_block, int reboot);
 
-	static void finished(int64_t card_size, int last_block);
+	static void finished(uint64_t card_size, int last_block);
 
 	static void record_start(int reboot_id, int first_offset);
 

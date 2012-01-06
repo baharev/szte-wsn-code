@@ -107,7 +107,7 @@ HANDLE open_device(const char* path, DWORD access) {
 	return hDevice;
 }
 
-int64_t size_in_bytes(HANDLE hDevice) {
+uint64_t size_in_bytes(HANDLE hDevice) {
 
 	GET_LENGTH_INFORMATION len;
 	BOOL bResult = FALSE;

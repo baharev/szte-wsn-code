@@ -65,7 +65,7 @@ void DeviceFormatter::format() {
 
 	char buffer[BLOCK_SIZE] = { 0 };
 
-	for (int i=0; i<BLOCK_OFFSET_MAX; ++i) {
+	for (uint64_t i=0; i<BLOCK_OFFSET_MAX; ++i) {
 
 		write_block(i, buffer);
 	}
@@ -77,10 +77,10 @@ void DeviceFormatter::format() {
 	cout << BLOCK_OFFSET_MAX*BLOCK_SIZE << " bytes" << endl;
 }
 
-void DeviceFormatter::check_index(int i) const {
+void DeviceFormatter::check_index(uint64_t i) const {
 
-	if (i<0 || i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index "+int2str(i));
+	if (i>=BLOCK_OFFSET_MAX) {
+		throw out_of_range("block index "+uint2str(i));
 	}
 }
 

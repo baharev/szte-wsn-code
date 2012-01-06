@@ -52,21 +52,14 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 
 	in->exceptions(ifstream::failbit | ifstream::badbit | ifstream::eofbit);
 
-	int32_t size = set_card_size();
-
-	BLOCK_OFFSET_MAX = size/BLOCK_SIZE;
-}
-
-int32_t FileAsBlockDevice::set_card_size() {
-
 	in->seekg(0, ios::end);
 
 	card_size = in->tellg();
 
-	return cast_to_int32(card_size);
+	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
 }
 
-const char* FileAsBlockDevice::read_block(int i) {
+const char* FileAsBlockDevice::read_block(uint64_t i) {
 
 	check_index(i);
 

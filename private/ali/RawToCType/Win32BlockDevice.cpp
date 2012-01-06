@@ -78,12 +78,7 @@ Win32BlockDevice::Win32BlockDevice(const char* ) {
 	throw logic_error("Win32 block device is not implemented!");
 }
 
-int32_t Win32BlockDevice::set_card_size() {
-
-	return 0;
-}
-
-const char* Win32BlockDevice::read_block(int ) {
+const char* Win32BlockDevice::read_block(uint64_t ) {
 
 	return 0;
 }

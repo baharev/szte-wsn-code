@@ -31,6 +31,8 @@
  * Author: Ali Baharev
  */
 
+#include <cerrno>
+#include <cstring>
 #include <ctime>
 #include <cmath>
 #include <iomanip>
@@ -268,6 +270,11 @@ void replace(string& s, const char old, const char new_char) {
 
     	s.at(pos) = new_char;
     }
+}
+
+const string last_error() {
+
+	return strerror(errno);
 }
 
 }

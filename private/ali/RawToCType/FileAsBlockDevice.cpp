@@ -47,6 +47,7 @@ FileAsBlockDevice::FileAsBlockDevice(const char* source)
 	if (!in->good()) {
 		string msg("failed to open file ");
 		msg += source;
+		msg += ", " + last_error();
 		throw runtime_error(msg);
 	}
 

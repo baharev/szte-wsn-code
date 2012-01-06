@@ -1,20 +1,26 @@
 
-- Remove 2GB limit
++ reporting progress during formatting
 
-- Check FILE_SHARE_WRITE / exclusive access, write FAT32, read non-admin
++ Check FILE_SHARE_WRITE / exclusive access, write FAT32, read non-admin
 
-- formatted error messages on GNU, errno
+- formatted error messages, errno
   http://www.cplusplus.com/reference/clibrary/cerrno/errno/
   http://www.cplusplus.com/reference/clibrary/cstring/strerror/
 
-- reporting progress during formatting
+  Requires testing on Win32
+
+- command line arg parsing
 
 - rescue option, dd like tool copying the full device
 
 - checking tool: all zeros / comparing two files bitwise
+
+- move stdout/stderr I/O to Console 
 
 - binary search tool, looking for the first unused block
 
 - creating valid blocks and writing to binary file
 
 - SQLite DB
+
+- Remove 2GB limit from SDCardImpl and its helpers

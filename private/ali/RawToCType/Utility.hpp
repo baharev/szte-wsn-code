@@ -77,6 +77,8 @@ int32_t cast_to_int32(uint64_t size); // throws if size is larger than 2GB
 
 void replace(std::string& s, const char old, const char new_char);
 
+const std::string last_error();
+
 }
 
 #endif

@@ -31,101 +31,81 @@
 * Author: Ali Baharev
 */
 
-#include <exception>
+#include <algorithm>
 #include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
+#include <map>
 #include "Dispatcher.hpp"
-#include "DeviceFormatter.hpp"
-#include "SDCard.hpp"
-#include "demangle.hpp"
+#include "Action.hpp"
 
 using namespace std;
-using namespace sdc;
 
-void download_new_records(const char* source) {
+namespace sdc {
 
-	auto_ptr<SDCard> bd(SDCard::new_instance(source));
+Dispatcher::Dispatcher(int argc, char* argv[]) : args(argv, argv+argc) {
 
-	bd->process_new_measurements();
 }
 
-void format(const string& flag, const char* device) {
+struct MapValueDelete {
+	template <typename T>
+	void operator()(const T& p) const {
+		delete p.second;
+	}
+};
 
-	if (flag != "-format") {
+struct RAII {
+	const Action::Map map;
+	RAII(const Action::Map& m) : map(m) { }
+	~RAII() { for_each(map.begin(), map.end(), MapValueDelete()); }
+};
 
-		throw runtime_error("unrecognized flag " + flag);
+struct MapEntryPrinter {
+
+	string prog_name;
+
+	MapEntryPrinter(const string& name) : prog_name(name) { }
+
+	template <typename T>
+	void operator()(const T& p) const {
+		cout << prog_name << " -" << p.first << " " << p.second->help_message() << endl << endl;
+	}
+};
+
+void Dispatcher::dispatch() {
+
+	RAII all_actions(Action::available_actions());
+
+	const Action::Map& ops = all_actions.map;
+
+	if (need_help()) {
+
+		cout << "Usage:\n" << endl;
+
+		for_each(ops.begin(), ops.end(), MapEntryPrinter(args.at(0)));
+
+		return;
 	}
 
-	auto_ptr<DeviceFormatter> df(DeviceFormatter::new_instance(device));
+	Action::Map::const_iterator pos(ops.find(args.at(1).substr(1)));
 
-	df->format();
-}
+	if (pos==ops.end()) {
 
-void print_usage(const char* program_name) {
+		cout << "Error: flag " << args.at(1) << " not recognized\n";
 
-	cout << endl;
+		cout << "Usage:\n" << endl;
 
-	cout << "USAGE" << endl;
-
-	cout << "=====" << endl;
-
-	cout << "Type the following to download the new records:" << endl;
-
-	cout << program_name << " path_to_device" << endl << endl;
-
-	cout << "To format the device type this:" << endl;
-
-	cout << program_name << " -format path_to_device" << endl << endl;
-
-#ifdef _WIN32
-	cout << "The device path is the letter of the drive followed by a colon, like F:" << endl;
-#endif
-}
-
-void real_main(int argc, char* argv[]) {
-
-	if (argc == 2) {
-
-		const char* device = argv[1];
-
-		download_new_records(device);
-	}
-	else if (argc == 3) {
-
-		const char* flag   = argv[1];
-
-		const char* device = argv[2];
-
-		format(flag, device);
+		for_each(ops.begin(), ops.end(), MapEntryPrinter(args.at(0)));
 	}
 	else {
 
-		print_usage(argv[0]);
+		pos->second->run(args);
 	}
+
 }
 
-int main(int argc, char* argv[]) {
+bool Dispatcher::need_help() const {
 
-	cout << "This program comes with absolutely no warranty!" << endl;
-
-	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
-
-	enum { SUCCESS, FAILURE };
-
-	try {
-
-		Dispatcher d(argc, argv);
-
-		d.dispatch();
-	}
-	catch (exception& e) {
-
-		cout << "Error: " << e.what() << " (" << name(e) << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
+	return (args.size()==1 || args.size()==2);
 }
+
+}
+

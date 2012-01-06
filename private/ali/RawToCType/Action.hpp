@@ -31,58 +31,43 @@
 * Author: Ali Baharev
 */
 
-#include <fstream>
-#include <stdexcept>
-#include "BinaryFileFormatter.hpp"
-#include "BlockRelatedConsts.hpp"
-#include "Utility.hpp"
+#ifndef ACTION_HPP_
+#define ACTION_HPP_
 
-using namespace std;
+#include <map>
+#include <string>
+#include <vector>
 
 namespace sdc {
 
-BinaryFileFormatter::BinaryFileFormatter(const char* source)
-: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary))
-{
-	if (!out->good()) {
-		string msg("failed to open file ");
-		msg += source;
-		msg += ", " + last_error();
-		throw runtime_error(msg);
-	}
+class Action {
 
-	out->exceptions(ios_base::failbit | ios_base::badbit);
+public:
 
-	out->seekp(0, ios_base::end);
+	typedef std::map<std::string,Action*> Map;
 
-	uint64_t size_in_bytes = static_cast<uint64_t> (out->tellp());
+	static const Map available_actions();
 
-	BLOCK_OFFSET_MAX = size_in_bytes/BLOCK_SIZE;
-}
+	void run(const std::vector<std::string>& args);
 
-void BinaryFileFormatter::write_block(uint64_t i, const char* buffer) {
+	virtual const std::string help_message() const = 0;
 
-	check_index(i);
+	virtual ~Action() { };
 
-	try {
+protected:
 
-		out->seekp(i*BLOCK_SIZE, ios_base::beg);
+	virtual void parse_args(const std::vector<std::string>& args) = 0;
 
-		out->write(buffer, BLOCK_SIZE);
-	}
-	catch (ios_base::failure& ) {
+	virtual void run() = 0;
 
-		throw runtime_error("failed to write block "+uint2str(i));
-	}
-}
+	Action() { }
 
-void BinaryFileFormatter::flush_to_device() {
+	Action(const Action& );
 
-	out->flush();
-}
+	Action& operator=(const Action& );
 
-BinaryFileFormatter::~BinaryFileFormatter() {
-	// Do NOT remove: required to generate the dtor of auto_ptr
-}
+};
 
 }
+
+#endif

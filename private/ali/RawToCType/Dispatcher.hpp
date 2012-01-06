@@ -31,58 +31,31 @@
 * Author: Ali Baharev
 */
 
-#include <fstream>
-#include <stdexcept>
-#include "BinaryFileFormatter.hpp"
-#include "BlockRelatedConsts.hpp"
-#include "Utility.hpp"
+#ifndef DISPATCHER_HPP_
+#define DISPATCHER_HPP_
 
-using namespace std;
+#include <string>
+#include <vector>
 
 namespace sdc {
 
-BinaryFileFormatter::BinaryFileFormatter(const char* source)
-: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary))
-{
-	if (!out->good()) {
-		string msg("failed to open file ");
-		msg += source;
-		msg += ", " + last_error();
-		throw runtime_error(msg);
-	}
+class Dispatcher {
 
-	out->exceptions(ios_base::failbit | ios_base::badbit);
+public:
 
-	out->seekp(0, ios_base::end);
+	Dispatcher(int argc, char* argv[]);
 
-	uint64_t size_in_bytes = static_cast<uint64_t> (out->tellp());
+	void dispatch();
 
-	BLOCK_OFFSET_MAX = size_in_bytes/BLOCK_SIZE;
-}
+private:
 
-void BinaryFileFormatter::write_block(uint64_t i, const char* buffer) {
+	bool need_help() const;
 
-	check_index(i);
+	const std::vector<std::string> args;
 
-	try {
-
-		out->seekp(i*BLOCK_SIZE, ios_base::beg);
-
-		out->write(buffer, BLOCK_SIZE);
-	}
-	catch (ios_base::failure& ) {
-
-		throw runtime_error("failed to write block "+uint2str(i));
-	}
-}
-
-void BinaryFileFormatter::flush_to_device() {
-
-	out->flush();
-}
-
-BinaryFileFormatter::~BinaryFileFormatter() {
-	// Do NOT remove: required to generate the dtor of auto_ptr
-}
+};
 
 }
+
+#endif
+

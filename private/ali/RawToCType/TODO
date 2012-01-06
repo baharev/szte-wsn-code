@@ -10,6 +10,9 @@
   Requires testing on Win32
 
 - command line arg parsing
+  _WIN32 : path to device is F:
+  copy,
+  download, format, help, check_format, compare_files 
 
 - rescue option, dd like tool copying the full device
 

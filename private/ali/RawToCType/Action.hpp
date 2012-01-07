@@ -68,8 +68,6 @@ public:
 
 	void run(const std::vector<std::string>& args);
 
-	const std::string usage(const std::string& prog_name) const;
-
 	virtual const std::string help_message() const = 0;
 
 	const std::string& flag() const { return name; }
@@ -89,6 +87,8 @@ private:
 	Action(const Action& );
 
 	Action& operator=(const Action& );
+
+	const std::string usage(const std::string& prog_name) const;
 
 	const std::string name;
 };

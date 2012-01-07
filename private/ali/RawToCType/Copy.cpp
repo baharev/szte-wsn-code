@@ -50,30 +50,32 @@ Copy::Copy(const string& source, const string& destination, bool nocreate_destin
 	out.reset(DeviceFormatter::new_instance(destination.c_str(), nocreate_destination));
 }
 
-void Copy::copy() {
+void Copy::copy(const uint64_t start_at_block, uint64_t block_limit) {
 
-	const uint64_t bytes = std::min(in->size_in_bytes(), out->size_in_bytes());
+	const uint64_t bytes  = std::min(in->size_in_bytes(), out->size_in_bytes());
 
-	const uint64_t blocks = bytes/BLOCK_SIZE;
+	const uint64_t blocks = std::min(bytes/BLOCK_SIZE,block_limit);
 
-	cout << "Copying " <<  card_size_GB(bytes) << endl;
+	const uint64_t bytes_to_copy = blocks*BLOCK_SIZE;
+
+	cout << "Copying " <<  card_size_GB(bytes_to_copy) << endl;
 
 	cout << "Started, please be patient, it will take a while..." << endl;
 
-	for (uint64_t i=0; i<blocks; ++i) {
+	for (uint64_t i=start_at_block; i<start_at_block+blocks; ++i) {
 
 		const char* buffer = in->read_block(i);
 
-		out->write_block(i, buffer);
+		out->write_block(i-start_at_block, buffer);
 
 		show_progress(i, blocks);
 	}
 
 	out->flush_to_device();
 
-	cout << "Successfully copied " << blocks << " blocks, ";
+	cout << "Successfully written " << blocks << " blocks, ";
 
-	cout << bytes << " bytes" << endl;
+	cout << bytes_to_copy << " bytes" << endl;
 }
 
 void Copy::show_progress(uint64_t i, uint64_t blocks) const {

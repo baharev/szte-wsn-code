@@ -34,6 +34,7 @@
 #ifndef COPY_HPP_
 #define COPY_HPP_
 
+#include <limits>
 #include <memory>
 #include <string>
 #include <stdint.h>
@@ -49,7 +50,8 @@ public:
 
 	Copy(const std::string& source, const std::string& destination, bool nocreate_destination = true);
 
-	void copy();
+	void copy(const uint64_t start_at_block = 0,
+			  const uint64_t block_limit = std::numeric_limits<uint64_t>::max());
 
 	~Copy();
 

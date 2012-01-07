@@ -35,6 +35,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <sstream>
 #include "Action.hpp"
 #include "DeviceFormatter.hpp"
 #include "SDCard.hpp"
@@ -43,6 +44,20 @@
 using namespace std;
 
 namespace sdc {
+
+template <typename T>
+T to(const string& s) {
+
+	istringstream is(s);
+
+	is.exceptions(ios_base::failbit|ios_base::badbit);
+
+	T temp;
+
+	is >> temp;
+
+	return temp;
+}
 
 class download : public Action {
 
@@ -157,9 +172,9 @@ private:
 
 	virtual void run() {
 
-		bool open_existing_dst = false;
+		bool open_existing_dest = false;
 
-		Copy cp(src, dest, open_existing_dst);
+		Copy cp(src, dest, open_existing_dest);
 
 		cp.copy();
 	}
@@ -168,13 +183,52 @@ private:
 	string dest;
 };
 
+class rescue_partial : public Action {
+
+public:
+
+	rescue_partial(const string& name) : Action(name) { }
+
+private:
+
+	virtual const string help_message() const {
+
+		return "path_to_device  backup_file  start_at  count\n"
+				"  to copy the binary data from the device without checking,\n"
+				"  back_up_file should NOT already exist\n"
+				"  start copying at start_at block and copy at most count blocks";
+	}
+
+	virtual void parse_args(const vector<string>& args) {
+
+		src  = args.at(2);
+		dest = args.at(3);
+		start_at    = to<uint64_t>(args.at(4));
+		block_limit = to<uint64_t>(args.at(5));
+	}
+
+	virtual void run() {
+
+		bool open_existing_dest = false;
+
+		Copy cp(src, dest, open_existing_dest);
+
+		cp.copy(start_at, block_limit);
+	}
+
+	string src;
+	string dest;
+	uint64_t start_at;
+	uint64_t block_limit;
+};
+
 void Action::run(const std::vector<std::string>& args) {
 
 	try {
 
 		parse_args(args);
 	}
-	catch (out_of_range& ) {
+	catch (exception& ) {
 
 		cout << "Error: parsing command line arguments!\n";
 		cout << "Try  " << usage(args.at(0)) << endl;
@@ -247,6 +301,7 @@ const MapGuard MapGuard::all_options() {
 	ADD( download);
 	ADD( format  );
 	ADD( rescue  );
+	ADD( rescue_partial );
 	ADD( copy    );
 
 	return m;

@@ -1,12 +1,16 @@
 #!/bin/bash
 g++ -c -Os -fdata-sections -ffunction-sections -Wall \
+Action.cpp \
 BinaryFileFormatter.cpp \
 BlockChecker.cpp \
 BlockDevice.cpp \
 BlockIterator.cpp \
+Compare.cpp \
 Console.cpp \
+Copy.cpp \
 demangle.cpp \
 DeviceFormatter.cpp \
+Dispatcher.cpp \
 FileAsBlockDevice.cpp \
 Header.cpp \
 Line.cpp \
@@ -20,16 +24,21 @@ Win32BlockDevice.cpp \
 Win32DeviceHelper.cpp \
 Win32DriveFormatter.cpp \
 Writer.cpp \
+ZeroDevice.cpp \
 main.cpp
 
 g++ -static \
+Action.o \
 BinaryFileFormatter.o \
 BlockChecker.o \
 BlockDevice.o \
 BlockIterator.o \
+Compare.o \
 Console.o \
+Copy.o \
 demangle.o \
 DeviceFormatter.o \
+Dispatcher.o \
 FileAsBlockDevice.o \
 Header.o \
 Line.o \
@@ -43,9 +52,10 @@ Win32BlockDevice.o \
 Win32DeviceHelper.o \
 Win32DriveFormatter.o \
 Writer.o \
+ZeroDevice.o \
 main.o \
--o sd_card.exe -Wl,-static,--gc-sections
+-o sdc.exe -Wl,-static,--gc-sections
 
-strip --strip-all -R.comment -R.note sd_card.exe
+strip --strip-all -R.comment -R.note sdc.exe
 
-upx --overlay=strip --lzma sd_card.exe
+upx --overlay=strip --lzma sdc.exe

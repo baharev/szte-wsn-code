@@ -56,7 +56,7 @@ const char* Win32BlockDevice::read_block(uint64_t i) {
 
 	check_index(i);
 
-	return sdc::read_block(hDevice, i, buffer.get(), BLOCK_SIZE);
+	return sdc::read_block(hDevice, i, buffer, BLOCK_SIZE);
 }
 
 Win32BlockDevice::~Win32BlockDevice() {

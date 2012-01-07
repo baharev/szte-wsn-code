@@ -47,7 +47,7 @@ Win32DriveFormatter::Win32DriveFormatter(const char* source) {
 
 	hDevice = open_device(source, GENERIC_READ | GENERIC_WRITE);
 
-	card_size = size_in_bytes(hDevice);
+	card_size = sdc::size_in_bytes(hDevice);
 
 	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
 }

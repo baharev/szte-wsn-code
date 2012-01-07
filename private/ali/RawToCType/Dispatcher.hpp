@@ -45,13 +45,13 @@ public:
 
 	Dispatcher(int argc, char* argv[]);
 
-	void dispatch();
+	void dispatch() const;
 
 private:
 
 	bool need_help() const;
 
-	const std::vector<std::string> args;
+	std::vector<std::string> args;
 
 };
 

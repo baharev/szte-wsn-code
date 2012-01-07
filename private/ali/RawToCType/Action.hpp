@@ -49,9 +49,9 @@ public:
 
 	static const MapGuard all_options();
 
-	void show_all(const std::string& progname);
+	void show_all(const std::string& progname) const;
 
-	Action* find(const std::string& option);
+	Action* find(const std::string& option) const;
 
 	~MapGuard();
 
@@ -59,7 +59,7 @@ private:
 
 	MapGuard(const OptionMap& m) : map(m) { }
 
-	const OptionMap map;
+	OptionMap map;
 };
 
 class Action {

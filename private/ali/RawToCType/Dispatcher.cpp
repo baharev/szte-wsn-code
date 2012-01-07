@@ -44,7 +44,7 @@ Dispatcher::Dispatcher(int argc, char* argv[]) : args(argv, argv+argc) {
 
 }
 
-void Dispatcher::dispatch() {
+void Dispatcher::dispatch() const {
 
 	MapGuard ops(MapGuard::all_options());
 

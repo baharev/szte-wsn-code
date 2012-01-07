@@ -44,7 +44,7 @@ public:
 
 	ZeroDevice();
 
-	virtual const char* read_block(uint64_t i) { return buffer; }
+	virtual const char* read_block(uint64_t ) { return buffer; }
 
 private:
 

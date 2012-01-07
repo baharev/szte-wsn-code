@@ -87,7 +87,7 @@ void Compare::compare(const uint64_t start_at_block, const uint64_t block_limit)
 	// TODO Warn about size mismatch <--> Everthing is OK ?
 }
 
-bool Compare::compare(const char* buffer1, const char* buffer2, int i) const {
+bool Compare::compare(const char* buffer1, const char* buffer2, uint64_t i) const {
 
 	const char* res = mismatch(buffer1, buffer1+BLOCK_SIZE, buffer2).first;
 

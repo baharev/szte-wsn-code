@@ -323,7 +323,7 @@ struct Cmp {
 	bool operator()(const OptionMap::value_type& e) { return e->flag() == op; }
 };
 
-Action* MapGuard::find(const string& option) {
+Action* MapGuard::find(const string& option) const {
 
 	OptionMap::const_iterator pos( std::find_if(map.begin(), map.end(), Cmp(option) ));
 
@@ -344,7 +344,7 @@ struct MapEntryPrinter {
 	}
 };
 
-void MapGuard::show_all(const string& program_name) {
+void MapGuard::show_all(const string& program_name) const {
 
 	cout << "Usage:\n" << endl;
 

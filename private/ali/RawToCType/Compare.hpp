@@ -58,7 +58,7 @@ public:
 
 private:
 
-	bool compare(const char* buffer1, const char* buffer2, int i) const;
+	bool compare(const char* buffer1, const char* buffer2, uint64_t i) const;
 
 	void show_progress(uint64_t i, uint64_t blocks) const;
 

@@ -5,11 +5,11 @@
 
 + rescue option, dd like tool copying the full device
 
-- formatted error messages, errno
++ formatted error messages, errno
   http://www.cplusplus.com/reference/clibrary/cerrno/errno/
   http://www.cplusplus.com/reference/clibrary/cstring/strerror/
 
-  Requires testing on Win32
+- Requires testing on Win32
 
 - command line arg parsing
   _WIN32 : path to device is F:

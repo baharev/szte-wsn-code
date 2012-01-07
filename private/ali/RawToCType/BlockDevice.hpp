@@ -34,8 +34,8 @@
 #ifndef BLOCKDEVICE_HPP_
 #define BLOCKDEVICE_HPP_
 
-#include <memory>
 #include <stdint.h>
+#include "BlockRelatedConsts.hpp"
 
 namespace sdc {
 
@@ -60,7 +60,7 @@ protected:
 
 	void check_index(uint64_t i) const;
 
-	const std::auto_ptr<char> buffer;
+	char buffer[BLOCK_SIZE];
 
 	uint64_t BLOCK_OFFSET_MAX;
 

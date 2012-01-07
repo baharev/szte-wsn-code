@@ -35,6 +35,7 @@
 #define FILEASBLOCKDEVICE_HPP_
 
 #include <iosfwd>
+#include <memory>
 #include "BlockDevice.hpp"
 
 namespace sdc {

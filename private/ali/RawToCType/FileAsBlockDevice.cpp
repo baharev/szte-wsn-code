@@ -68,14 +68,14 @@ const char* FileAsBlockDevice::read_block(uint64_t i) {
 
 		in->seekg(i*BLOCK_SIZE);
 
-		in->read(buffer.get(), BLOCK_SIZE);
+		in->read(buffer, BLOCK_SIZE);
 	}
 	catch (ios_base::failure& ) {
 
 		throw runtime_error(failed_to_read_block(i));
 	}
 
-	return buffer.get();
+	return buffer;
 }
 
 FileAsBlockDevice::~FileAsBlockDevice() {

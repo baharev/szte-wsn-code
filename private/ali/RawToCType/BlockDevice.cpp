@@ -58,7 +58,7 @@ BlockDevice* BlockDevice::new_instance(const char* source) {
 	return block_device;
 }
 
-BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(0), card_size(0) {
+BlockDevice::BlockDevice() : BLOCK_OFFSET_MAX(0), card_size(0) {
 
 }
 

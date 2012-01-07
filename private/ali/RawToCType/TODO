@@ -3,6 +3,8 @@
 
 + Check FILE_SHARE_WRITE / exclusive access, write FAT32, read non-admin
 
++ rescue option, dd like tool copying the full device
+
 - formatted error messages, errno
   http://www.cplusplus.com/reference/clibrary/cerrno/errno/
   http://www.cplusplus.com/reference/clibrary/cstring/strerror/
@@ -16,14 +18,11 @@
   compare (null? to check format)
   check_format 
 
-- rescue option, dd like tool copying the full device
-
 - checking tool: all zeros / comparing two files bitwise
 
 - factor out duplication: BlockDevice, DeviceFormatter
+                          Compare, Copy
                           Various Copy-es
-                          format: make a NullDevice and invoke Copy
-                                         URand?
 
 - move stdout/stderr I/O to Console 
 

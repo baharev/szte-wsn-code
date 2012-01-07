@@ -47,7 +47,7 @@ class Copy {
 
 public:
 
-	Copy(const std::string& source, const std::string& destination);
+	Copy(const std::string& source, const std::string& destination, bool nocreate_destination = true);
 
 	void copy();
 

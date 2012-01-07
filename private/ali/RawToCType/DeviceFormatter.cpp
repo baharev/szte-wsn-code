@@ -44,17 +44,18 @@ using namespace std;
 
 namespace sdc {
 
-DeviceFormatter* DeviceFormatter::new_instance(const char* path) {
+DeviceFormatter* DeviceFormatter::new_instance(const char* path, bool open_existing)
+{
 
 	DeviceFormatter* df = 0;
 
 	if (is_drive(path)) {
 
-		df = new Win32DriveFormatter(path);
+		df = new Win32DriveFormatter(path); // FIXME Interface mismatch
 	}
 	else {
 
-		df = new BinaryFileFormatter(path);
+		df = new BinaryFileFormatter(path, open_existing);
 	}
 
 	return df;

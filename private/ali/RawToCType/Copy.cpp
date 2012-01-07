@@ -43,11 +43,11 @@ using namespace std;
 
 namespace sdc {
 
-Copy::Copy(const string& source, const string& destination) {
+Copy::Copy(const string& source, const string& destination, bool nocreate_destination) {
 
 	in.reset(BlockDevice::new_instance(source.c_str()));
 
-	out.reset(DeviceFormatter::new_instance(destination.c_str()));
+	out.reset(DeviceFormatter::new_instance(destination.c_str(), nocreate_destination));
 }
 
 void Copy::copy() {

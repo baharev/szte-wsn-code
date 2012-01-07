@@ -32,6 +32,7 @@
 */
 
 #include <fstream>
+#include <limits>
 #include <stdexcept>
 #include "BinaryFileFormatter.hpp"
 #include "BlockRelatedConsts.hpp"
@@ -41,10 +42,30 @@ using namespace std;
 
 namespace sdc {
 
-BinaryFileFormatter::BinaryFileFormatter(const char* source)
-: out(new fstream(source, ios_base::in | ios_base::out | ios_base::binary))
-{
-	if (!out->good()) {
+BinaryFileFormatter::BinaryFileFormatter(const char* source, bool open_existing) {
+
+	if (open_existing) {
+
+		open(source);
+	}
+	else {
+
+		create(source);
+	}
+}
+
+bool BinaryFileFormatter::open_existing_file(const char* source) {
+
+	out.reset(new fstream(source, ios_base::in | ios_base::out | ios_base::binary));
+
+	return out->good();
+}
+
+void BinaryFileFormatter::open(const char* source) {
+
+	bool success = open_existing_file(source);
+
+	if (!success) {
 		string msg("failed to open file ");
 		msg += source;
 		msg += ", " + last_error();
@@ -58,6 +79,29 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 	card_size = static_cast<uint64_t> (out->tellp());
 
 	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
+}
+
+void BinaryFileFormatter::create(const char* source) {
+
+	bool success = open_existing_file(source);
+
+	if (success) {
+
+		out.reset();
+
+		throw runtime_error("destination file already exists");
+	}
+
+	out.reset(new fstream(source, ios_base::out));
+
+	if (!out->good()) {
+		string msg("failed to create file ");
+		msg += source;
+		msg += ", " + last_error();
+		throw runtime_error(msg);
+	}
+
+	card_size = BLOCK_OFFSET_MAX = numeric_limits<uint64_t>::max();
 }
 
 void BinaryFileFormatter::write_block(uint64_t i, const char* buffer) {

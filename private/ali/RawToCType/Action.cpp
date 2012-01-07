@@ -113,7 +113,8 @@ private:
 	virtual const string help_message() const {
 
 		return "path_to_source  path_to_destination\n"
-				"  to copy all binary data, without checking";
+				"  to copy all binary data without checking,\n"
+				"  both source and destination must exist";
 	}
 
 	virtual void parse_args(const vector<string>& args) {
@@ -125,6 +126,40 @@ private:
 	virtual void run() {
 
 		Copy cp(src, dest);
+
+		cp.copy();
+	}
+
+	string src;
+	string dest;
+};
+
+class rescue : public Action {
+
+public:
+
+	rescue(const string& name) : Action(name) { }
+
+private:
+
+	virtual const string help_message() const {
+
+		return "path_to_device  backup_file\n"
+				"  to copy all binary data from the device without checking,\n"
+				"  back_up_file should NOT already exist";
+	}
+
+	virtual void parse_args(const vector<string>& args) {
+
+		src  = args.at(2);
+		dest = args.at(3);
+	}
+
+	virtual void run() {
+
+		bool open_existing_dst = false;
+
+		Copy cp(src, dest, open_existing_dst);
 
 		cp.copy();
 	}
@@ -211,6 +246,7 @@ const MapGuard MapGuard::all_options() {
 
 	ADD( download);
 	ADD( format  );
+	ADD( rescue  );
 	ADD( copy    );
 
 	return m;

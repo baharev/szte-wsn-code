@@ -12,7 +12,7 @@
 - command line arg parsing
   _WIN32 : path to device is F:
   copy (null needed)
-  rescue (outfile does not exist)
+  rescue (needs checking on Win32)
   compare (null? to check format)
   check_format 
 
@@ -21,6 +21,7 @@
 - checking tool: all zeros / comparing two files bitwise
 
 - factor out duplication: BlockDevice, DeviceFormatter
+                          Various Copy-es
                           format: make a NullDevice and invoke Copy
                                          URand?
 

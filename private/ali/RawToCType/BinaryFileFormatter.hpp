@@ -44,9 +44,15 @@ class BinaryFileFormatter : public DeviceFormatter {
 
 public:
 
-	explicit BinaryFileFormatter(const char* source);
+	explicit BinaryFileFormatter(const char* source, bool open_existing = true);
 
 private:
+
+	void open(const char* source);
+
+	void create(const char* source);
+
+	bool open_existing_file(const char* source);
 
 	virtual void write_block(uint64_t i, const char* buffer);
 
@@ -54,7 +60,7 @@ private:
 
 	virtual ~BinaryFileFormatter();
 
-	const std::auto_ptr<std::fstream> out;
+	std::auto_ptr<std::fstream> out;
 
 };
 

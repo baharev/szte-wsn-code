@@ -42,7 +42,8 @@ class DeviceFormatter {
 
 public:
 
-	static DeviceFormatter* new_instance(const char* binary_file_or_win32_drive);
+	static DeviceFormatter* new_instance(const char* binary_file_or_win32_drive,
+			                             bool open_existing = true);
 
 	void format();
 

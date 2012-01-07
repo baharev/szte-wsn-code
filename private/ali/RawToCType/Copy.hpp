@@ -48,6 +48,8 @@ class Copy {
 
 public:
 
+	Copy(const std::string& source);
+
 	Copy(const std::string& source, const std::string& destination, bool nocreate_destination = true);
 
 	void copy(const uint64_t start_at_block = 0,

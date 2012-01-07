@@ -28,77 +28,91 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
 #include <iostream>
 #include <iomanip>
-#include "Copy.hpp"
+#include <algorithm>
+#include "Compare.hpp"
 #include "BlockDevice.hpp"
-#include "DeviceFormatter.hpp"
-#include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
 
 using namespace std;
 
 namespace sdc {
 
-Copy::Copy(const string& source) {
+Compare::Compare(const string& src) {
 
-	in.reset(BlockDevice::zero_device());
+	in1.reset(BlockDevice::new_instance(src.c_str()));
 
-	bool open_existing = true;
-
-	out.reset(DeviceFormatter::new_instance(source.c_str(), open_existing));
+	in2.reset(BlockDevice::zero_device());
 }
 
-Copy::Copy(const string& source, const string& destination, bool nocreate_destination) {
+Compare::Compare(const string& src1, const string& src2) {
 
-	in.reset(BlockDevice::new_instance(source.c_str()));
+	in1.reset(BlockDevice::new_instance(src1.c_str()));
 
-	out.reset(DeviceFormatter::new_instance(destination.c_str(), nocreate_destination));
+	in2.reset(BlockDevice::new_instance(src2.c_str()));
 }
 
-void Copy::copy(const uint64_t start_at_block, const uint64_t block_limit) {
+void Compare::compare(const uint64_t start_at_block, const uint64_t block_limit) {
 
-	const uint64_t bytes  = std::min(in->size_in_bytes(), out->size_in_bytes());
+	const uint64_t bytes  = std::min(in1->size_in_bytes(), in2->size_in_bytes());
 
 	const uint64_t blocks = std::min(bytes/BLOCK_SIZE-start_at_block,block_limit);
 
 	const uint64_t bytes_to_copy = blocks*BLOCK_SIZE;
 
-	cout << "Copying " <<  card_size_GB(bytes_to_copy) << endl;
+	cout << "Comparing " <<  card_size_GB(bytes_to_copy) << endl;
 
 	cout << "Started, please be patient, it will take a while..." << endl;
 
 	for (uint64_t i=start_at_block; i<start_at_block+blocks; ++i) {
 
-		const char* buffer = in->read_block(i);
+		bool mismatch = compare(in1->read_block(i), in2->read_block(i-start_at_block), i);
 
-		out->write_block(i-start_at_block, buffer);
+		if (mismatch) {
+
+			return;
+		}
 
 		show_progress(i-start_at_block, blocks);
 	}
 
-	out->flush_to_device();
-
-	cout << "Successfully written " << blocks << " blocks, ";
+	cout << "Everything is OK! Successfully compared " << blocks << " blocks, ";
 
 	cout << bytes_to_copy << " bytes" << endl;
+
+	// TODO Warn about size mismatch <--> Everthing is OK ?
 }
 
-void Copy::show_progress(uint64_t i, uint64_t blocks) const {
+bool Compare::compare(const char* buffer1, const char* buffer2, int i) const {
+
+	const char* res = mismatch(buffer1, buffer1+BLOCK_SIZE, buffer2).first;
+
+	bool differs = res!=buffer1+BLOCK_SIZE;
+
+	if (differs) {
+		cout << "Mismatch found in block " << i << ", ";
+		cout << "offset " << res-buffer1 << ", exiting..." << endl;
+	}
+
+	return differs;
+}
+
+void Compare::show_progress(uint64_t i, uint64_t blocks) const {
 
 	++i;
 
 	if (!(i%500)) {
-		cout << "progress made so far: written " << i << " blocks (approx. ";
+		cout << "progress made so far: compared " << i << " blocks (approx. ";
 		cout << setprecision(2) << fixed << (((double)i)/blocks*100.0);
 		cout << "% ready)" << endl;
 	}
 }
 
-Copy::~Copy() {
+Compare::~Compare() {
 
 }
 

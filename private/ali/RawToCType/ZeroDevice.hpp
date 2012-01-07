@@ -31,54 +31,25 @@
 * Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "BlockDevice.hpp"
-#include "FileAsBlockDevice.hpp"
-#include "Win32BlockDevice.hpp"
-#include "ZeroDevice.hpp"
-#include "BlockRelatedConsts.hpp"
-#include "Utility.hpp"
+#ifndef ZERO_DEVICE_HPP_
+#define ZERO_DEVICE_HPP_
 
-using namespace std;
+#include "BlockDevice.hpp"
 
 namespace sdc {
 
-BlockDevice* BlockDevice::new_instance(const char* source) {
+class ZeroDevice : public BlockDevice {
 
-	BlockDevice* block_device = 0;
+public:
 
-	if (is_drive(source)) {
+	ZeroDevice();
 
-		block_device = new Win32BlockDevice(source);
-	}
-	else {
+	virtual const char* read_block(uint64_t i) { return buffer; }
 
-		block_device = new FileAsBlockDevice(source);
-	}
+private:
 
-	return block_device;
-}
-
-BlockDevice* BlockDevice::zero_device() {
-
-	return new ZeroDevice();
-}
-
-BlockDevice::BlockDevice() : BLOCK_OFFSET_MAX(0), card_size(0) {
+};
 
 }
 
-int32_t BlockDevice::end_int32() const {
-
-	return cast_to_int32(BLOCK_OFFSET_MAX); // throws if > 2GB
-}
-
-void BlockDevice::check_index(uint64_t i) const {
-
-	if (i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index "+uint2str(i));
-	}
-}
-
-}
-
+#endif

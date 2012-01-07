@@ -28,57 +28,46 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 * OF THE POSSIBILITY OF SUCH DAMAGE.
 *
-* Author: Ali Baharev
+*      Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "BlockDevice.hpp"
-#include "FileAsBlockDevice.hpp"
-#include "Win32BlockDevice.hpp"
-#include "ZeroDevice.hpp"
-#include "BlockRelatedConsts.hpp"
-#include "Utility.hpp"
+#ifndef COMPARE_HPP_
+#define COMPARE_HPP_
 
-using namespace std;
+#include <limits>
+#include <memory>
+#include <string>
+#include <stdint.h>
 
 namespace sdc {
 
-BlockDevice* BlockDevice::new_instance(const char* source) {
+class BlockDevice;
 
-	BlockDevice* block_device = 0;
+class Compare {
 
-	if (is_drive(source)) {
+public:
 
-		block_device = new Win32BlockDevice(source);
-	}
-	else {
+	Compare(const std::string& src);
 
-		block_device = new FileAsBlockDevice(source);
-	}
+	Compare(const std::string& src1, const std::string& src2);
 
-	return block_device;
-}
+	void compare(const uint64_t start_at_block = 0,
+			     const uint64_t block_limit = std::numeric_limits<uint64_t>::max());
 
-BlockDevice* BlockDevice::zero_device() {
+	~Compare();
 
-	return new ZeroDevice();
-}
+private:
 
-BlockDevice::BlockDevice() : BLOCK_OFFSET_MAX(0), card_size(0) {
+	bool compare(const char* buffer1, const char* buffer2, int i) const;
 
-}
+	void show_progress(uint64_t i, uint64_t blocks) const;
 
-int32_t BlockDevice::end_int32() const {
+	std::auto_ptr<BlockDevice> in1;
+	std::auto_ptr<BlockDevice> in2;
 
-	return cast_to_int32(BLOCK_OFFSET_MAX); // throws if > 2GB
-}
-
-void BlockDevice::check_index(uint64_t i) const {
-
-	if (i>=BLOCK_OFFSET_MAX) {
-		throw out_of_range("block index "+uint2str(i));
-	}
-}
+};
 
 }
+
+#endif
 

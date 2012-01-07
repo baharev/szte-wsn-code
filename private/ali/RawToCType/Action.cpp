@@ -37,9 +37,9 @@
 #include <stdexcept>
 #include <sstream>
 #include "Action.hpp"
-#include "DeviceFormatter.hpp"
 #include "SDCard.hpp"
 #include "Copy.hpp"
+#include "Compare.hpp"
 
 using namespace std;
 
@@ -109,9 +109,9 @@ private:
 
 	virtual void run() {
 
-		auto_ptr<DeviceFormatter> df(DeviceFormatter::new_instance(dev.c_str()));
+		Copy cp(dev);
 
-		df->format();
+		cp.copy();
 	}
 
 	string dev;
@@ -222,6 +222,69 @@ private:
 	uint64_t block_limit;
 };
 
+class check : public Action {
+
+public:
+
+	check(const string& name) : Action(name) { }
+
+private:
+
+	virtual const string help_message() const {
+
+		return "path_to_device\n"
+				"  to check if the device is properly formatted";
+	}
+
+	virtual void parse_args(const vector<string>& args) {
+
+		src  = args.at(2);
+	}
+
+	virtual void run() {
+
+		Compare cmp(src);
+
+		cmp.compare();
+	}
+
+	string src;
+};
+
+class zerocheck_partial : public Action {
+
+public:
+
+	zerocheck_partial(const string& name) : Action(name) { }
+
+private:
+
+	virtual const string help_message() const {
+
+		return "path_to_device  start_at  count\n"
+				"  to check the binary data on the device, should be zero bytes,\n"
+				"  start comparing at start_at block and compare at most count blocks";
+	}
+
+	virtual void parse_args(const vector<string>& args) {
+
+		src  = args.at(2);
+		start_at    = to<uint64_t>(args.at(3));
+		block_limit = to<uint64_t>(args.at(4));
+	}
+
+	virtual void run() {
+
+		Compare cmp(src);
+
+		cmp.compare(start_at, block_limit);
+	}
+
+	string src;
+	uint64_t start_at;
+	uint64_t block_limit;
+};
+
 void Action::run(const std::vector<std::string>& args) {
 
 	try {
@@ -300,6 +363,8 @@ const MapGuard MapGuard::all_options() {
 
 	ADD( download);
 	ADD( format  );
+	ADD( check );
+	ADD( zerocheck_partial );
 	ADD( rescue  );
 	ADD( rescue_partial );
 	ADD( copy    );

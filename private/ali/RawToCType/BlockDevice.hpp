@@ -45,6 +45,8 @@ public:
 
 	static BlockDevice* new_instance(const char* binary_file_or_win32_drive);
 
+	static BlockDevice* zero_device();
+
 	// Pointer to the device's internal buffer, do NOT delete it
 	virtual const char* read_block(uint64_t i) = 0;
 

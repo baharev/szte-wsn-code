@@ -41,18 +41,7 @@ namespace sdc {
 
 SDCard* SDCard::new_instance(const char* source) {
 
-	BlockDevice* block_device = 0;
-
-	if (is_drive(source)) {
-
-		block_device = new Win32BlockDevice(source);
-	}
-	else {
-
-		block_device = new FileAsBlockDevice(source);
-	}
-
-	return new SDCard(block_device);
+	return new SDCard( BlockDevice::new_instance(source) );
 }
 
 SDCard::SDCard(BlockDevice* source) : impl(new SDCardImpl(source)) {

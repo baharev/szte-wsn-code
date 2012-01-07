@@ -31,9 +31,11 @@
 * Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "Win32DriveFormatter.hpp"
-#include "Win32DeviceHelper.hpp"
+#include <iostream>
+#include <iomanip>
+#include "Copy.hpp"
+#include "BlockDevice.hpp"
+#include "DeviceFormatter.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
 
@@ -41,47 +43,52 @@ using namespace std;
 
 namespace sdc {
 
-#ifdef _WIN32
+Copy::Copy(const string& source, const string& destination) {
 
-Win32DriveFormatter::Win32DriveFormatter(const char* source) {
+	in.reset(BlockDevice::new_instance(source.c_str()));
 
-	hDevice = open_device(source, GENERIC_READ | GENERIC_WRITE);
-
-	card_size = size_in_bytes(hDevice);
-
-	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
+	out.reset(DeviceFormatter::new_instance(destination.c_str()));
 }
 
-void Win32DriveFormatter::write_block(uint64_t i, const char* buffer) {
+void Copy::copy() {
 
-	check_index(i);
+	const uint64_t bytes = std::min(in->size_in_bytes(), out->size_in_bytes());
 
-	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
+	const uint64_t blocks = bytes/BLOCK_SIZE;
+
+	cout << "Copying " <<  card_size_GB(bytes) << endl;
+
+	cout << "Started, please be patient, it will take a while..." << endl;
+
+	for (uint64_t i=0; i<blocks; ++i) {
+
+		const char* buffer = in->read_block(i);
+
+		out->write_block(i, buffer);
+
+		show_progress(i, blocks);
+	}
+
+	out->flush_to_device();
+
+	cout << "Successfully copied " << blocks << " blocks, ";
+
+	cout << bytes << " bytes" << endl;
 }
 
-void Win32DriveFormatter::flush_to_device() {
-	//  FILE_FLAG_NO_BUFFERING is used in CreateFile,
-	//  otherwise call FlushFileBuffers(hDevice);
+void Copy::show_progress(uint64_t i, uint64_t blocks) const {
+
+	++i;
+
+	if (!(i%500)) {
+		cout << "progress made so far: written " << i << " blocks (approx. ";
+		cout << setprecision(2) << fixed << (((double)i)/blocks*100.0);
+		cout << "% ready)" << endl;
+	}
 }
 
-Win32DriveFormatter::~Win32DriveFormatter() {
+Copy::~Copy() {
 
-	sdc::close_device(hDevice);
 }
-
-#else
-
-Win32DriveFormatter::Win32DriveFormatter(const char* ) {
-
-	throw logic_error("Win32 block device is not implemented!");
-}
-
-void Win32DriveFormatter::write_block(uint64_t , const char* ) { }
-
-void Win32DriveFormatter::flush_to_device() { }
-
-Win32DriveFormatter::~Win32DriveFormatter() { }
-
-#endif
 
 }

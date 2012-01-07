@@ -34,23 +34,45 @@
 #ifndef ACTION_HPP_
 #define ACTION_HPP_
 
-#include <map>
 #include <string>
 #include <vector>
 
 namespace sdc {
 
+class Action;
+
+typedef std::vector<Action*> OptionMap;
+
+class MapGuard {
+
+public:
+
+	static const MapGuard all_options();
+
+	void show_all(const std::string& progname);
+
+	Action* find(const std::string& option);
+
+	~MapGuard();
+
+private:
+
+	MapGuard(const OptionMap& m) : map(m) { }
+
+	const OptionMap map;
+};
+
 class Action {
 
 public:
 
-	typedef std::map<std::string,Action*> Map;
-
-	static const Map available_actions();
-
 	void run(const std::vector<std::string>& args);
 
+	const std::string usage(const std::string& prog_name) const;
+
 	virtual const std::string help_message() const = 0;
+
+	const std::string& flag() const { return name; }
 
 	virtual ~Action() { };
 
@@ -60,12 +82,15 @@ protected:
 
 	virtual void run() = 0;
 
-	Action() { }
+	Action(const std::string& cmd_name) : name(cmd_name) { }
+
+private:
 
 	Action(const Action& );
 
 	Action& operator=(const Action& );
 
+	const std::string name;
 };
 
 }

@@ -31,17 +31,26 @@
 * Author: Ali Baharev
 */
 
+#include <algorithm>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include "Action.hpp"
 #include "DeviceFormatter.hpp"
 #include "SDCard.hpp"
+#include "Copy.hpp"
 
 using namespace std;
 
 namespace sdc {
 
 class download : public Action {
+
+public:
+
+	download(const string& name) : Action(name) { }
+
+private:
 
 	virtual const string help_message() const {
 
@@ -66,6 +75,12 @@ class download : public Action {
 
 class format : public Action {
 
+public:
+
+	format(const string& name) : Action(name) { }
+
+private:
+
 	virtual const string help_message() const {
 
 		return "path_to_file_or_device\n"
@@ -87,6 +102,37 @@ class format : public Action {
 	string dev;
 };
 
+class copy : public Action {
+
+public:
+
+	copy(const string& name) : Action(name) { }
+
+private:
+
+	virtual const string help_message() const {
+
+		return "path_to_source  path_to_destination\n"
+				"  to copy all binary data, without checking";
+	}
+
+	virtual void parse_args(const vector<string>& args) {
+
+		src  = args.at(2);
+		dest = args.at(3);
+	}
+
+	virtual void run() {
+
+		Copy cp(src, dest);
+
+		cp.copy();
+	}
+
+	string src;
+	string dest;
+};
+
 void Action::run(const std::vector<std::string>& args) {
 
 	try {
@@ -94,20 +140,78 @@ void Action::run(const std::vector<std::string>& args) {
 		parse_args(args);
 	}
 	catch (out_of_range& ) {
-		// TODO Print usage of the particular flag here? Would be good for -help
-		throw runtime_error("parsing command line arguments");
+
+		cout << "Error: parsing command line arguments!\n";
+		cout << "Try  " << usage(args.at(0)) << endl;
+		cout << endl;
+
+		return;
 	}
 
 	run();
 }
 
-const Action::Map Action::available_actions() {
+const string Action::usage(const string& prog_name) const {
 
-	Map m;
+	return prog_name + "  " + flag() + "  " + help_message();
+}
 
-	m.insert( make_pair("download", new download) );
-	m.insert( make_pair("format",   new format  ) );
+struct MapValueDelete {
+	void operator()(const OptionMap::value_type& e) const { delete e; }
+};
 
+MapGuard::~MapGuard() {
+
+	for_each(map.begin(), map.end(), MapValueDelete());
+}
+
+struct Cmp {
+	string op;
+	Cmp(const string& op) : op(op) { }
+	bool operator()(const OptionMap::value_type& e) { return e->flag() == op; }
+};
+
+Action* MapGuard::find(const string& option) {
+
+	OptionMap::const_iterator pos( std::find_if(map.begin(), map.end(), Cmp(option) ));
+
+	return pos!=map.end() ? *pos : 0;
+}
+
+struct MapEntryPrinter {
+
+	string prog_name;
+
+	MapEntryPrinter(const string& name) : prog_name(name) { }
+
+	void operator()(const OptionMap::value_type& e) const {
+
+		const Action& a = *e;
+
+		cout << prog_name << " " << a.flag() << " " << a.help_message() << endl << endl;
+	}
+};
+
+void MapGuard::show_all(const string& program_name) {
+
+	cout << "Usage:\n" << endl;
+
+	for_each(map.begin(), map.end(), MapEntryPrinter(program_name));
+
+#ifdef _WIN32
+	cout << "The device path is the letter of the drive followed by a colon, like F:" << endl;
+#endif
+}
+
+const MapGuard MapGuard::all_options() {
+
+	OptionMap m;
+
+#define ADD(arg) { m.push_back(new arg(#arg)); }
+
+	ADD( download);
+	ADD( format  );
+	ADD( copy    );
 
 	return m;
 }

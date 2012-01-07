@@ -11,12 +11,18 @@
 
 - command line arg parsing
   _WIN32 : path to device is F:
-  copy,
-  download, format, help, check_format, compare_files 
+  copy (null needed)
+  rescue (outfile does not exist)
+  compare (null? to check format)
+  check_format 
 
 - rescue option, dd like tool copying the full device
 
 - checking tool: all zeros / comparing two files bitwise
+
+- factor out duplication: BlockDevice, DeviceFormatter
+                          format: make a NullDevice and invoke Copy
+                                         URand?
 
 - move stdout/stderr I/O to Console 
 

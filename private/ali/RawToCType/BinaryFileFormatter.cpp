@@ -55,9 +55,9 @@ BinaryFileFormatter::BinaryFileFormatter(const char* source)
 
 	out->seekp(0, ios_base::end);
 
-	uint64_t size_in_bytes = static_cast<uint64_t> (out->tellp());
+	card_size = static_cast<uint64_t> (out->tellp());
 
-	BLOCK_OFFSET_MAX = size_in_bytes/BLOCK_SIZE;
+	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
 }
 
 void BinaryFileFormatter::write_block(uint64_t i, const char* buffer) {

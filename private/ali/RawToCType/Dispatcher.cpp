@@ -31,7 +31,6 @@
 * Author: Ali Baharev
 */
 
-#include <algorithm>
 #include <iostream>
 #include <map>
 #include "Dispatcher.hpp"
@@ -45,66 +44,33 @@ Dispatcher::Dispatcher(int argc, char* argv[]) : args(argv, argv+argc) {
 
 }
 
-struct MapValueDelete {
-	template <typename T>
-	void operator()(const T& p) const {
-		delete p.second;
-	}
-};
-
-struct RAII {
-	const Action::Map map;
-	RAII(const Action::Map& m) : map(m) { }
-	~RAII() { for_each(map.begin(), map.end(), MapValueDelete()); }
-};
-
-struct MapEntryPrinter {
-
-	string prog_name;
-
-	MapEntryPrinter(const string& name) : prog_name(name) { }
-
-	template <typename T>
-	void operator()(const T& p) const {
-		cout << prog_name << " -" << p.first << " " << p.second->help_message() << endl << endl;
-	}
-};
-
 void Dispatcher::dispatch() {
 
-	RAII all_actions(Action::available_actions());
+	MapGuard ops(MapGuard::all_options());
 
-	const Action::Map& ops = all_actions.map;
+	const string prog_name = args.at(0);
 
-	if (need_help()) {
+	if (args.size()==1) {
 
-		cout << "Usage:\n" << endl;
+		cout << "Error: too few arguments!" << endl;
 
-		for_each(ops.begin(), ops.end(), MapEntryPrinter(args.at(0)));
+		ops.show_all(prog_name);
 
 		return;
 	}
 
-	Action::Map::const_iterator pos(ops.find(args.at(1).substr(1)));
+	const string command = args.at(1);
 
-	if (pos==ops.end()) {
+	if (Action* action = ops.find(command)) {
 
-		cout << "Error: flag " << args.at(1) << " not recognized\n";
-
-		cout << "Usage:\n" << endl;
-
-		for_each(ops.begin(), ops.end(), MapEntryPrinter(args.at(0)));
+		action->run(args);
 	}
 	else {
 
-		pos->second->run(args);
+		cout << "Error: command " << command << " not recognized\n";
+
+		ops.show_all(prog_name);
 	}
-
-}
-
-bool Dispatcher::need_help() const {
-
-	return (args.size()==1 || args.size()==2);
 }
 
 }

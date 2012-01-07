@@ -50,15 +50,19 @@ public:
 
 	virtual void flush_to_device() = 0;
 
+	uint64_t size_in_bytes() const { return card_size; }
+
 	virtual ~DeviceFormatter() { }
 
 protected:
 
 	void check_index(uint64_t i) const;
 
+	uint64_t card_size;
+
 	uint64_t BLOCK_OFFSET_MAX;
 
-	DeviceFormatter() : BLOCK_OFFSET_MAX(0) { }
+	DeviceFormatter() : card_size(0), BLOCK_OFFSET_MAX(0) { }
 
 private:
 

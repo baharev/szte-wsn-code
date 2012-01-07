@@ -33,6 +33,8 @@
 
 #include <stdexcept>
 #include "BlockDevice.hpp"
+#include "FileAsBlockDevice.hpp"
+#include "Win32BlockDevice.hpp"
 #include "BlockRelatedConsts.hpp"
 #include "Utility.hpp"
 
@@ -40,8 +42,23 @@ using namespace std;
 
 namespace sdc {
 
-BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(0), card_size(0) {
+BlockDevice* BlockDevice::new_instance(const char* source) {
 
+	BlockDevice* block_device = 0;
+
+	if (is_drive(source)) {
+
+		block_device = new Win32BlockDevice(source);
+	}
+	else {
+
+		block_device = new FileAsBlockDevice(source);
+	}
+
+	return block_device;
+}
+
+BlockDevice::BlockDevice() : buffer(new char[BLOCK_SIZE]), BLOCK_OFFSET_MAX(0), card_size(0) {
 
 }
 
@@ -58,3 +75,4 @@ void BlockDevice::check_index(uint64_t i) const {
 }
 
 }
+

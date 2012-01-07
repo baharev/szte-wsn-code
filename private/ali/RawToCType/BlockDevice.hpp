@@ -43,12 +43,14 @@ class BlockDevice {
 
 public:
 
+	static BlockDevice* new_instance(const char* binary_file_or_win32_drive);
+
 	// Pointer to the device's internal buffer, do NOT delete it
 	virtual const char* read_block(uint64_t i) = 0;
 
 	int32_t end_int32() const; // First invalid block index, throws if > 2GB
 
-	virtual uint64_t size_in_bytes() const { return card_size; }
+	uint64_t size_in_bytes() const { return card_size; }
 
 	virtual ~BlockDevice() { }
 

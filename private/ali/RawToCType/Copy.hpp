@@ -31,57 +31,38 @@
 * Author: Ali Baharev
 */
 
-#include <stdexcept>
-#include "Win32DriveFormatter.hpp"
-#include "Win32DeviceHelper.hpp"
-#include "BlockRelatedConsts.hpp"
-#include "Utility.hpp"
+#ifndef COPY_HPP_
+#define COPY_HPP_
 
-using namespace std;
+#include <memory>
+#include <string>
+#include <stdint.h>
 
 namespace sdc {
 
-#ifdef _WIN32
+class BlockDevice;
+class DeviceFormatter;
 
-Win32DriveFormatter::Win32DriveFormatter(const char* source) {
+class Copy {
 
-	hDevice = open_device(source, GENERIC_READ | GENERIC_WRITE);
+public:
 
-	card_size = size_in_bytes(hDevice);
+	Copy(const std::string& source, const std::string& destination);
 
-	BLOCK_OFFSET_MAX = card_size/BLOCK_SIZE;
+	void copy();
+
+	~Copy();
+
+private:
+
+	void show_progress(uint64_t i, uint64_t blocks) const;
+
+	std::auto_ptr<BlockDevice>     in;
+	std::auto_ptr<DeviceFormatter> out;
+
+};
+
 }
-
-void Win32DriveFormatter::write_block(uint64_t i, const char* buffer) {
-
-	check_index(i);
-
-	sdc::write_block(hDevice, i, buffer, BLOCK_SIZE);
-}
-
-void Win32DriveFormatter::flush_to_device() {
-	//  FILE_FLAG_NO_BUFFERING is used in CreateFile,
-	//  otherwise call FlushFileBuffers(hDevice);
-}
-
-Win32DriveFormatter::~Win32DriveFormatter() {
-
-	sdc::close_device(hDevice);
-}
-
-#else
-
-Win32DriveFormatter::Win32DriveFormatter(const char* ) {
-
-	throw logic_error("Win32 block device is not implemented!");
-}
-
-void Win32DriveFormatter::write_block(uint64_t , const char* ) { }
-
-void Win32DriveFormatter::flush_to_device() { }
-
-Win32DriveFormatter::~Win32DriveFormatter() { }
 
 #endif
 
-}

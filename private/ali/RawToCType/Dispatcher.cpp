@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <map>
+#include <stdexcept>
 #include "Dispatcher.hpp"
 #include "Action.hpp"
 
@@ -52,11 +53,9 @@ void Dispatcher::dispatch() const {
 
 	if (args.size()==1) {
 
-		cout << "Error: too few arguments!" << endl;
-
 		ops.show_all(prog_name);
 
-		return;
+		throw runtime_error("too few arguments");
 	}
 
 	const string flag = args.at(1);
@@ -67,9 +66,9 @@ void Dispatcher::dispatch() const {
 	}
 	else {
 
-		cout << "Error: flag " << flag << " not recognized\n";
-
 		ops.show_all(prog_name);
+
+		throw runtime_error("flag \""+flag+"\" not recognized");
 	}
 }
 

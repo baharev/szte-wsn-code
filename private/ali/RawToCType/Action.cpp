@@ -293,11 +293,9 @@ void Action::run(const std::vector<std::string>& args) {
 	}
 	catch (exception& ) {
 
-		cout << "Error: parsing command line arguments!\n";
 		cout << "Try  " << usage(args.at(0)) << endl;
-		cout << endl;
 
-		return;
+		throw runtime_error("parsing command line arguments");
 	}
 
 	run();

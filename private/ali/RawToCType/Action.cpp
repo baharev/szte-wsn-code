@@ -183,11 +183,11 @@ private:
 	string dest;
 };
 
-class rescue_partial : public Action {
+class prescue : public Action {
 
 public:
 
-	rescue_partial(const string& name) : Action(name) { }
+	prescue(const string& name) : Action(name) { }
 
 private:
 
@@ -251,11 +251,11 @@ private:
 	string src;
 };
 
-class zerocheck_partial : public Action {
+class pcheck : public Action {
 
 public:
 
-	zerocheck_partial(const string& name) : Action(name) { }
+	pcheck(const string& name) : Action(name) { }
 
 private:
 
@@ -362,9 +362,9 @@ const MapGuard MapGuard::all_options() {
 	ADD( download);
 	ADD( format  );
 	ADD( check );
-	ADD( zerocheck_partial );
 	ADD( rescue  );
-	ADD( rescue_partial );
+	ADD( pcheck );
+	ADD( prescue );
 	ADD( copy    );
 
 	return m;

@@ -82,7 +82,7 @@ void Copy::copy(const uint64_t start_at_block, const uint64_t block_limit) {
 
 	out->flush_to_device();
 
-	cout << "Successfully written " << blocks << " blocks, ";
+	cout << "\nSuccessfully written " << blocks << " blocks, ";
 
 	cout << bytes_to_copy << " bytes" << endl;
 }
@@ -92,9 +92,9 @@ void Copy::show_progress(uint64_t i, uint64_t blocks) const {
 	++i;
 
 	if (!(i%500)) {
-		cout << "progress made so far: written " << i << " blocks (approx. ";
+		cout << "\rprogress made so far: written " << i << " blocks (approx. ";
 		cout << setprecision(2) << fixed << (((double)i)/blocks*100.0);
-		cout << "% ready)" << endl;
+		cout << "% ready)" << flush;
 	}
 }
 

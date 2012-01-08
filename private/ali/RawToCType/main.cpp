@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 	}
 	catch (exception& e) {
 
-		cout << "Error: " << e.what() << " (" << sdc::name(e) << ")" << endl;
+		cout << "\nError: " << e.what() << " (" << sdc::name(e) << ")" << endl;
 
 		return FAILURE;
 	}

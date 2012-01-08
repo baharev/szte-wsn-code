@@ -80,7 +80,7 @@ void Compare::compare(const uint64_t start_at_block, const uint64_t block_limit)
 		show_progress(i-start_at_block, blocks);
 	}
 
-	cout << "Everything is OK! Successfully compared " << blocks << " blocks, ";
+	cout << "\nEverything is OK! Successfully compared " << blocks << " blocks, ";
 
 	cout << bytes_to_copy << " bytes" << endl;
 
@@ -94,7 +94,7 @@ bool Compare::compare(const char* buffer1, const char* buffer2, uint64_t i) cons
 	bool differs = res!=buffer1+BLOCK_SIZE;
 
 	if (differs) {
-		cout << "Mismatch found in block " << i << ", ";
+		cout << "\nMismatch found in block " << i << ", ";
 		cout << "offset " << res-buffer1 << ", exiting..." << endl;
 	}
 
@@ -106,9 +106,9 @@ void Compare::show_progress(uint64_t i, uint64_t blocks) const {
 	++i;
 
 	if (!(i%500)) {
-		cout << "progress made so far: compared " << i << " blocks (approx. ";
+		cout << "\rprogress made so far: compared " << i << " blocks (approx. ";
 		cout << setprecision(2) << fixed << (((double)i)/blocks*100.0);
-		cout << "% ready)" << endl;
+		cout << "% ready)" << flush;
 	}
 }
 

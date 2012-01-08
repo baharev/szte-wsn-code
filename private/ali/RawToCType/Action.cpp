@@ -359,7 +359,7 @@ const MapGuard MapGuard::all_options() {
 
 	OptionMap m;
 
-#define ADD(arg) { m.push_back(new arg(#arg)); }
+#define ADD(arg) { m.push_back(new arg("-"#arg)); }
 
 	ADD( download);
 	ADD( format  );

@@ -59,15 +59,15 @@ void Dispatcher::dispatch() const {
 		return;
 	}
 
-	const string command = args.at(1);
+	const string flag = args.at(1);
 
-	if (Action* action = ops.find(command)) {
+	if (Action* action = ops.find(flag)) {
 
 		action->run(args);
 	}
 	else {
 
-		cout << "Error: command " << command << " not recognized\n";
+		cout << "Error: flag " << flag << " not recognized\n";
 
 		ops.show_all(prog_name);
 	}

@@ -57,8 +57,6 @@ record_cut::record_cut(const std::string& file_name) : infile_name(file_name) {
 		if (!buffer.empty()) {
 
 			samples.push_back(buffer);
-
-			buffer.clear(); // TODO Is it necessary?
 		}
 	}
 }

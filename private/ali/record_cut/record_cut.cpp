@@ -41,7 +41,7 @@ using namespace std;
 
 namespace sdc {
 
-record_cut::record_cut(const std::string& file_name) {
+record_cut::record_cut(const std::string& file_name) : infile_name(file_name) {
 
 	ifstream in(file_name.c_str());
 

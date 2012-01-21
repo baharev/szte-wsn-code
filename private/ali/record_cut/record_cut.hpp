@@ -45,7 +45,7 @@ public:
 
 	record_cut(const std::string& file_name);
 
-	uint64_t number_of_lines() const { return samples.size(); }
+	uint32_t number_of_lines() const { return samples.size(); }
 
 	const std::string length() const;
 
@@ -54,6 +54,8 @@ public:
 	void cut(const std::string& begin, const std::string& end, const std::string& offset) const;
 
 private:
+
+	const std::string infile_name;
 
 	std::vector<std::string> samples;
 };

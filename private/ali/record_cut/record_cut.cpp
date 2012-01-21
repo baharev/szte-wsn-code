@@ -31,36 +31,54 @@
 * Author: Ali Baharev
 */
 
-#include <exception>
-#include <iostream>
-#include "demangle.hpp"
+#include <fstream>
+#include <stdexcept>
 #include "record_cut.hpp"
+#include "Constants.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 
-int main(int argc, char* argv[]) {
+namespace sdc {
 
-	cout << "This program comes with absolutely no warranty!" << endl;
+record_cut::record_cut(const std::string& file_name) {
 
-	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
+	ifstream in(file_name.c_str());
 
-	enum { SUCCESS, FAILURE };
+	if (!in.good()) {
 
-	try {
-
-		sdc::record_cut rc("main.cpp");
-
-		cout << "lines:  " << rc.number_of_lines() << endl;
-
-		cout << "length: " << rc.length() << endl;
-
-	}
-	catch (exception& e) {
-
-		cout << "\nError: " << e.what() << " (" << sdc::name(e) << ")" << endl;
-
-		return FAILURE;
+		throw runtime_error("failed to open file "+file_name);
 	}
 
-	return SUCCESS;
+	string buffer;
+
+	while (getline(in, buffer)) {
+
+		if (!buffer.empty()) {
+
+			samples.push_back(buffer);
+
+			buffer.clear(); // TODO Is it necessary?
+		}
+	}
 }
+
+const string record_cut::length() const {
+
+	uint32_t ticks = SAMPLING_RATE*samples.size();
+
+	return ticks2time(ticks);
+}
+
+void record_cut::cut(const string& begin, const string& end) const {
+
+}
+
+void record_cut::cut(const string& begin, const string& end, const string& offset) const {
+
+	// substract offset from begin, end, and call the same function as the other cut
+
+}
+
+}
+

@@ -30,37 +30,34 @@
 *
 * Author: Ali Baharev
 */
+#ifndef RECORD_CUT_HPP_
+#define RECORD_CUT_HPP_
 
-#include <exception>
-#include <iostream>
-#include "demangle.hpp"
-#include "record_cut.hpp"
+#include <vector>
+#include <string>
+#include <stdint.h>
 
-using namespace std;
+namespace sdc {
 
-int main(int argc, char* argv[]) {
+class record_cut {
 
-	cout << "This program comes with absolutely no warranty!" << endl;
+public:
 
-	cout << "Compiled on " << __DATE__ << ", " << __TIME__ << endl;
+	record_cut(const std::string& file_name);
 
-	enum { SUCCESS, FAILURE };
+	uint64_t number_of_lines() const { return samples.size(); }
 
-	try {
+	const std::string length() const;
 
-		sdc::record_cut rc("main.cpp");
+	void cut(const std::string& begin, const std::string& end) const;
 
-		cout << "lines:  " << rc.number_of_lines() << endl;
+	void cut(const std::string& begin, const std::string& end, const std::string& offset) const;
 
-		cout << "length: " << rc.length() << endl;
+private:
 
-	}
-	catch (exception& e) {
+	std::vector<std::string> samples;
+};
 
-		cout << "\nError: " << e.what() << " (" << sdc::name(e) << ")" << endl;
-
-		return FAILURE;
-	}
-
-	return SUCCESS;
 }
+
+#endif

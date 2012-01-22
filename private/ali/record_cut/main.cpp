@@ -35,6 +35,7 @@
 #include <iostream>
 #include "demangle.hpp"
 #include "record_cut.hpp"
+#include "time_parser.hpp"
 
 using namespace std;
 
@@ -53,6 +54,10 @@ int main(int argc, char* argv[]) {
 		cout << "lines:  " << rc.number_of_lines() << endl;
 
 		cout << "length: " << rc.length() << endl;
+
+		const string timestamp("-1:00:23.456");
+
+		cout << timestamp << " in seconds is " << sdc::to_seconds(timestamp) << endl;
 
 	}
 	catch (exception& e) {

@@ -30,80 +30,15 @@
 *
 * Author: Ali Baharev
 */
+#ifndef TIME_PARSER_HPP_
+#define TIME_PARSER_HPP_
 
-#include <fstream>
-#include <stdexcept>
-#include "record_cut.hpp"
-#include "Constants.hpp"
-#include "Utility.hpp"
-
-using namespace std;
+#include <string>
 
 namespace sdc {
 
-record_cut::record_cut(const std::string& file_name) : infile_name(file_name) {
-
-	ifstream in(file_name.c_str());
-
-	if (!in.good()) {
-
-		throw runtime_error("failed to open file "+file_name);
-	}
-
-	string buffer;
-
-	while (getline(in, buffer)) {
-
-		if (!buffer.empty()) {
-
-			samples.push_back(buffer);
-		}
-	}
-}
-
-const string record_cut::length() const {
-
-	uint32_t ticks = SAMPLING_RATE*samples.size();
-
-	return ticks2time(ticks);
-}
-
-double record_cut::length_in_sec() const {
-
-	double len = samples.size();
-
-	len *= SAMPLING_RATE;
-
-	len /= TICKS_PER_SEC;
-
-	return len;
-}
-
-void record_cut::cut(const string& begin, const string& end) const {
+double to_seconds(const std::string& time);
 
 }
 
-void record_cut::cut(const string& begin, const string& end, const string& offset) const {
-
-	// substract offset from begin, end, and call the same function as the other cut
-
-	double first(0), last(0);
-
-	//const double off = to_seconds(offset);
-
-	if (begin=="begin" || begin=="beg") {
-
-		first = 0.0;
-	}
-	else if (begin.at(0)=='l' || begin.at(0)=='L') {
-
-	}
-	else {
-
-		//first = to_seconds(begin) - off;
-	}
-
-}
-
-}
-
+#endif

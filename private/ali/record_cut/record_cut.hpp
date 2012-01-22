@@ -47,6 +47,8 @@ public:
 
 	uint32_t number_of_lines() const { return samples.size(); }
 
+	double length_in_sec() const;
+
 	const std::string length() const;
 
 	void cut(const std::string& begin, const std::string& end) const;

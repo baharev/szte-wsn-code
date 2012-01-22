@@ -31,78 +31,79 @@
 * Author: Ali Baharev
 */
 
-#include <fstream>
+#include <algorithm>
+#include <sstream>
 #include <stdexcept>
-#include "record_cut.hpp"
-#include "Constants.hpp"
-#include "Utility.hpp"
+#include "time_parser.hpp"
 
 using namespace std;
 
 namespace sdc {
 
-record_cut::record_cut(const std::string& file_name) : infile_name(file_name) {
+int count(const string& s, const char c) {
 
-	ifstream in(file_name.c_str());
-
-	if (!in.good()) {
-
-		throw runtime_error("failed to open file "+file_name);
-	}
-
-	string buffer;
-
-	while (getline(in, buffer)) {
-
-		if (!buffer.empty()) {
-
-			samples.push_back(buffer);
-		}
-	}
+	return count(s.begin(), s.end(), c);
 }
 
-const string record_cut::length() const {
+template <typename T>
+const T convert_to(const string& s) {
 
-	uint32_t ticks = SAMPLING_RATE*samples.size();
+	istringstream is(s);
 
-	return ticks2time(ticks);
-}
+	T value;
 
-double record_cut::length_in_sec() const {
+	is >> value;
 
-	double len = samples.size();
+	if (is.fail() || !is.eof()) {
 
-	len *= SAMPLING_RATE;
-
-	len /= TICKS_PER_SEC;
-
-	return len;
-}
-
-void record_cut::cut(const string& begin, const string& end) const {
-
-}
-
-void record_cut::cut(const string& begin, const string& end, const string& offset) const {
-
-	// substract offset from begin, end, and call the same function as the other cut
-
-	double first(0), last(0);
-
-	//const double off = to_seconds(offset);
-
-	if (begin=="begin" || begin=="beg") {
-
-		first = 0.0;
-	}
-	else if (begin.at(0)=='l' || begin.at(0)=='L') {
-
-	}
-	else {
-
-		//first = to_seconds(begin) - off;
+		throw runtime_error("failed to parse "+s);
 	}
 
+	return value;
+}
+
+double hh_mm_ss_to_seconds(const string& s) {
+	// 01 2 34 5 678901
+    // hh : mm : ss.sss
+	if (s.at(2) != ':' || s.at(5)!= ':') {
+
+		throw runtime_error("misplaced \':\' in time string "+s);
+	}
+
+	typedef unsigned int uint;
+
+	uint hour  = convert_to<uint>(  s.substr(0, 2));
+
+	uint min   = convert_to<uint>(  s.substr(3, 2));
+
+	double sec = convert_to<double>(s.substr(6   ));
+
+	if (sec < 0) {
+
+		throw runtime_error("invalid value for seconds in "+s);
+	}
+
+	double value = 3600*hour + 60*min + sec;
+
+	return value;
+}
+
+double to_seconds(const std::string& timestr) {
+
+	const string timestamp = count(timestr, ':')==1 ? "00:"+timestr : timestr;
+
+	double seconds;
+
+	try {
+
+		seconds = hh_mm_ss_to_seconds(timestamp);
+	}
+	catch (exception& ) {
+
+		throw runtime_error("parsing timestamp "+timestr+" failed");
+	}
+
+	return seconds;
 }
 
 }

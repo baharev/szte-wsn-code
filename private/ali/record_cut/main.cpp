@@ -35,7 +35,6 @@
 #include <iostream>
 #include "demangle.hpp"
 #include "record_cut.hpp"
-#include "time_parser.hpp"
 
 using namespace std;
 
@@ -55,9 +54,16 @@ int main(int argc, char* argv[]) {
 
 		cout << "length: " << rc.length() << endl;
 
-		const string timestamp("-1:00:23.456");
-
-		cout << timestamp << " in seconds is " << sdc::to_seconds(timestamp) << endl;
+		rc.cut("beg", "end", "00:00");
+		rc.cut("beg", "end", "24:00:00");
+		rc.cut("00:00.02", "end", "00:00");
+		rc.cut("00:00.02", "end", "24:00:00");
+		rc.cut("01:00.02", "L00:00.1", "00:01:00");
+		rc.cut("00:00.02", "L00:00.1", "00:00");
+		rc.cut("L01:00:00", "end", "24:00:00");
+		rc.cut("L01:00:00", "end", "00:00");
+		rc.cut("L00:00.1", "01:00.2", "01:00");
+		rc.cut("L00:00.1", "00:00.2", "00:00");
 
 	}
 	catch (exception& e) {

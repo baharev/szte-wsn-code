@@ -37,7 +37,11 @@
 
 namespace sdc {
 
-double to_seconds(const std::string& time);
+double to_seconds(const std::string& timestr);
+
+bool is_length(const std::string& timestr);
+
+double length_in_sec(const std::string& timestr);
 
 }
 

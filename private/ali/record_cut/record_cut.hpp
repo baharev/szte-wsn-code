@@ -57,6 +57,19 @@ public:
 
 private:
 
+	struct indices {
+		int first;
+		int last;
+	};
+
+	const indices to_indices(const std::string& begin, const std::string& end, const std::string& offset) const;
+
+	const indices to_indices(double beg, double end) const;
+
+	double get_begin(const std::string& begin, const std::string& offset) const;
+
+	double get_end(const std::string& end, const std::string& offset) const;
+
 	const std::string infile_name;
 
 	std::vector<std::string> samples;

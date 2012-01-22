@@ -31,9 +31,11 @@
 * Author: Ali Baharev
 */
 
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 #include "record_cut.hpp"
+#include "time_parser.hpp"
 #include "Constants.hpp"
 #include "Utility.hpp"
 
@@ -85,24 +87,103 @@ void record_cut::cut(const string& begin, const string& end) const {
 
 void record_cut::cut(const string& begin, const string& end, const string& offset) const {
 
-	// substract offset from begin, end, and call the same function as the other cut
+	const indices i = to_indices(begin, end, offset);
+
+	cout << "Selected: " << i.first << ", " << i.last << " of " << samples.size()-1 << endl;
+
+}
+
+const record_cut::indices record_cut::to_indices(const string& begin, const string& end, const string& offset) const {
 
 	double first(0), last(0);
 
-	//const double off = to_seconds(offset);
+	if      (is_length(begin)) {
+
+		last  = get_end(end, offset);
+
+		first = last -  sdc::length_in_sec(begin);
+	}
+	else if (is_length(end))   {
+
+		first = get_begin(begin, offset);
+
+		last  = first + sdc::length_in_sec(end);
+	}
+	else {
+
+		first = get_begin(begin, offset);
+
+		last  = get_end(end, offset);
+	}
+
+	return to_indices(first, last);
+}
+
+double record_cut::get_begin(const string& begin, const string& offset) const {
+
+	double first = 0.0;
 
 	if (begin=="begin" || begin=="beg") {
 
 		first = 0.0;
 	}
-	else if (begin.at(0)=='l' || begin.at(0)=='L') {
+	else {
 
+		first = to_seconds(begin) - to_seconds(offset);
+	}
+
+	return first;
+}
+
+double record_cut::get_end(const string& end, const string& offset) const {
+
+	double last = 0.0;
+
+	if (end=="end") {
+
+		last = length_in_sec();
 	}
 	else {
 
-		//first = to_seconds(begin) - off;
+		last = to_seconds(end) - to_seconds(offset);
 	}
 
+	return last;
+}
+
+
+const record_cut::indices record_cut::to_indices(double beg, double end) const {
+
+	const double len = length_in_sec();
+
+	const int n = samples.size() - 1;
+
+	int first = round((beg/len)*n);
+
+	int last  = round((end/len)*n);
+
+	if (first < 0) {
+
+		cout << "Warning: truncating first index from " << first << " to zero!" << endl;
+
+		first = 0;
+	}
+
+	if (last > n) {
+
+		cout << "Warning: truncating last index from " << last << " to " << n << "!" << endl;
+
+		last = n;
+	}
+
+	if (first >= last) {
+
+		throw runtime_error("invalid index range ("+int2str(first)+", "+int2str(last)+"), revise your timestamps");
+	}
+
+	indices i = { first, last };
+
+	return i;
 }
 
 }

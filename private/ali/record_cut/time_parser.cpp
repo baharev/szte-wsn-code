@@ -106,5 +106,20 @@ double to_seconds(const std::string& timestr) {
 	return seconds;
 }
 
+bool is_length(const std::string& timestr) {
+
+	return timestr.at(0)=='l' || timestr.at(0)=='L';
+}
+
+double length_in_sec(const std::string& timestr) {
+
+	if (!is_length(timestr)) {
+
+		throw logic_error("trying to convert "+timestr+" to time length");
+	}
+
+	return to_seconds(timestr.substr(1));
+}
+
 }
 

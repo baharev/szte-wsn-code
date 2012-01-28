@@ -70,7 +70,7 @@ void dispatch(const vector<string>& args) {
 
 		print_usage(args.at(PROGNAME));
 
-		throw runtime_error("too few or too many command line arguments");
+		throw runtime_error("too few or too many command line arguments, see usage above");
 	}
 
 	const string fname = args.at(FILENAME);
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 	}
 	catch (exception& e) {
 
-		cout << "\nError: " << e.what() << " (" << sdc::name(e) << ")" << endl;
+		cout << "\nError: " << e.what() << "! (" << sdc::name(e) << ")" << endl;
 
 		return FAILURE;
 	}

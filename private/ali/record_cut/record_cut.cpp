@@ -61,6 +61,10 @@ record_cut::record_cut(const std::string& file_name) : infile_name(file_name) {
 			samples.push_back(buffer);
 		}
 	}
+
+	cout << "Lines:  " << number_of_lines() << endl;
+
+	cout << "Length: " << length() << endl;
 }
 
 const string record_cut::length() const {
@@ -79,10 +83,6 @@ double record_cut::length_in_sec() const {
 	len /= TICKS_PER_SEC;
 
 	return len;
-}
-
-void record_cut::cut(const string& begin, const string& end) const {
-
 }
 
 void record_cut::cut(const string& begin, const string& end, const string& offset) const {

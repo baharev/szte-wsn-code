@@ -31,12 +31,60 @@
 * Author: Ali Baharev
 */
 
-#include <exception>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 #include "demangle.hpp"
 #include "record_cut.hpp"
 
 using namespace std;
+
+namespace {
+
+enum ARGS {
+	PROGNAME,
+	FILENAME,
+	BEGIN,
+	END,
+	OFFSET,
+};
+
+}
+
+void print_usage(const string& progname) {
+
+	cout << "Usage: " << progname << "  record_to_cut  begin  end  ";
+	cout << "wall_clock_time (optional, defaults to 00:00:00)" << endl;
+    cout << "Timestamp format: hh:mm:ss.sss or mm:ss.sss" << endl;
+	cout << "A timestamp with L or l prefix means time length, ";
+	cout << "useful when specifiying relative time" << endl;
+	cout << "Synonyms: beg, begin, end" << endl;
+}
+
+void dispatch(const vector<string>& args) {
+
+	const int n_args = args.size();
+
+	if (n_args<4 || n_args>5) {
+
+		print_usage(args.at(PROGNAME));
+
+		throw runtime_error("too few or too many command line arguments");
+	}
+
+	const string fname = args.at(FILENAME);
+
+	const string begin = args.at(BEGIN);
+
+	const string end   = args.at(END);
+
+	const string offset= (n_args==5) ? args.at(OFFSET) : "00:00:00.000";
+
+	sdc::record_cut rec(fname);
+
+	rec.cut(begin, end, offset);
+}
 
 int main(int argc, char* argv[]) {
 
@@ -48,22 +96,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 
-		sdc::record_cut rc("main.cpp");
-
-		cout << "lines:  " << rc.number_of_lines() << endl;
-
-		cout << "length: " << rc.length() << endl;
-
-		rc.cut("beg", "end", "00:00");
-		rc.cut("beg", "end", "24:00:00");
-		rc.cut("00:00.02", "end", "00:00");
-		rc.cut("00:00.02", "end", "24:00:00");
-		rc.cut("01:00.02", "L00:00.1", "00:01:00");
-		rc.cut("00:00.02", "L00:00.1", "00:00");
-		rc.cut("L01:00:00", "end", "24:00:00");
-		rc.cut("L01:00:00", "end", "00:00");
-		rc.cut("L00:00.1", "01:00.2", "01:00");
-		rc.cut("L00:00.1", "00:00.2", "00:00");
+		dispatch(vector<string> (argv, argv+argc));
 
 	}
 	catch (exception& e) {

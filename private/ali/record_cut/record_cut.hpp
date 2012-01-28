@@ -51,8 +51,6 @@ public:
 
 	const std::string length() const;
 
-	void cut(const std::string& begin, const std::string& end) const;
-
 	void cut(const std::string& begin, const std::string& end, const std::string& offset) const;
 
 private:

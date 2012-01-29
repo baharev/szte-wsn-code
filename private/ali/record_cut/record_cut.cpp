@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include "record_cut.hpp"
 #include "time_parser.hpp"
@@ -87,10 +88,36 @@ double record_cut::length_in_sec() const {
 
 void record_cut::cut(const string& begin, const string& end, const string& offset) const {
 
-	const indices i = to_indices(begin, end, offset);
+	const indices idx = to_indices(begin, end, offset);
 
-	cout << "Selected: " << i.first << ", " << i.last << " of " << samples.size()-1 << endl;
+	cout << "Selected: " << idx.first << ", " << idx.last << " of " << samples.size()-1 << endl;
 
+	ofstream out( outfile_name(idx).c_str(), ios_base::binary);
+
+	out.exceptions(ios_base::failbit | ios_base::badbit);
+
+	for (int i=idx.first; i<=idx.last; ++i) {
+
+		out << (i-idx.first) << ',' << samples.at(i) << '\n';
+	}
+}
+
+const string record_cut::outfile_name(const indices& i) const {
+
+	string out_name(infile_name);
+
+	int pos = out_name.size();
+
+	if (pos > 4 && out_name.substr(pos-4) == ".csv") {
+
+		pos -= 4;
+	}
+
+	ostringstream oss;
+
+	oss << '_' << i.first << '_' << i.last;
+
+	return out_name.insert(pos, oss.str());
 }
 
 const record_cut::indices record_cut::to_indices(const string& begin, const string& end, const string& offset) const {

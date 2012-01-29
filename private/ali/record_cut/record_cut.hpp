@@ -68,6 +68,8 @@ private:
 
 	double get_end(const std::string& end, const std::string& offset) const;
 
+	const std::string outfile_name(const indices& i) const;
+
 	const std::string infile_name;
 
 	std::vector<std::string> samples;

@@ -124,7 +124,11 @@ const record_cut::indices record_cut::to_indices(const string& begin, const stri
 
 	double first(0), last(0);
 
-	if      (is_length(begin)) {
+	if (is_index(begin) || is_index(end)) {
+
+		return to_indices(begin, end);
+	}
+	else if (is_length(begin)) {
 
 		last  = get_end(end, offset);
 
@@ -144,6 +148,21 @@ const record_cut::indices record_cut::to_indices(const string& begin, const stri
 	}
 
 	return to_indices(first, last);
+}
+
+const record_cut::indices record_cut::to_indices(const string& first, const string& last) const {
+
+	return to_checked_indices(first_index(first), last_index(last));
+}
+
+int record_cut::first_index(const std::string& str) const {
+
+	return (str=="begin" || str=="beg") ? 0 : to_int(str);
+}
+
+int record_cut::last_index(const std::string& str) const {
+
+	return (str=="end") ? samples.size()-1 : to_int(str);
 }
 
 double record_cut::get_begin(const string& begin, const string& offset) const {
@@ -189,6 +208,13 @@ const record_cut::indices record_cut::to_indices(double beg, double end) const {
 
 	int last  = round((end/len)*n);
 
+	return to_checked_indices(first, last);
+}
+
+const record_cut::indices record_cut::to_checked_indices(int first, int last) const {
+
+	const int n = samples.size() - 1;
+
 	if (first < 0) {
 
 		cout << "Warning: truncating first index from " << first << " to zero!" << endl;
@@ -205,7 +231,8 @@ const record_cut::indices record_cut::to_indices(double beg, double end) const {
 
 	if (first >= last) {
 
-		throw runtime_error("invalid index range ("+int2str(first)+", "+int2str(last)+"), revise your timestamps");
+		throw runtime_error("invalid index range ("+int2str(first)+", "+int2str(last)+"), "+
+				            "revise your timestamps/indices");
 	}
 
 	indices i = { first, last };

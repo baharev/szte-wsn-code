@@ -62,11 +62,19 @@ private:
 
 	const indices to_indices(const std::string& begin, const std::string& end, const std::string& offset) const;
 
-	const indices to_indices(double beg, double end) const;
+	const indices to_indices(const std::string& first_index, const std::string& last_index) const;
+
+	const indices to_indices(double beg_second, double end_second) const;
+
+	const indices to_checked_indices(int first, int last) const;
 
 	double get_begin(const std::string& begin, const std::string& offset) const;
 
 	double get_end(const std::string& end, const std::string& offset) const;
+
+	int first_index(const std::string& str) const;
+
+	int last_index(const std::string& str) const;
 
 	const std::string outfile_name(const indices& i) const;
 

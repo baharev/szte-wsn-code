@@ -54,12 +54,14 @@ enum ARGS {
 
 void print_usage(const string& progname) {
 
-	cout << "Usage: " << progname << "  record_to_cut  begin  end  ";
+	cout << "\nUsage: " << progname << "  record_to_cut  begin  end  ";
 	cout << "wall_clock_time (optional, defaults to 00:00:00)" << endl;
-    cout << "Timestamp format: hh:mm:ss.sss or mm:ss.sss" << endl;
+
+    cout << "\nTimestamp format: hh:mm:ss.sss or mm:ss.sss" << endl;
 	cout << "A timestamp with L or l prefix means time length, ";
 	cout << "useful when specifiying relative time" << endl;
-	cout << "Synonyms: beg, begin, end" << endl;
+
+	cout << "\nSynonyms: beg, begin, end" << endl;
 }
 
 void dispatch(const vector<string>& args) {

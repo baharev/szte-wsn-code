@@ -1,7 +1,7 @@
 
 source("/home/ali/Documents/evez/mote_005/plotter.R")
 
-- C++ kodban index szerint is kell tudni vagni, ha nincs benne : vagy nem beg-el kezdodik akkor index
++ C++ kodban index szerint is kell tudni vagni, ha nincs benne : vagy nem beg-el kezdodik akkor index
 
 - R-ben megnezni hogy kabe hol kell vagni
 

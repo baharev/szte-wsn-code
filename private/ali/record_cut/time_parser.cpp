@@ -62,6 +62,39 @@ const T convert_to(const string& s) {
 	return value;
 }
 
+template <typename T>
+bool is_type(const string& s) {
+
+	istringstream is(s);
+
+	T value;
+
+	is >> value;
+
+	return !is.fail();
+}
+
+bool is_index(const string& str) {
+
+	return is_type<int>(str);
+}
+
+int to_int(const string& str) {
+
+	int index = 0;
+
+	try {
+
+		index = convert_to<int>(str);
+	}
+	catch (exception& ) {
+
+		throw runtime_error("parsing \'"+str+"\' as integer failed");
+	}
+
+	return index;
+}
+
 double hh_mm_ss_to_seconds(const string& s) {
 	// 01 2 34 5 678901
     // hh : mm : ss.sss
@@ -100,7 +133,7 @@ double to_seconds(const std::string& timestr) {
 	}
 	catch (exception& ) {
 
-		throw runtime_error("parsing timestamp "+timestr+" failed");
+		throw runtime_error("parsing timestamp \'"+timestr+"\' failed");
 	}
 
 	return seconds;

@@ -43,6 +43,10 @@ bool is_length(const std::string& timestr);
 
 double length_in_sec(const std::string& timestr);
 
+bool is_index(const std::string& str);
+
+int to_int(const std::string& str);
+
 }
 
 #endif

@@ -71,7 +71,7 @@ bool is_type(const string& s) {
 
 	is >> value;
 
-	return !is.fail();
+	return !is.fail() && is.eof();
 }
 
 bool is_index(const string& str) {

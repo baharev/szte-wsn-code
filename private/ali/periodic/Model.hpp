@@ -712,6 +712,8 @@ public:
 
 	MinimizeRotation(const std::vector<Sample>& samples) : Model<T>(samples) { }
 
+	virtual ~MinimizeRotation() { }
+
 private:
 
 	virtual void init() { }
@@ -745,6 +747,8 @@ public:
 
 	GyroRegression(const std::vector<Sample>& samples) : Model<T>(samples) { }
 
+	virtual ~GyroRegression() { }
+
 private:
 
 	virtual void init() { }
@@ -775,6 +779,8 @@ class MinimizeBumps : public Model<T> {
 public:
 
 	MinimizeBumps(const std::vector<Sample>& samples) : Model<T>(samples) { }
+
+	virtual ~MinimizeBumps() { }
 
 private:
 
@@ -818,7 +824,7 @@ public:
 
 	PWLOffset(const std::vector<Sample>& samples) : Model<T>(samples) { }
 
-	~PWLOffset() { }
+	virtual ~PWLOffset() { }
 
 private:
 
